@@ -1,0 +1,16 @@
+# Only needed if you do not have PostgreSQL installed locally.
+# This machine already has PostgreSQL 18, so this is a fallback.
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pavilion
+      POSTGRES_DB: pavilion
+    ports: ['5432:5432']
+    volumes: ['pgdata:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+volumes:
+  pgdata:

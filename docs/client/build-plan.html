@@ -1,0 +1,1147 @@
+<title>Pavilion Club Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:      #F4F6F1;
+    --surface:     #FFFFFF;
+    --surface-2:   #ECF0EA;
+    --ink:         #101F1B;
+    --ink-soft:    #4C5F59;
+    --ink-faint:   #7C8C86;
+    --line:        #D6DED4;
+    --line-strong: #B6C2B8;
+    --accent:      #0D5F52;
+    --accent-soft: #DEEBE6;
+    --mark:        #A8BC1E;
+    --mark-soft:   #EDF2CC;
+    --ochre:       #96631A;
+    --ochre-soft:  #F3E9D6;
+    --brick:       #8C3527;
+    --brick-soft:  #F5E2DE;
+
+    --measure: 68ch;
+    --step--1: 0.813rem;
+    --step-0:  1rem;
+    --step-1:  1.2rem;
+    --step-2:  1.5rem;
+    --step-3:  2rem;
+    --step-4:  2.75rem;
+
+    --sans: 'Archivo', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0C1513;
+      --surface:     #12201D;
+      --surface-2:   #182B27;
+      --ink:         #E7EEEA;
+      --ink-soft:    #A3B4AE;
+      --ink-faint:   #74857F;
+      --line:        #24352F;
+      --line-strong: #354A43;
+      --accent:      #55C3AB;
+      --accent-soft: #16332D;
+      --mark:        #C6DA3F;
+      --mark-soft:   #2A3316;
+      --ochre:       #D3A35E;
+      --ochre-soft:  #33270F;
+      --brick:       #DE8E7F;
+      --brick-soft:  #331A15;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0C1513;
+    --surface:     #12201D;
+    --surface-2:   #182B27;
+    --ink:         #E7EEEA;
+    --ink-soft:    #A3B4AE;
+    --ink-faint:   #74857F;
+    --line:        #24352F;
+    --line-strong: #354A43;
+    --accent:      #55C3AB;
+    --accent-soft: #16332D;
+    --mark:        #C6DA3F;
+    --mark-soft:   #2A3316;
+    --ochre:       #D3A35E;
+    --ochre-soft:  #33270F;
+    --brick:       #DE8E7F;
+    --brick-soft:  #331A15;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: var(--step-0);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 3rem) 6rem;
+  }
+
+  @media (min-width: 1080px) {
+    .shell {
+      grid-template-columns: 210px minmax(0, 1fr);
+      column-gap: 4rem;
+      align-items: start;
+    }
+    .masthead { grid-column: 1 / -1; }
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1rem;
+  }
+
+  .masthead h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 6vw, var(--step-4));
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0 0 1rem;
+  }
+
+  .standfirst {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    margin: 0 0 2rem;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.5rem;
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+  }
+  .meta b {
+    font-weight: 500;
+    color: var(--ink);
+    display: block;
+    letter-spacing: -0.01em;
+  }
+  .meta span {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.7rem;
+  }
+
+  /* ---------- table of contents rail ---------- */
+
+  .rail { display: none; }
+
+  @media (min-width: 1080px) {
+    .rail {
+      display: block;
+      position: sticky;
+      top: 2rem;
+      font-family: var(--sans);
+      font-size: var(--step--1);
+      line-height: 1.4;
+    }
+    .rail p {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: var(--ink-faint);
+      margin: 0 0 0.9rem;
+    }
+    .rail ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      counter-reset: toc;
+    }
+    .rail a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      display: block;
+      border-left: 2px solid var(--line);
+      padding-left: 0.75rem;
+      counter-increment: toc;
+    }
+    .rail a::before {
+      content: counter(toc) "  ";
+      font-family: var(--mono);
+      color: var(--ink-faint);
+    }
+    .rail a:hover, .rail a:focus-visible {
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+  }
+
+  /* ---------- sections ---------- */
+
+  main { min-width: 0; }
+
+  section {
+    padding-top: 3.25rem;
+    scroll-margin-top: 1.5rem;
+  }
+  section + section { border-top: 1px solid var(--line); }
+
+  h2 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: var(--step-3);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 0.4rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+  }
+  h2 .num {
+    font-family: var(--mono);
+    font-size: var(--step-0);
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0;
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+    margin: 2.5rem 0 0.6rem;
+    text-wrap: balance;
+  }
+
+  h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: var(--step-0);
+    margin: 1.75rem 0 0.4rem;
+  }
+
+  p, ul, ol { max-width: var(--measure); }
+  p { margin: 0 0 1.1rem; }
+
+  ul, ol { padding-left: 1.15rem; margin: 0 0 1.1rem; }
+  li { margin-bottom: 0.45rem; }
+  li::marker { color: var(--ink-faint); }
+
+  .lede {
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    margin-bottom: 1.75rem;
+  }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    padding: 0.1em 0.35em;
+    color: var(--ink);
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    line-height: 1.55;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 1.1rem 1.25rem;
+    overflow-x: auto;
+    margin: 0 0 1.5rem;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .cmt { color: var(--ink-faint); }
+  .kw  { color: var(--accent); font-weight: 600; }
+
+  /* ---------- tables ---------- */
+
+  .tw { overflow-x: auto; margin: 0 0 1.75rem; border: 1px solid var(--line); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+  th {
+    font-family: var(--sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    text-align: left;
+    color: var(--ink-soft);
+    background: var(--surface-2);
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.k { font-family: var(--mono); font-size: 0.9em; white-space: nowrap; color: var(--ink); }
+
+  /* ---------- callouts ---------- */
+
+  .note {
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    background: var(--surface);
+    padding: 1.1rem 1.25rem;
+    margin: 0 0 1.75rem;
+    max-width: var(--measure);
+  }
+  .note.warn { border-top-color: var(--ochre); }
+  .note.risk { border-top-color: var(--brick); }
+  .note .lbl {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .note.warn .lbl { color: var(--ochre); }
+  .note.risk .lbl { color: var(--brick); }
+  .note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+  /* ---------- rules list ---------- */
+
+  .rules { list-style: none; padding: 0; margin: 0 0 1.5rem; max-width: none; counter-reset: rule; }
+  .rules li {
+    counter-increment: rule;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    margin: 0;
+    max-width: none;
+  }
+  .rules li::before {
+    content: "R" counter(rule);
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--accent);
+    padding-top: 0.15rem;
+  }
+  .rules b {
+    font-family: var(--sans);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+  .rules span { color: var(--ink-soft); font-size: var(--step--1); display: block; max-width: var(--measure); }
+
+  /* ---------- court slot strip ---------- */
+
+  figure { margin: 0 0 1.75rem; }
+
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(14, minmax(30px, 1fr));
+    gap: 2px;
+    background: var(--line-strong);
+    border: 1px solid var(--line-strong);
+    min-width: 480px;
+  }
+  .strip div {
+    background: var(--surface);
+    aspect-ratio: 1 / 1.35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--ink-faint);
+  }
+  .strip .free  { background: var(--surface); }
+  .strip .web   { background: var(--accent); color: #fff; }
+  .strip .desk  { background: var(--accent-soft); color: var(--accent); }
+  .strip .ptnr  { background: var(--ochre-soft); color: var(--ochre); }
+  .strip .hold  { background: var(--mark-soft); color: var(--ochre); }
+  .strip .shut  { background: var(--surface-2); color: var(--ink-faint); }
+  .scroller { overflow-x: auto; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.4rem;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin-top: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .legend i { width: 11px; height: 11px; display: inline-block; border: 1px solid var(--line-strong); }
+
+  figcaption {
+    font-family: var(--sans);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    margin-top: 0.9rem;
+    max-width: var(--measure);
+    line-height: 1.5;
+  }
+
+  /* ---------- phases ---------- */
+
+  .phase {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 720px) {
+    .phase { grid-template-columns: 8.5rem minmax(0, 1fr); }
+  }
+  .phase-tag { font-family: var(--mono); font-size: var(--step--1); }
+  .phase-tag b {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .phase-tag span { color: var(--ink-faint); }
+  .phase h4 { margin: 0 0 0.4rem; font-size: var(--step-1); }
+  .phase ul { margin-bottom: 0; }
+  .phase li { font-size: var(--step--1); color: var(--ink-soft); }
+
+  /* ---------- checklist ---------- */
+
+  .ask { list-style: none; padding: 0; max-width: var(--measure); }
+  .ask li {
+    padding-left: 1.9rem;
+    position: relative;
+    margin-bottom: 0.7rem;
+  }
+  .ask li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4rem;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--surface);
+  }
+
+  .pill {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .pill.new { color: var(--ochre); }
+  .pill.core { color: var(--accent); }
+  .pill.later { color: var(--ink-faint); }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 2.5rem 0;
+    max-width: var(--measure);
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, .rail a:focus-visible {
+    outline: 2px solid var(--mark);
+    outline-offset: 2px;
+  }
+
+  .foot {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--ink);
+    font-family: var(--sans);
+    font-size: var(--step--1);
+    color: var(--ink-faint);
+    max-width: var(--measure);
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <p class="eyebrow">Pavilion Club · Pickleball Courts</p>
+    <h1>Booking &amp; Management System</h1>
+    <p class="standfirst">A build plan for the public booking site, the front-desk admin console, and the partner API that lets outside platforms sell Pavilion Club's courts without ever selling the same slot twice.</p>
+    <div class="meta">
+      <div><span>Document</span><b>Build plan v1</b></div>
+      <div><span>Date</span><b>1 September 2026</b></div>
+      <div><span>Status</span><b>For review</b></div>
+      <div><span>Scope</span><b>Phase 1 only</b></div>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#decisions">Decisions taken</a></li>
+      <li><a href="#shape">What we're building</a></li>
+      <li><a href="#rules">The rules</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#data">Data model</a></li>
+      <li><a href="#engine">Booking engine</a></li>
+      <li><a href="#admin">Admin console</a></li>
+      <li><a href="#site">Public site</a></li>
+      <li><a href="#partner">Partner API</a></li>
+      <li><a href="#money">Money &amp; settlement</a></li>
+      <li><a href="#reports">Reports &amp; export</a></li>
+      <li><a href="#ops">Roles, alerts, ops</a></li>
+      <li><a href="#phases">Phases</a></li>
+      <li><a href="#needed">What we need</a></li>
+      <li><a href="#outofscope">Out of scope</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- 1 -->
+    <section id="decisions">
+      <h2><span class="num">01</span> Decisions taken</h2>
+      <p class="lede">Four questions were settled before planning. They are recorded here because the rest of the document follows from them.</p>
+
+      <div class="tw">
+        <table>
+          <thead>
+            <tr><th>Question</th><th>Decision</th><th>What it means</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Build base</td>
+              <td><strong>Standalone build for Pavilion Club</strong></td>
+              <td>A new single-tenant codebase, not a tenant on the existing Turf OS platform. Turf OS is not imported, but its hard-won engineering rules are carried across deliberately — see §3.</td>
+            </tr>
+            <tr>
+              <td>Partner integration</td>
+              <td><strong>They call us</strong></td>
+              <td>The outside platform reads live availability from our API and pushes us confirmations. We stay the single source of truth for what is free, so overselling is structurally impossible.</td>
+            </tr>
+            <tr>
+              <td>Partner money</td>
+              <td><strong>Open — modelled as a receivable</strong></td>
+              <td>How the platform handles payment is not yet known. A booking they sell is recorded as confirmed but <em>not paid to us</em> until settled. This model is correct whichever way their payout works.</td>
+            </tr>
+            <tr>
+              <td>Website</td>
+              <td><strong>Rebuild, booking built in</strong></td>
+              <td>One codebase for the public site and the booking flow. No embed widget, no second system to keep in sync.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note warn">
+        <span class="lbl">Naming conflict to resolve</span>
+        <p>The brief names <strong>Turf Town</strong> (the Indian turf-booking app); the client transcript names <strong>Townscript</strong> (an event-ticketing platform). These are different companies. The plan therefore treats the integration as a generic <strong>partner channel</strong>: any number of outside platforms plug in the same way, each with its own API key, its own colour on the calendar and its own line in the revenue report. Adding a second platform later is a database row, not a rebuild.</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="shape">
+      <h2><span class="num">02</span> What we're building</h2>
+      <p class="lede">One system, three surfaces, one shared answer to the only question that matters: is that court free at that time?</p>
+
+      <h3>Surface one — the public site</h3>
+      <p>Pavilion Club's website, rebuilt, with booking as a first-class part of it rather than a link out. A visitor lands, sees the courts, picks a date and time, pays online, and gets a confirmation. Marketing pages and the booking flow share one design and one deployment.</p>
+
+      <h3>Surface two — the admin console</h3>
+      <p>What the owner and the front desk use every day. The client described this precisely, in this order: <strong>Dashboard</strong>, <strong>Book a slot</strong>, <strong>Calendar</strong>, then reports. That order is the nav order — it reflects how the day actually runs. Detailed screen by screen in §7.</p>
+
+      <h3>Surface three — the partner API</h3>
+      <p>A documented REST API with scoped keys, so an outside platform can read availability, hold a slot, confirm it, and cancel it. Every booking that arrives this way is tagged with which partner sent it, which is what makes the month-end invoice possible.</p>
+
+      <figure>
+        <div class="scroller">
+          <div class="strip" role="img" aria-label="A day of slots on one court: closed early morning, a mix of website, desk, partner and held bookings through the day, some slots free.">
+            <div class="shut">6a</div>
+            <div class="free">7a</div>
+            <div class="web">8a</div>
+            <div class="web">9a</div>
+            <div class="free">10a</div>
+            <div class="free">11a</div>
+            <div class="desk">12p</div>
+            <div class="free">1p</div>
+            <div class="ptnr">2p</div>
+            <div class="hold">3p</div>
+            <div class="web">4p</div>
+            <div class="desk">5p</div>
+            <div class="ptnr">6p</div>
+            <div class="web">7p</div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--surface)"></i>Free</span>
+          <span><i style="background:var(--accent)"></i>Website</span>
+          <span><i style="background:var(--accent-soft)"></i>Desk / walk-in</span>
+          <span><i style="background:var(--ochre-soft)"></i>Partner platform</span>
+          <span><i style="background:var(--mark-soft)"></i>Held, unpaid</span>
+          <span><i style="background:var(--surface-2)"></i>Closed</span>
+        </div>
+        <figcaption>One court, one day. Every surface — the website, the desk, and the partner platform — writes into this same strip, and reads its availability from it. There is no second copy of this picture anywhere in the system.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 3 -->
+    <section id="rules">
+      <h2><span class="num">03</span> The rules that hold it together</h2>
+      <p class="lede">Six non-negotiables. Each one exists because breaking it produces a specific, expensive failure — usually on a Saturday evening, when the courts are full and the owner is watching. Changing one of these needs a conversation, not a commit.</p>
+
+      <ol class="rules">
+        <li>
+          <b>Availability is computed in exactly one place.</b>
+          <span>One function decides what is free. The website calls it, the desk calls it, the partner API calls it. No caching in front of it. The moment there are two implementations, they will disagree, and the disagreement will be discovered by an angry customer standing on a court someone else booked.</span>
+        </li>
+        <li>
+          <b>Double booking is prevented by the database, not by the code.</b>
+          <span>A Postgres exclusion constraint physically rejects an overlapping booking on the same court. Application logic can have a race condition and the guarantee still holds. This is the single most important line in the schema.</span>
+        </li>
+        <li>
+          <b>A booking is confirmed by the payment webhook, never by the browser.</b>
+          <span>Confirming on redirect means a customer on a weak mobile network pays and loses the slot. The gateway's server-to-server webhook is the only thing that flips a booking to confirmed.</span>
+        </li>
+        <li>
+          <b>Money is stored as integer paise.</b>
+          <span>No floats, no decimals. ₹1,200 is <code>120000</code>. Every rupee figure in the UI is formatted at the edge, never stored formatted.</span>
+        </li>
+        <li>
+          <b>Prices are snapshotted onto the booking.</b>
+          <span>When a booking is created, the price that applied is copied onto the row. Changing the weekend rate next month must not silently rewrite what last month's customer paid — or what a partner owes on it.</span>
+        </li>
+        <li>
+          <b>A channel is data, never a branch.</b>
+          <span>Website, walk-in, phone, and each partner platform are rows in a <code>channels</code> table. No <code>if (source === 'townscript')</code> anywhere in the codebase. This is what makes onboarding a second platform a five-minute job.</span>
+        </li>
+      </ol>
+
+      <div class="note">
+        <span class="lbl">Where these come from</span>
+        <p>These are lifted from the Turf OS codebase in the adjacent folder, which learned several of them the hard way — including a QA pass that found bookings could be held at ₹1 because the price came from a hidden form field. We are not reusing that code, but there is no reason to relearn its lessons at Pavilion Club's expense.</p>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section id="stack">
+      <h2><span class="num">04</span> Stack</h2>
+      <p class="lede">Recommended, not yet confirmed. Chosen for one small venue with real money moving through it, not for scale we don't have.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Layer</th><th>Choice</th><th>Why this one</th></tr></thead>
+          <tbody>
+            <tr><td>App</td><td class="k">Next.js 15 · TypeScript</td><td>One codebase serves the marketing site, the booking flow, the admin console and the partner API. Server components keep the availability logic on the server where it belongs.</td></tr>
+            <tr><td>Database</td><td class="k">PostgreSQL 16+</td><td>Non-negotiable. The overlap guarantee in R2 needs Postgres exclusion constraints and the <code>btree_gist</code> extension. No other mainstream database gives us this.</td></tr>
+            <tr><td>Schema</td><td class="k">Plain SQL migrations</td><td>Numbered, forward-only, reviewed as SQL. The constraints in this system are the product; hiding them behind an ORM's abstraction is a bad trade.</td></tr>
+            <tr><td>Styling</td><td class="k">Tailwind CSS</td><td>Fast, and the admin console is mostly dense tables and grids where utility classes hold up well.</td></tr>
+            <tr><td>Payments</td><td class="k">Razorpay</td><td>Standard for Indian venues. UPI, cards, netbanking, and a webhook we can verify by HMAC.</td></tr>
+            <tr><td>Messaging</td><td class="k">WhatsApp BSP + SMS fallback</td><td>Booking confirmations. WhatsApp template approval takes 3–7 days — start this on day one, see §14.</td></tr>
+            <tr><td>Hosting</td><td class="k">Single VPS · Docker + Caddy</td><td>~₹2,500/month for one box running app, Postgres and a scheduler. Full control over cron for the hold sweeper, no cold starts on a webhook, no per-request billing surprises.</td></tr>
+            <tr><td>Excel export</td><td class="k">SheetJS (xlsx)</td><td>The client asked for a downloadable sheet, not a CSV. Generated server-side, streamed to the browser.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Alternative worth considering:</strong> Vercel + a managed Postgres (Neon, ap-south). Faster to ship and no server to maintain, but cron granularity is one minute rather than seconds, and running costs climb once traffic is real. The VPS route is recommended because the team already has working Docker Compose and Caddy configuration from Turf OS.</p>
+    </section>
+
+    <!-- 5 -->
+    <section id="data">
+      <h2><span class="num">05</span> Data model</h2>
+      <p class="lede">Twelve tables. The whole system's correctness sits in about six of them.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Table</th><th>Holds</th><th>Notes that matter</th></tr></thead>
+          <tbody>
+            <tr><td class="k">courts</td><td>Each physical pickleball court</td><td>Name, opening and closing time per weekday, slot length, whether it is currently bookable. Court count for Pavilion Club is still unknown — see §14.</td></tr>
+            <tr><td class="k">bookings</td><td>Every reservation, in every state</td><td>The centre of the system. Carries <code>court_id</code>, <code>starts_at</code>, <code>ends_at</code>, <code>status</code>, <code>channel_id</code>, <code>business_date</code>, and snapshotted <code>amount_paise</code>.</td></tr>
+            <tr><td class="k">customers</td><td>Name and phone</td><td>Phone is the identity. Matched on phone so a walk-in regular isn't created fresh every visit.</td></tr>
+            <tr><td class="k">channels</td><td>Where a booking came from</td><td>Seeded with website, walk-in, phone, admin. Each partner platform is one more row. Carries display name, colour, commission rate, and whether it settles later.</td></tr>
+            <tr><td class="k">payments</td><td>Money that actually moved</td><td>Amount, method, who took it, and the business date it was taken on. Separate from the booking, because one booking can be part-paid, refunded, or settled weeks later.</td></tr>
+            <tr><td class="k">price_rules</td><td>What a slot costs</td><td>By court, weekday, and time band. Resolved by specificity, then priority. The result is snapshotted onto the booking (R5).</td></tr>
+            <tr><td class="k">api_keys</td><td>Partner credentials</td><td>Hashed, never stored in the clear. Scoped. Bound to exactly one channel, which is how partner attribution works.</td></tr>
+            <tr><td class="k">settlements</td><td>Partner invoices</td><td>A month's partner bookings, the total owed, and whether it has been invoiced and paid.</td></tr>
+            <tr><td class="k">users</td><td>Owner, manager, desk staff</td><td>With roles — see §12.</td></tr>
+            <tr><td class="k">audit_log</td><td>Who did what</td><td>Every cancellation, every price override, every refund. Ends arguments.</td></tr>
+            <tr><td class="k">blackouts</td><td>Maintenance, private events</td><td>Blocks a court without pretending it was a booking, so occupancy reports stay honest.</td></tr>
+            <tr><td class="k">webhook_outbox</td><td>Events queued for partners</td><td>Signed, retried with backoff, dead-lettered. Lets a partner keep their listing fresh when the desk blocks a slot.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The line that prevents double booking</h3>
+      <pre><code><span class="cmt">-- Required once, per database.</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> btree_gist;
+
+<span class="cmt">-- Two bookings cannot overlap on the same court. Enforced by Postgres,</span>
+<span class="cmt">-- not by application code, and not by a SELECT-then-INSERT check.</span>
+<span class="kw">ALTER TABLE</span> bookings <span class="kw">ADD CONSTRAINT</span> bookings_no_overlap
+  <span class="kw">EXCLUDE USING</span> gist (
+    court_id <span class="kw">WITH</span> =,
+    tstzrange(starts_at, ends_at, <span class="kw">'[)'</span>) <span class="kw">WITH</span> &amp;&amp;
+  ) <span class="kw">WHERE</span> (status <span class="kw">IN</span> (<span class="kw">'held'</span>, <span class="kw">'confirmed'</span>));</code></pre>
+
+      <p>The <code>'[)'</code> bound matters: a booking ending at 19:00 and one starting at 19:00 do not overlap. The <code>WHERE</code> clause matters too — a cancelled booking must not keep blocking the slot.</p>
+
+      <h3>Booking states</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Status</th><th>Meaning</th><th>Blocks the slot?</th></tr></thead>
+          <tbody>
+            <tr><td class="k">held</td><td>Someone is mid-checkout. Has an <code>expires_at</code>, typically 10 minutes out.</td><td>Yes</td></tr>
+            <tr><td class="k">confirmed</td><td>Paid, or accepted at the desk, or confirmed by a partner.</td><td>Yes</td></tr>
+            <tr><td class="k">completed</td><td>The game happened. Set by a nightly job.</td><td>Past, so no</td></tr>
+            <tr><td class="k">cancelled</td><td>Cancelled by customer, desk, partner, or hold expiry.</td><td>No</td></tr>
+            <tr><td class="k">no_show</td><td>Booked, paid, nobody came. Kept separate from cancelled for reporting.</td><td>Past, so no</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section id="engine">
+      <h2><span class="num">06</span> The booking engine</h2>
+      <p class="lede">How one court gets booked, and the four traps that will otherwise bite us.</p>
+
+      <h3>From opening hours to a bookable slot</h3>
+      <ol>
+        <li>Each court has an opening and closing time per weekday and a slot length (30 or 60 minutes — still to be confirmed).</li>
+        <li>For a requested date, the engine generates the candidate slots for that court.</li>
+        <li>It subtracts anything overlapping in <code>bookings</code> with status <code>held</code> or <code>confirmed</code>, and anything in <code>blackouts</code>.</li>
+        <li>It prices each surviving slot from <code>price_rules</code>.</li>
+        <li>It returns the list. This one function answers the website, the desk, and the partner API.</li>
+      </ol>
+
+      <h3>From a free slot to a confirmed booking</h3>
+      <pre><code>browse  →  <span class="kw">HOLD</span> (10 min, blocks the slot)  →  pay  →  webhook  →  <span class="kw">CONFIRMED</span>
+                     │
+                     └─ no payment in 10 min  →  <span class="kw">CANCELLED</span> (expired)</code></pre>
+
+      <p>A hold is <strong>a booking row</strong>, not a separate table. That is deliberate: it is the only way one exclusion constraint can cover both holds and confirmed bookings. A separate holds table would need its own overlap check against a second table, and the two would race.</p>
+
+      <h3>Four traps, and how each is handled</h3>
+
+      <h4>An expired hold still blocks at the database level</h4>
+      <p>The constraint cannot see <code>expires_at</code>. So two things run: a sweeper that expires stale holds every ~30 seconds, <em>and</em> a retry on constraint violation <code>23P01</code> that first expires the blocking row and tries again. The retry is what makes correctness independent of the sweeper's schedule.</p>
+
+      <h4>Overlapping bookings of different lengths can deadlock</h4>
+      <p>If customers can pick consecutive slots, one person taking 19:00–21:00 while another takes 20:00–21:00 is ordinary Saturday traffic — and Postgres can deadlock (<code>40P01</code>) while checking the constraint. Treat a deadlock as contention: jittered exponential backoff, retry, and only report "just taken" once retries are exhausted. Without this, two people wanting overlapping hours see a 500.</p>
+
+      <h4>Business date is not calendar date</h4>
+      <p>If Pavilion Club runs past midnight, a 00:30 booking belongs to the night that is closing, not to tomorrow morning. Every report keys off <code>business_date</code>, computed in application code and stored on the row — Postgres will not accept <code>AT TIME ZONE</code> inside a generated column.</p>
+
+      <h4>Everything is IST, stored as UTC</h4>
+      <p>Timestamps stored as <code>timestamptz</code>, displayed in Asia/Kolkata. Never store a naive local time.</p>
+
+      <div class="note">
+        <span class="lbl">The test that proves it works</span>
+        <p>Before this ships: fire <strong>100 simultaneous booking requests at the same slot</strong> and assert that exactly one succeeds and ninety-nine get a clean "just taken". This is an automated test that must pass on every commit, not a one-off check. If it isn't green, the product is not safe to sell.</p>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section id="admin">
+      <h2><span class="num">07</span> Admin console, screen by screen</h2>
+      <p class="lede">In the client's own order, because that order is the working day.</p>
+
+      <h3>Dashboard <span class="pill core">Landing screen</span></h3>
+      <p>What the owner sees on opening the laptop. Every number here needs a precise definition, because "revenue" means three different things and confusing them is how reconciliation breaks.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Tile</th><th>Exact definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Bookings today</strong></td><td>Confirmed bookings whose <em>play</em> falls on today's business date. Not bookings created today.</td></tr>
+            <tr><td><strong>Collected today</strong></td><td>Sum of payments with <code>received_on</code> = today. Money that actually moved, whatever day the game is.</td></tr>
+            <tr><td><strong>Booked value today</strong></td><td>Sum of snapshotted slot amounts for today's play. Includes partner bookings we have not been paid for yet.</td></tr>
+            <tr><td><strong>Online vs offline</strong></td><td>Online = website + partner platforms. Offline = walk-in + phone, entered at the desk. Split by count and by value.</td></tr>
+            <tr><td><strong>Next 7 days</strong></td><td>Per day: slots taken, slots free, percent filled. A small bar per day, clickable through to that day's grid.</td></tr>
+            <tr><td><strong>Still owing</strong></td><td>Confirmed bookings for today with nothing paid. The one number the desk can act on before the customer walks off.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Book a slot <span class="pill core">The walk-in screen</span></h3>
+      <p>Someone is standing at the counter. This screen has to be fast enough to use while talking to them.</p>
+      <ol>
+        <li>Date defaults to today. Court and time picked from a grid of what's free — the same availability function, no shortcuts.</li>
+        <li>Phone number, then name. If the phone matches an existing customer, the name fills itself.</li>
+        <li>Price shown from the rules, with an override that requires a reason and writes to the audit log. <strong>The price is never taken from a form field the browser sends.</strong> It is recomputed on the server.</li>
+        <li>Payment mode: <strong>Cash</strong> or <strong>Card</strong>. Nothing else, per the client. Card means their own machine — we record the mode, we do not process it.</li>
+        <li>One button: <strong>Payment received — block slot</strong>. Writes the booking and the payment together, in one transaction.</li>
+      </ol>
+      <div class="note warn">
+        <span class="lbl">Learn from the neighbouring build</span>
+        <p>In Turf OS, "cash at venue" was recorded as an <em>intention</em> on the booking and never as a receipt, so three separate screens reported money as collected that nobody had handed over. Here, taking money writes a <code>payments</code> row. A booking with no payment row has not been paid, and the dashboard says so.</p>
+      </div>
+
+      <h3>Calendar <span class="pill core">Month, then day</span></h3>
+      <p><strong>Month view.</strong> A full calendar month. Each date shows a count — "10 bookings" — and a fill indicator. Nothing more; it exists to be scanned.</p>
+      <p><strong>Day view.</strong> Clicking a date opens that day's grid: courts across, time down. Each booked slot shows the customer, the amount, and <strong>where the booking came from</strong> — website, walk-in, phone, or the partner platform by name, in its own colour. Paid and unpaid render differently, so the desk can see at a glance who still owes. Clicking a slot opens it: reschedule, cancel with a refund quote, mark no-show.</p>
+
+      <h3>Reports</h3>
+      <p>Covered in §11. Source-wise, with the Excel export the partner invoice depends on.</p>
+
+      <h3>Settings</h3>
+      <ul>
+        <li><strong>Courts</strong> — names, opening hours per weekday, slot length, temporarily disable a court.</li>
+        <li><strong>Pricing</strong> — rules by court, weekday, and time band. Weekend and evening peak rates.</li>
+        <li><strong>Blackouts</strong> — block a court for maintenance or a private event.</li>
+        <li><strong>Staff</strong> — add and remove users, assign roles. Removal is confirmed, and reversible.</li>
+        <li><strong>Partners</strong> — add a platform, issue and revoke its API key, set its commission, see its last call.</li>
+      </ul>
+    </section>
+
+    <!-- 8 -->
+    <section id="site">
+      <h2><span class="num">08</span> Public site</h2>
+      <p class="lede">Rebuilt, with booking built in rather than bolted on.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Page</th><th>Job</th></tr></thead>
+          <tbody>
+            <tr><td class="k">/</td><td>What Pavilion Club is, the courts, photos, location, and a booking widget above the fold showing today's next free slots.</td></tr>
+            <tr><td class="k">/book</td><td>The flow: pick date → see the grid of free slots and prices → select one or more consecutive slots → phone and name → pay.</td></tr>
+            <tr><td class="k">/book/[id]</td><td>Confirmation. Booking reference, court, time, amount, and what to do on arrival.</td></tr>
+            <tr><td class="k">/my-bookings</td><td>Phone plus OTP. See upcoming bookings, cancel one and see the refund the policy allows before confirming.</td></tr>
+            <tr><td class="k">/about, /contact</td><td>Standard. Directions, hours, phone number, map.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The online payment path</h3>
+      <ol>
+        <li>Customer selects a slot. Server creates a <strong>hold</strong> — the slot is now blocked for 10 minutes.</li>
+        <li>Server creates a Razorpay order for the recomputed price and returns it.</li>
+        <li>Customer pays in the Razorpay checkout.</li>
+        <li>Razorpay's <strong>webhook</strong> hits our endpoint. We verify the HMAC signature, then confirm the booking and write the payment row. This step, not the browser redirect, is what confirms the booking (R3).</li>
+        <li>The browser redirect just polls the booking until it reads confirmed. If the customer's connection dies here, the booking is already safe.</li>
+        <li>Webhook handling is <strong>idempotent on the gateway's event id</strong> — a duplicate delivery changes nothing.</li>
+      </ol>
+    </section>
+
+    <!-- 9 -->
+    <section id="partner">
+      <h2><span class="num">09</span> Partner API</h2>
+      <p class="lede">The integration the client cares most about, and the one with the most ways to go wrong.</p>
+
+      <h3>How it authenticates</h3>
+      <p>A bearer token per partner. The key is <strong>hashed at rest</strong>, bound to one channel, and carries scopes. A key can never become a user login. Rate limited to 120 requests per minute, answering <code>429</code> with a <code>Retry-After</code> header.</p>
+      <pre><code>Authorization: Bearer pc_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+
+      <h3>Endpoints</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Scope</th><th>Does</th></tr></thead>
+          <tbody>
+            <tr><td class="k">GET /api/v1/availability</td><td class="k">availability:read</td><td>Free slots for a date, per court, with prices. The same function the desk uses.</td></tr>
+            <tr><td class="k">POST /api/v1/holds</td><td class="k">bookings:write</td><td>Blocks a slot for 10 minutes and returns a hold id. Called <em>before</em> they take payment.</td></tr>
+            <tr><td class="k">POST /api/v1/bookings</td><td class="k">bookings:write</td><td>Confirms a hold, with their payment reference and the customer's phone. Idempotent on their reference.</td></tr>
+            <tr><td class="k">GET /api/v1/bookings/{id}</td><td class="k">bookings:read</td><td>Current state of one booking.</td></tr>
+            <tr><td class="k">POST /api/v1/bookings/{id}/cancel</td><td class="k">bookings:cancel</td><td>Cancels, returning the refund the policy allows.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Events we send them</h3>
+      <p>Signed over <code>timestamp.body</code>, queued, retried with backoff to eight attempts. So their listing stays fresh when a slot is blocked at our desk:</p>
+      <ul>
+        <li><code>slot.blocked</code> — the desk or the website took a slot they were showing.</li>
+        <li><code>booking.cancelled</code> — a booking they sold was cancelled on our side.</li>
+        <li><code>court.unavailable</code> — a blackout or maintenance window was added.</li>
+      </ul>
+
+      <h3>The guardrails</h3>
+      <ul>
+        <li><strong>Hold before payment.</strong> The partner must hold the slot before charging their customer. Without this, they will occasionally take money for a slot that went five seconds earlier. This is the single most important thing to agree with them.</li>
+        <li><strong>No cached inventory.</strong> If they mirror our availability into their own database and sell from the mirror, R1 is broken and double bookings become inevitable. If they insist on caching, the fallback is to allocate them a fixed block of slots they own exclusively — less revenue, but safe.</li>
+        <li><strong>Every response carries a machine-readable code.</strong> They match on <code>code</code>, never on the message text. <code>slot_taken</code>, <code>missing_scope</code>, <code>rate_limited</code>, and so on.</li>
+        <li><strong>Sandbox keys.</strong> <code>pc_test_…</code> behaves identically and marks its bookings as test data, so they can integrate without polluting the revenue report.</li>
+      </ul>
+
+      <div class="note risk">
+        <span class="lbl">Questions to put to the partner platform</span>
+        <ol style="margin-bottom:0">
+          <li>At checkout, do you read our availability live, or from a cache you refresh periodically?</li>
+          <li>Can you call a hold endpoint before taking payment, and confirm after? (This is the safe pattern and we need a yes.)</li>
+          <li>Who holds the customer's money, and what is the payout cycle to Pavilion Club?</li>
+          <li>What commission do you take, and is it deducted before or after payout?</li>
+          <li>Do you pass us the customer's name and phone number? The desk needs it at the gate.</li>
+          <li>When a customer cancels on your side, do you call our cancel endpoint?</li>
+          <li>Do you want webhooks from us when a slot is blocked at our desk?</li>
+          <li>Is there a sandbox we can test against before go-live?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section id="money">
+      <h2><span class="num">10</span> Money and settlement</h2>
+      <p class="lede">Four ways money reaches Pavilion Club, and only three of them arrive on the day.</p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th>Method</th><th>Arrives</th><th>Recorded as</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Online (Razorpay)</strong></td><td>Settled to the bank in T+2</td><td>Payment row on webhook confirmation. Counts as collected on the day the customer paid.</td></tr>
+            <tr><td><strong>Cash at the desk</strong></td><td>Immediately, into the till</td><td>Payment row written by whoever took it, on the business date they took it. Feeds the cash handover.</td></tr>
+            <tr><td><strong>Card at the desk</strong></td><td>Through their own machine</td><td>Payment row, method <code>card</code>. We record the mode; we do not process the card.</td></tr>
+            <tr><td><strong>Partner platform</strong></td><td><span class="pill new">Later, on invoice</span></td><td>Booking confirmed, <strong>no payment row</strong>. A receivable against that partner until settled.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The settlement cycle</h3>
+      <pre><code>partner books  →  <span class="kw">PENDING</span>   (confirmed, unpaid to us)
+month ends     →  <span class="kw">INVOICED</span>  (export the sheet, send it to them)
+they pay       →  <span class="kw">SETTLED</span>   (marked in Settings → Partners, with the amount and date)</code></pre>
+
+      <p>This model is correct whichever way the partner's payouts turn out to work. If they remit instantly, a booking simply moves to settled the same day. If they remit monthly on invoice — what the client described — the outstanding balance sits visibly on the dashboard until it clears.</p>
+
+      <div class="note warn">
+        <span class="lbl">Why this matters more than it sounds</span>
+        <p>If partner bookings were counted as "collected", the daily cash figure would never match the bank, and nobody would trust any number in the system. Keeping <em>booked value</em> and <em>collected</em> as separate figures everywhere is what keeps the reports honest.</p>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section id="reports">
+      <h2><span class="num">11</span> Reports and export</h2>
+      <p class="lede">The client's stated purpose: "source-wise they select and export, there should be an Excel sheet which they can download and go and ask them, this is the booking happened through you, give me the money."</p>
+
+      <h3>Source-wise booking report</h3>
+      <p>Pick a date range, defaulting to the current calendar month. One row per channel, showing bookings, hours sold, booked value, collected, commission, and outstanding. Website, walk-in, phone and each partner all appear as their own line. A total row at the bottom that reconciles.</p>
+
+      <h3>The Excel export</h3>
+      <p>The same range, exported as <code>.xlsx</code>, with two sheets:</p>
+      <ul>
+        <li><strong>Summary</strong> — the channel totals above, ready to attach to an email.</li>
+        <li><strong>Bookings</strong> — one row per booking: reference, date, time, court, customer name and phone, amount, commission, net owed, their payment reference, and settlement status. This is the sheet that goes to the partner as evidence.</li>
+      </ul>
+
+      <h3>Other reports</h3>
+      <ul>
+        <li><strong>Occupancy</strong> — percent filled by day of week and hour, over a chosen period. The report that tells the owner Wednesday afternoons are dead and should be discounted.</li>
+        <li><strong>Daily close</strong> — the 11:30pm screen. Bookings, collected by method, expected cash in the till, and what is still owed.</li>
+        <li><strong>Cash handover</strong> — what the system expects from a shift versus what the staff member declares. The declared figure starts <strong>empty</strong>; pre-filling it with the expected amount makes every reconciliation come out clean and worthless.</li>
+      </ul>
+    </section>
+
+    <!-- 12 -->
+    <section id="ops">
+      <h2><span class="num">12</span> Roles, alerts, and running it</h2>
+
+      <h3>Who can do what</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Role</th><th>Can</th><th>Cannot</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Owner</strong></td><td>Everything, including pricing, staff, partners, and revenue.</td><td>—</td></tr>
+            <tr><td><strong>Manager</strong></td><td>All bookings, daily close, reports, blackouts.</td><td>Change pricing, issue API keys, remove staff.</td></tr>
+            <tr><td><strong>Desk staff</strong></td><td>Create and cancel bookings, take payment, see today.</td><td>See revenue reports, override prices without a reason, export data.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every cancellation, price override and refund writes an audit row naming the user. This is not bureaucracy — it is what settles the argument when a slot goes missing on a busy evening.</p>
+
+      <h3>Notifications</h3>
+      <ul>
+        <li><strong>Customer</strong> — WhatsApp confirmation on booking, with SMS fallback if the WhatsApp send fails. A reminder the morning of the game. Cancellation confirmation with the refund amount.</li>
+        <li><strong>Venue</strong> — a daily summary to the owner. Optionally an alert when a partner booking arrives.</li>
+        <li>Messages go through an <strong>outbox with retry and backoff</strong>, never sent inline during a request. A slow messaging provider must never slow down a booking.</li>
+      </ul>
+
+      <h3>Before it holds real money</h3>
+      <ul>
+        <li>Nightly database backup plus continuous WAL archiving to off-box storage.</li>
+        <li><strong>A restore rehearsal onto a clean machine.</strong> An untested backup is not a backup, and Saturday 8pm is both the peak and the worst possible time to discover that.</li>
+        <li>Error tracking (Sentry) and uptime monitoring with an alert to a phone.</li>
+        <li>Secrets held outside the repository. HTTPS everywhere, HSTS on.</li>
+        <li>Rate limiting on OTP endpoints — the obvious abuse target.</li>
+      </ul>
+    </section>
+
+    <!-- 13 -->
+    <section id="phases">
+      <h2><span class="num">13</span> Build phases</h2>
+      <p class="lede">Estimates assume one full-time developer. With two working in parallel from Phase 2 onward, compress to roughly six weeks. Everything below is the client's Phase 1 — membership is not in it.</p>
+
+      <div class="phase">
+        <div class="phase-tag"><b>Phase 0</b><span>Week 1</span></div>
+        <div>
+          <h4>Foundations and the availability engine</h4>
+          <ul>
+            <li>Repository, TypeScript, test runner, CI.</li>
+            <li>Schema and migrations, including the exclusion constraint.</li>
+            <li>Slot generation, pricing resolution, business-date handling — pure functions, fully tested, no database needed to run them.</li>
+            <li><strong>Gate:</strong> the 100-concurrent-bookings test passes.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-tag"><b>Phase 1</b><span>Weeks 2–4</span></div>
+        <div>
+          <h4>Admin console</h4>
+          <ul>
+            <li>Login, roles, audit log.</li>
+            <li>Settings: courts, opening hours, pricing, staff.</li>
+            <li><strong>Book a slot</strong> — the walk-in screen, cash and card.</li>
+            <li><strong>Calendar</strong> — month view, day grid, cancel and reschedule.</li>
+            <li><strong>Dashboard</strong> — every tile in §7.</li>
+            <li><strong>Milestone:</strong> the desk can run the whole venue on this, with no website and no partner. This alone is worth shipping.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-tag"><b>Phase 2</b><span>Weeks 5–6</span></div>
+        <div>
+          <h4>Public site and online payment</h4>
+          <ul>
+            <li>Marketing pages, design, content, photos.</li>
+            <li>Booking flow with holds.</li>
+            <li>Razorpay orders and the verified webhook.</li>
+            <li>Phone OTP, my-bookings, customer cancellation with a policy quote.</li>
+            <li><strong>Gate:</strong> a real test payment creates an order, fires a webhook, and confirms exactly one booking — and a duplicate delivery of that webhook changes nothing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-tag"><b>Phase 3</b><span>Weeks 7–8</span></div>
+        <div>
+          <h4>Partner API and reporting</h4>
+          <ul>
+            <li>API keys, scopes, rate limiting, error codes.</li>
+            <li>The five endpoints, plus published documentation for the partner.</li>
+            <li>Outbound webhook queue.</li>
+            <li>Source-wise report, Excel export, settlement tracking.</li>
+            <li><strong>Gate:</strong> the partner completes a booking end to end against sandbox keys, and it appears correctly attributed in the report.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-tag"><b>Phase 4</b><span>Week 9</span></div>
+        <div>
+          <h4>Go-live hardening</h4>
+          <ul>
+            <li>Server provisioned, domain, TLS, backups running.</li>
+            <li>Restore rehearsal completed on a clean box.</li>
+            <li>WhatsApp templates approved and live, SMS fallback proven.</li>
+            <li>Staff training, and a week running in parallel with whatever they use today.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note risk">
+        <span class="lbl">The estimate's biggest unknown</span>
+        <p>Phase 3 assumes the partner platform is responsive. Integrations wait on the other side's calendar, not ours. Get their API documentation and a sandbox key <strong>during Phase 1</strong>, so Phase 3 is building rather than waiting.</p>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section id="needed">
+      <h2><span class="num">14</span> What we need before starting</h2>
+
+      <h3>From Pavilion Club</h3>
+      <ul class="ask">
+        <li><strong>How many courts</strong>, and their names as staff refer to them.</li>
+        <li><strong>Opening and closing times</strong> per day of the week. Does play run past midnight?</li>
+        <li><strong>Slot length</strong> — 30 or 60 minutes. Can a customer book two consecutive slots?</li>
+        <li><strong>The full price grid</strong> — weekday, weekend, morning, evening peak. Any member or off-peak rate.</li>
+        <li><strong>Cancellation policy</strong> — how late can a customer cancel, and what do they get back?</li>
+        <li><strong>How far ahead</strong> bookings open. 7 days? 30?</li>
+        <li><strong>Who gets a login</strong>, and at what role.</li>
+        <li><strong>Brand assets</strong> — logo, photographs of the courts, and any existing site content to carry over.</li>
+        <li><strong>Razorpay account</strong> — Pavilion Club's own, or ours? Affects who is liable and where money lands.</li>
+      </ul>
+
+      <h3>From the partner platform</h3>
+      <ul class="ask">
+        <li>Which company it actually is — <strong>Turf Town or Townscript</strong>.</li>
+        <li>Their API documentation, and answers to the eight questions in §9.</li>
+        <li>A technical contact who can run an integration test with us.</li>
+      </ul>
+
+      <h3>Start these on day one — they run on someone else's clock</h3>
+      <ul class="ask">
+        <li><strong>WhatsApp Business templates</strong> — approval takes 3 to 7 days and blocks nothing else. Submitting them late turns paperwork into a launch delay.</li>
+        <li><strong>Razorpay live keys</strong> — KYC takes days.</li>
+        <li><strong>Domain and server</strong> — same day, but needed before any real webhook can be tested.</li>
+      </ul>
+    </section>
+
+    <!-- 15 -->
+    <section id="outofscope">
+      <h2><span class="num">15</span> Deliberately not in Phase 1</h2>
+      <p class="lede">Named here so they are visible decisions rather than forgotten ones.</p>
+      <ul>
+        <li><strong>Membership</strong> <span class="pill later">Phase 2</span> — the client's own words: "membership they want to take, that and all we will add it in a later stage." Worth designing the customer table with this in mind, but building none of it now.</li>
+        <li><strong>Coaching, academies, tournaments</strong> — different booking shapes entirely.</li>
+        <li><strong>Prepaid packs and wallets</strong> — natural companion to membership.</li>
+        <li><strong>A mobile app</strong> — the site works on a phone. Revisit when booking volume justifies it.</li>
+        <li><strong>Multi-venue</strong> — this is a single-tenant build by decision. A second venue is a real conversation, not a config change.</li>
+        <li><strong>Dynamic pricing, waiting lists, recurring slots</strong> — valuable, and all cheaper to add once the engine in §6 is proven.</li>
+      </ul>
+    </section>
+
+    <p class="foot">Prepared for review. Nothing here is built yet — the next step is confirming the stack in §4 and getting the answers in §14, then Phase 0 starts.</p>
+
+  </main>
+</div>
