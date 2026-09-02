@@ -42,6 +42,7 @@ one component library.
 | `07-architecture.md` | Folder structure, server/client split, data, forms, URL state |
 | `08-copy-a11y.md` | Words and accessibility |
 | `09-state.md` | Where every kind of state lives, and when a store would be justified |
+| `10-build-guide.md` | **The brand, and the whole frontend step by step.** Start here |
 
 ## Stack, as it affects the frontend
 
@@ -51,10 +52,9 @@ one component library.
 - **No client state library** — because nothing in this product needs one, not
   as a principle. The reasoning and the trigger for adding Zustand are in
   `09-state.md`.
-- **Visual design is deferred by decision (2026-09-01).** No theme, fonts or
-  brand work happens now. Build against the neutral tokens and let the structure
-  be right. The whole look is replaced later by editing one token file — the
-  rules that guarantee that are in `02-design-system.md`.
+- **Brand received 2026-09-02.** MidnightBlue and gold, Montserrat, the Pavilion
+  Club wordmark and monogram. Real tokens and every screen's build order are in
+  `10-build-guide.md`.
 
 ## The one hard constraint the frontend must respect
 

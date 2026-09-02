@@ -49,6 +49,7 @@ presentation, this one wins.
 | [07-architecture.md](ui/07-architecture.md) | Server/client split, server actions, folders | Phase 1 start |
 | [08-copy-a11y.md](ui/08-copy-a11y.md) | Words and accessibility | Every screen |
 | [09-state.md](ui/09-state.md) | Where state lives, and why no store library | Any interactivity |
+| [10-build-guide.md](ui/10-build-guide.md) | **Brand tokens + the whole frontend, step by step** | **Building any UI** |
 
 ## `client/` — for the client, not the build
 

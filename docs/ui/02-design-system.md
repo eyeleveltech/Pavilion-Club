@@ -1,20 +1,24 @@
 ---
 id: fe-02-design-system
 title: Design system
-status: NEUTRAL BY DECISION — visual design deferred (2026-09-01)
+status: SUPERSEDED for tokens — brand received 2026-09-02
 audience: ai-agent, designer
 ---
 
 # Design system
 
-## Decision: no visual design work now
+## The brand has arrived — use `10-build-guide.md`
 
-Confirmed with the client 2026-09-01. **We are not designing the look of this
-product at this stage.** Build everything against the neutral tokens below. The
-theme is replaced in full at a later date.
+The client's brand guidelines were delivered 2026-09-02. **The real tokens,
+colours, fonts and logo rules are in [10-build-guide.md](10-build-guide.md).**
+Use those. The neutral palette below is kept only as the record of what we built
+against beforehand, and as proof the swap worked exactly as promised: one token
+file changed, no component touched.
 
-This is not a placeholder we hope to get away with — it is a decision, and the
-rules in this file exist to make the later swap genuinely cheap.
+Two facts from the brand that override everything below:
+- **MidnightBlue `#0f1e2e` and DarkKhaki `#c7a26a`** are the primary colours.
+- **Gold fails contrast on light grounds (~2.2:1).** It is never text on white
+  or ivory. See `10-build-guide.md` §1.2.
 
 ## What a later theme change can replace — all of it
 
