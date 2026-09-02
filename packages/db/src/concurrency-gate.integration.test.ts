@@ -3,7 +3,7 @@ import { createDb } from './client.js';
 import { createBooking } from './booking/create-booking.js';
 import { getBookableCourts } from './repositories/venue.js';
 import { bookings } from './schema/bookings.js';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 describe('The Concurrency Gate', () => {
   const db = createDb();
@@ -12,14 +12,24 @@ describe('The Concurrency Gate', () => {
     const courtsList = await getBookableCourts(db);
     const court = courtsList.find((c) => c.name === 'Court 2') ?? courtsList[0]!;
 
-    // Target a fresh random date in the future (between 3 and 10 days ahead)
-    const randomOffset = 3 + Math.floor(Math.random() * 7);
+    // Target a specific clean slot 5 days ahead, 18:00 to 19:00 IST
     const startsAt = new Date();
-    startsAt.setDate(startsAt.getDate() + randomOffset);
+    startsAt.setDate(startsAt.getDate() + 5);
     startsAt.setHours(18, 0, 0, 0);
 
     const endsAt = new Date(startsAt);
     endsAt.setHours(19, 0, 0, 0);
+
+    // Clean this specific slot before running the test
+    await db
+      .delete(bookings)
+      .where(
+        and(
+          eq(bookings.courtId, court.id),
+          eq(bookings.startsAt, startsAt),
+          eq(bookings.endsAt, endsAt)
+        )
+      );
 
     // Launch 100 simultaneous booking attempts
     const promises = Array.from({ length: 100 }, (_, i) =>
@@ -64,10 +74,23 @@ describe('The Concurrency Gate', () => {
     const courtsList = await getBookableCourts(db);
     const court = courtsList.find((c) => c.name === 'Court 3') ?? courtsList[0]!;
 
-    // Target a fresh random date (between 11 and 18 days ahead)
-    const randomOffset = 11 + Math.floor(Math.random() * 7);
+    // Target date: 6 days ahead
     const baseDate = new Date();
-    baseDate.setDate(baseDate.getDate() + randomOffset);
+    baseDate.setDate(baseDate.getDate() + 6);
+    baseDate.setHours(0, 0, 0, 0);
+
+    const nextDate = new Date(baseDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    // Clean Court 3 for that day
+    await db
+      .delete(bookings)
+      .where(
+        and(
+          eq(bookings.courtId, court.id),
+          sql`starts_at >= ${baseDate.toISOString()}::timestamptz AND starts_at < ${nextDate.toISOString()}::timestamptz`
+        )
+      );
 
     // Generate 50 overlapping ranges with differing lengths (1 hr, 2 hr, 3 hr)
     const promises = Array.from({ length: 50 }, (_, i) => {

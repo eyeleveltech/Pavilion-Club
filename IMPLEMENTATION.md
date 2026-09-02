@@ -122,9 +122,9 @@ No screens. The thing that makes this a booking system rather than a spreadsheet
 **Milestone: the desk can run the venue.** No website, no Turf Town needed.
 
 ### Foundation → [ui/07-architecture.md](docs/ui/07-architecture.md)
-- [ ] Next.js app, Tailwind, shadcn/ui init
-- [ ] Neutral tokens → [ui/02-design-system.md](docs/ui/02-design-system.md)
-- [ ] `/admin/_theme` preview page
+- [x] ✅ Next.js app, Tailwind, shadcn/ui init
+- [x] ✅ Neutral tokens → [ui/02-design-system.md](docs/ui/02-design-system.md) & [ui/10-build-guide.md](docs/ui/10-build-guide.md)
+- [x] ✅ `/admin/_theme` preview page
 - [ ] Auth — argon2id staff login, sessions, throttling → [system/13-ops-security.md](docs/system/13-ops-security.md)
 - [ ] `requirePermission()` + the matrix → [system/11-roles-permissions.md](docs/system/11-roles-permissions.md)
 - [ ] Audit log writing on every mutation

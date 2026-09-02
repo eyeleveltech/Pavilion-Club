@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ---- Brand ---- */
+  --navy:        #0f1e2e;
+  --gold:        #c7a26a;
+  --ivory:       #F9F6ED;
+  --white:       #ffffff;
+  --black:       #0c0c0b;
+
+  /* ---- Grounds ---- */
+  --bg:          var(--ivory);    /* app background */
+  --surface:     var(--white);    /* cards, tables, panels */
+  --surface-2:   #F3EEE1;         /* table headers, subtle fills */
+  --surface-dark: var(--navy);    /* sidebar, footer, hero */
+
+  /* ---- Text ---- */
+  --ink:         var(--navy);
+  --ink-soft:    #4A5765;
+  --ink-faint:   #8A939E;
+  --ink-on-dark: #F2EFE6;
+  --ink-on-gold: var(--navy);
+
+  /* ---- Lines ---- */
+  --border:        #E4DFD0;
+  --border-strong: #CFC7B2;
+  --border-dark:   #22344A;   /* on navy grounds */
+
+  /* ---- Accent (brand, never data) ---- */
+  --accent:      var(--gold);
+  --accent-soft: #F0E4CE;
+  --accent-ink:  var(--navy);
+
+  /* ---- Semantic. Chosen to be clearly distinct from brand gold ---- */
+  --ok:      #2E6F4E;  --ok-soft:      #E2F0E8;
+  --warn:    #B85C1E;  --warn-soft:    #FBE8D9;
+  --danger:  #A33124;  --danger-soft:  #F8E3DF;
+  --info:    #2A5B8C;  --info-soft:    #E3ECF6;
+
+  /* ---- Channels. Gold is deliberately absent ---- */
+  --ch-website:  #0f1e2e;
+  --ch-walkin:   #7C93AB;
+  --ch-phone:    #A9AFB6;
+  --ch-partner:  #8C5A3C;   /* Turf Town — distinct from brand gold on purpose */
+  --ch-admin:    #5C6874;
+
+  /* ---- Spacing, 4px base ---- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+  --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  --radius:    6px;
+  --radius-lg: 10px;   /* sheets and modals only */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

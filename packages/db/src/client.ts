@@ -9,7 +9,8 @@ export function createDb(connectionString?: string) {
   if (!url) {
     throw new Error('DATABASE_URL is required to create a database client');
   }
-  const pool = new PoolConstructor({ connectionString: url });
+  // Allow high concurrency for stress tests and heavy parallel traffic
+  const pool = new PoolConstructor({ connectionString: url, max: 120 });
   return drizzle(pool, { schema });
 }
 
