@@ -9,6 +9,8 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:stress": "vitest run concurrency-gate",
+    "demo": "node scripts/demo.mjs",
     "typecheck": "tsc -b --pretty",
     "db:up": "docker compose -f infra/compose.yml up -d",
     "db:down": "docker compose -f infra/compose.yml down",

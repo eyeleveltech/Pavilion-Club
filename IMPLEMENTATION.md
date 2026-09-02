@@ -86,18 +86,15 @@ No screens. The thing that makes this a booking system rather than a spreadsheet
 
 ### Database → [system/04-data-model.md](docs/system/04-data-model.md)
 
-> `[~]` = the SQL is written but has **never been run**. It is unverified until
-> `pnpm db:migrate` succeeds against a real database.
-
-- [~] `0001_foundation.sql` — settings, courts, court_hours, channels, users, customers
-- [~] `0002_bookings.sql` — price_rules, bookings, **the exclusion constraint**, `expire_stale_holds()`
-- [~] `0003_money.sql` — payments, refunds, settlements, cash_handovers
-- [~] `0004_partner.sql` — api_keys, webhook_outbox
-- [~] `0005_ops.sql` — blackouts, audit_log, message_outbox, otp_codes, sessions
-- [~] `0006_hardening.sql` — updated_at, notes, blocking, anonymisation, **booking_attempts**, login_attempts, `booking_balances` view
-- [~] Seed — **3 courts, Mon–Fri 06:00–23:00, Sat–Sun 06:00–00:00, 60-min slots**
+- [x] `0001_foundation.sql` — settings, courts, court_hours, channels, users, customers
+- [x] `0002_bookings.sql` — price_rules, bookings, **the exclusion constraint**, `expire_stale_holds()`
+- [x] `0003_money.sql` — payments, refunds, settlements, cash_handovers
+- [x] `0004_partner.sql` — api_keys, webhook_outbox
+- [x] `0005_ops.sql` — blackouts, audit_log, message_outbox, otp_codes, sessions
+- [x] `0006_hardening.sql` — updated_at, notes, blocking, anonymisation, **booking_attempts**, login_attempts, `booking_balances` view
+- [x] Seed — **3 courts, Mon–Fri 06:00–23:00, Sat–Sun 06:00–00:00, 60-min slots**
 - [ ] Two database roles + `REVOKE DELETE` → [system/13-ops-security.md](docs/system/13-ops-security.md)
-- [ ] Drizzle schema mirroring the migrations — **never `drizzle-kit push`**
+- [x] Drizzle schema mirroring the migrations — **never `drizzle-kit push`**
 
 ### Core → [system/05-booking-engine.md](docs/system/05-booking-engine.md)
 - [x] `core/time` — 30 tests — IST, business date, cross-midnight
@@ -107,14 +104,14 @@ No screens. The thing that makes this a booking system rather than a spreadsheet
 - [x] `core/booking` — 38 tests — guards, state machine, reference generator
 
 ### Write path
-- [ ] `createBooking` with **`23P01` and `40P01` retries**
-- [ ] `expireStaleHolds` + worker loop (30s)
-- [ ] `booking_attempts` logging — written *after* the attempt, never inside the transaction
+- [x] `createBooking` with **`23P01` and `40P01` retries**
+- [x] `expireStaleHolds` + worker loop (30s)
+- [x] `booking_attempts` logging — written *after* the attempt, never inside the transaction
 
 ### GATE — blocks merge
-- [ ] 100 concurrent bookings, one slot → exactly 1 wins, 99 `JUST_TAKEN`, 0 errors
-- [ ] 50 concurrent overlapping ranges of different lengths → no `40P01` escapes
-- [ ] Both run in CI
+- [x] 100 concurrent bookings, one slot → exactly 1 wins, 99 `JUST_TAKEN`, 0 errors
+- [x] 50 concurrent overlapping ranges of different lengths → no `40P01` escapes
+- [x] Both run in CI
 
 **Done when:** `npm run demo -- --date 2026-09-05` prints 54 slots and the stress test is green.
 
