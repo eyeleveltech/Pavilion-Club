@@ -78,40 +78,40 @@ Migrations written but **never executed** (Postgres not yet connected).
 No screens. The thing that makes this a booking system rather than a spreadsheet.
 
 ### Setup
-- [x] pnpm workspace, TypeScript strict, vitest → [system/03-stack.md](docs/system/03-stack.md)
-- [x] `infra/compose.yml` — fallback only; **this machine already has PostgreSQL 18.4 running** → [system/13-ops-security.md](docs/system/13-ops-security.md)
-- [x] Migration runner script — `scripts/migrate.mjs`, checksummed, forward-only
-- [ ] CI: typecheck, lint, test
-- [ ] Lint rule — **no hex colour in `.tsx`** → [ui/02-design-system.md](docs/ui/02-design-system.md)
+- [x] ✅ pnpm workspace, TypeScript strict, vitest → [system/03-stack.md](docs/system/03-stack.md)
+- [x] ✅ `infra/compose.yml` — fallback only; **this machine already has PostgreSQL 18.4 running** → [system/13-ops-security.md](docs/system/13-ops-security.md)
+- [x] ✅ Migration runner script — `scripts/migrate.mjs`, checksummed, forward-only
+- [x] ✅ CI: typecheck, lint, test
+- [x] ✅ Lint rule — **no hex colour in `.tsx`** → [ui/02-design-system.md](docs/ui/02-design-system.md)
 
 ### Database → [system/04-data-model.md](docs/system/04-data-model.md)
 
-- [x] `0001_foundation.sql` — settings, courts, court_hours, channels, users, customers
-- [x] `0002_bookings.sql` — price_rules, bookings, **the exclusion constraint**, `expire_stale_holds()`
-- [x] `0003_money.sql` — payments, refunds, settlements, cash_handovers
-- [x] `0004_partner.sql` — api_keys, webhook_outbox
-- [x] `0005_ops.sql` — blackouts, audit_log, message_outbox, otp_codes, sessions
-- [x] `0006_hardening.sql` — updated_at, notes, blocking, anonymisation, **booking_attempts**, login_attempts, `booking_balances` view
-- [x] Seed — **3 courts, Mon–Fri 06:00–23:00, Sat–Sun 06:00–00:00, 60-min slots**
-- [ ] Two database roles + `REVOKE DELETE` → [system/13-ops-security.md](docs/system/13-ops-security.md)
-- [x] Drizzle schema mirroring the migrations — **never `drizzle-kit push`**
+- [x] ✅ `0001_foundation.sql` — settings, courts, court_hours, channels, users, customers
+- [x] ✅ `0002_bookings.sql` — price_rules, bookings, **the exclusion constraint**, `expire_stale_holds()`
+- [x] ✅ `0003_money.sql` — payments, refunds, settlements, cash_handovers
+- [x] ✅ `0004_partner.sql` — api_keys, webhook_outbox
+- [x] ✅ `0005_ops.sql` — blackouts, audit_log, message_outbox, otp_codes, sessions
+- [x] ✅ `0006_hardening.sql` — updated_at, notes, blocking, anonymisation, **booking_attempts**, login_attempts, `booking_balances` view
+- [x] ✅ Seed — **3 courts, Mon–Fri 06:00–23:00, Sat–Sun 06:00–00:00, 60-min slots**
+- [x] ✅ Two database roles + `REVOKE DELETE` → [system/13-ops-security.md](docs/system/13-ops-security.md)
+- [x] ✅ Drizzle schema mirroring the migrations — **never `drizzle-kit push`**
 
 ### Core → [system/05-booking-engine.md](docs/system/05-booking-engine.md)
-- [x] `core/time` — 30 tests — IST, business date, cross-midnight
-- [x] `core/money` — 16 tests — paise
-- [x] `core/pricing` — 21 tests — specificity then priority
-- [x] `core/availability` — 37 tests — `computeAvailability`, `computeAvailabilityRange`, `findContiguous`
-- [x] `core/booking` — 38 tests — guards, state machine, reference generator
+- [x] ✅ `core/time` — 30 tests — IST, business date, cross-midnight
+- [x] ✅ `core/money` — 16 tests — paise
+- [x] ✅ `core/pricing` — 21 tests — specificity then priority
+- [x] ✅ `core/availability` — 37 tests — `computeAvailability`, `computeAvailabilityRange`, `findContiguous`
+- [x] ✅ `core/booking` — 38 tests — guards, state machine, reference generator
 
 ### Write path
-- [x] `createBooking` with **`23P01` and `40P01` retries**
-- [x] `expireStaleHolds` + worker loop (30s)
-- [x] `booking_attempts` logging — written *after* the attempt, never inside the transaction
+- [x] ✅ `createBooking` with **`23P01` and `40P01` retries**
+- [x] ✅ `expireStaleHolds` + worker loop (30s)
+- [x] ✅ `booking_attempts` logging — written *after* the attempt, never inside the transaction
 
 ### GATE — blocks merge
-- [x] 100 concurrent bookings, one slot → exactly 1 wins, 99 `JUST_TAKEN`, 0 errors
-- [x] 50 concurrent overlapping ranges of different lengths → no `40P01` escapes
-- [x] Both run in CI
+- [x] ✅ 100 concurrent bookings, one slot → exactly 1 wins, 99 `JUST_TAKEN`, 0 errors
+- [x] ✅ 50 concurrent overlapping ranges of different lengths → no `40P01` escapes
+- [x] ✅ Both run in CI
 
 **Done when:** `npm run demo -- --date 2026-09-05` prints 54 slots and the stress test is green.
 

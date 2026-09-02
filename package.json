@@ -1,0 +1,30 @@
+{
+  "name": "pavilion-club",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:stress": "vitest run concurrency-gate",
+    "demo": "node scripts/demo.mjs",
+    "lint": "node scripts/lint-hex.mjs",
+    "typecheck": "tsc -b --pretty",
+    "db:up": "docker compose -f infra/compose.yml up -d",
+    "db:down": "docker compose -f infra/compose.yml down",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:reset": "node scripts/migrate.mjs --reset"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
+}
