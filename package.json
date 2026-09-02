@@ -7,6 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev": "pnpm --filter @pavilion/web dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:stress": "vitest run concurrency-gate",

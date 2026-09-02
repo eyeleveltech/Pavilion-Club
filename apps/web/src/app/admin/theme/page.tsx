@@ -1,16 +1,26 @@
+import Link from 'next/link';
+
 export default function ThemePreviewPage() {
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-12">
-      <div>
-        <span className="text-xs uppercase tracking-widest font-semibold text-accent">
-          Design System
-        </span>
-        <h1 className="text-2xl font-bold text-navy mt-1">
-          Pavilion Club Theme Preview
-        </h1>
-        <p className="text-sm text-ink-soft mt-1">
-          Verified tokens against <code>Brand Guidelines_PC_Apr 26.pdf</code>.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="text-xs uppercase tracking-widest font-semibold text-accent">
+            Design System
+          </span>
+          <h1 className="text-2xl font-bold text-navy mt-1">
+            Pavilion Club Theme Preview
+          </h1>
+          <p className="text-sm text-ink-soft mt-1">
+            Verified tokens against <code>Brand Guidelines_PC_Apr 26.pdf</code>.
+          </p>
+        </div>
+        <Link
+          href="/admin"
+          className="text-xs px-3 py-2 border border-border rounded text-ink hover:bg-surface-2 transition"
+        >
+          ← Back to Admin
+        </Link>
       </div>
 
       {/* 1. Palette */}
