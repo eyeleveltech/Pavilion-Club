@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 import type { Database } from '../client.js';
 import { bookings } from '../schema/bookings.js';
 import { bookingAttempts } from '../schema/ops.js';
@@ -31,15 +31,15 @@ export type CreateBookingInput = {
   startsAt: Date;
   endsAt: Date;
   actor: BookingActor;
-  customerId?: string;
-  bookedByUserId?: string;
-  partnerReference?: string;
-  idempotencyKey?: string;
-  status?: 'held' | 'confirmed';
-  notes?: string;
-  now?: Date;
-  ipAddress?: string;
-  phone?: string;
+  customerId?: string | undefined;
+  bookedByUserId?: string | undefined;
+  partnerReference?: string | undefined;
+  idempotencyKey?: string | undefined;
+  status?: 'held' | 'confirmed' | undefined;
+  notes?: string | undefined;
+  now?: Date | undefined;
+  ipAddress?: string | undefined;
+  phone?: string | undefined;
 };
 
 export type CreateBookingResult =

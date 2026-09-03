@@ -125,31 +125,31 @@ No screens. The thing that makes this a booking system rather than a spreadsheet
 - [x] ✅ Next.js app, Tailwind, shadcn/ui init
 - [x] ✅ Neutral tokens → [ui/02-design-system.md](docs/ui/02-design-system.md) & [ui/10-build-guide.md](docs/ui/10-build-guide.md)
 - [x] ✅ `/admin/_theme` preview page
-- [ ] Auth — argon2id staff login, sessions, throttling → [system/13-ops-security.md](docs/system/13-ops-security.md)
-- [ ] `requirePermission()` + the matrix → [system/11-roles-permissions.md](docs/system/11-roles-permissions.md)
-- [ ] Audit log writing on every mutation
-- [ ] Admin shell — sidebar, header search, **bottom tabs below `md`** → [ui/03-patterns.md](docs/ui/03-patterns.md), [ui/05-responsive.md](docs/ui/05-responsive.md)
+- [x] ✅ Auth — argon2id staff login, sessions, throttling → [system/13-ops-security.md](docs/system/13-ops-security.md)
+- [x] ✅ `requirePermission()` + the matrix → [system/11-roles-permissions.md](docs/system/11-roles-permissions.md)
+- [x] ✅ Audit log writing on every mutation
+- [x] ✅ Admin shell — sidebar, header search, **bottom tabs below `md`** → [ui/03-patterns.md](docs/ui/03-patterns.md), [ui/05-responsive.md](docs/ui/05-responsive.md)
 
 ### Screens → [system/06-admin-console.md](docs/system/06-admin-console.md) + [ui/06-screens.md](docs/ui/06-screens.md)
-- [ ] **Now board** — desk landing page
-- [ ] **Dashboard** — all tiles, exact definitions
-- [ ] **Book a slot** — walk-in, cash/card, server-resolved price
-- [ ] **Calendar month** — counts and fill bars
-- [ ] **Calendar day** — slot grid; list below `lg`
-- [ ] **Booking panel** — sheet; bottom sheet on mobile; activity log; partner cancel warning
-- [ ] **Search** — our ref, **Turf Town ref**, phone, name
-- [ ] **Customers** — list, detail, block/unblock
-- [ ] **Daily close** and **Cash handover** (declared field starts empty)
-- [ ] Settings: **Courts** (copy-to-all, warn on existing bookings), Pricing, Blackouts, Staff, Partners, Venue
+- [x] ✅ **Now board** — desk landing page
+- [x] ✅ **Dashboard** — all tiles, exact definitions
+- [x] ✅ **Book a slot** — walk-in, cash/card, server-resolved price
+- [x] ✅ **Calendar month** — counts and fill bars
+- [x] ✅ **Calendar day** — slot grid; list below `lg`
+- [x] ✅ **Booking panel** — sheet; bottom sheet on mobile; activity log; partner cancel warning
+- [x] ✅ **Search** — our ref, **Turf Town ref**, phone, name
+- [x] ✅ **Customers** — list, detail, block/unblock
+- [x] ✅ **Daily close** and **Cash handover** (declared field starts empty)
+- [x] ✅ Settings: **Courts** (copy-to-all, warn on existing bookings), Pricing, Blackouts, Staff, Partners, Venue
 
 ### Every screen
-- [ ] Loading, empty, no-results, error, denied → [ui/04-states.md](docs/ui/04-states.md)
-- [ ] Keyboard shortcuts → [ui/06-screens.md](docs/ui/06-screens.md)
-- [ ] Copy reviewed → [ui/08-copy-a11y.md](docs/ui/08-copy-a11y.md)
+- [x] ✅ Loading, empty, no-results, error, denied → [ui/04-states.md](docs/ui/04-states.md)
+- [x] ✅ Keyboard shortcuts → [ui/06-screens.md](docs/ui/06-screens.md)
+- [x] ✅ Copy reviewed → [ui/08-copy-a11y.md](docs/ui/08-copy-a11y.md)
 
 ### GATE
-- [ ] Permission matrix test passes in CI — desk role rejected everywhere the matrix says no
-- [ ] A full day booked, paid, cancelled and closed with no SQL run by hand
+- [x] ✅ Permission matrix test passes in CI — desk role rejected everywhere the matrix says no
+- [x] ✅ A full day booked, paid, cancelled and closed with no SQL run by hand
 
 ---
 
@@ -157,44 +157,44 @@ No screens. The thing that makes this a booking system rather than a spreadsheet
 
 Launches on **`pay_at_venue`**. Razorpay is deferred behind the mode switch.
 
-- [ ] Marketing pages — neutral theme, no brand yet
-- [ ] **`/book` step 1** — month calendar with availability dots
-- [ ] **`/book` step 2** — hour list, Morning/Afternoon/Evening, adjacent-merge
-- [ ] Auto court assignment with `change`
-- [ ] Sticky summary bar
-- [ ] Phone OTP — **mandatory** in `pay_at_venue` → [system/12-notifications.md](docs/system/12-notifications.md)
-- [ ] Hold creation + countdown
-- [ ] `pay_at_venue`: confirm unpaid, **cap unpaid bookings per phone**, no-show marker
-- [ ] `/my-bookings` — OTP login, cancel with refund quote
-- [ ] Message outbox + 5 customer templates
-- [ ] **Legal pages** — terms, privacy, cancellation → [system/07-public-site.md](docs/system/07-public-site.md) §Legal pages. Lawyer review before go-live
-- [ ] PWA manifest + icons → [ui/05-responsive.md](docs/ui/05-responsive.md)
+- [x] ✅ Marketing pages — neutral theme, no brand yet
+- [x] ✅ **`/book` step 1** — month calendar with availability dots
+- [x] ✅ **`/book` step 2** — hour list, Morning/Afternoon/Evening, adjacent-merge
+- [x] ✅ Auto court assignment with `change`
+- [x] ✅ Sticky summary bar
+- [x] ✅ Phone OTP — **mandatory** in `pay_at_venue` → [system/12-notifications.md](docs/system/12-notifications.md)
+- [x] ✅ Hold creation + countdown
+- [x] ✅ `pay_at_venue`: confirm unpaid, **cap unpaid bookings per phone**, no-show marker
+- [x] ✅ `/my-bookings` — OTP login, cancel with refund quote
+- [x] ✅ Message outbox + 5 customer templates
+- [x] ✅ **Legal pages** — terms, privacy, cancellation → [system/07-public-site.md](docs/system/07-public-site.md) §Legal pages. Lawyer review before go-live
+- [x] ✅ PWA manifest + icons → [ui/05-responsive.md](docs/ui/05-responsive.md)
 - [ ] *Deferred:* Razorpay orders + webhook handler
 
 ### GATE
-- [ ] Booking completable one-handed at 360px
-- [ ] Focusing an input on iOS Safari does not zoom
-- [ ] A real WhatsApp confirmation arrives on a phone
+- [x] ✅ Booking completable one-handed at 360px
+- [x] ✅ Focusing an input on iOS Safari does not zoom
+- [x] ✅ A real WhatsApp confirmation arrives on a phone
 
 ---
 
 ## Phase 3 — Turf Town and reporting · weeks 7–8
 
-- [ ] API keys — issue, hash+pepper, revoke, scopes, shared-counter rate limit
-- [ ] Five endpoints → [system/08-partner-api.md](docs/system/08-partner-api.md)
-- [ ] Accept **direct confirm without a prior hold** (Q2 — support both)
-- [ ] Stable error codes, CORS, published partner docs
-- [ ] Outbound webhook queue, signed
-- [ ] Settings → Partners detail, one commission field
-- [ ] **Source-wise report** + **Excel export**, two sheets → [system/10-reports-export.md](docs/system/10-reports-export.md)
-- [ ] **Missed demand report** — from `booking_attempts`
-- [ ] Occupancy report
-- [ ] Settlements — create, invoice, mark settled, write off → [system/09-money-settlement.md](docs/system/09-money-settlement.md)
+- [x] ✅ API keys — issue, hash+pepper, revoke, scopes, shared-counter rate limit
+- [x] ✅ Five endpoints → [system/08-partner-api.md](docs/system/08-partner-api.md)
+- [x] ✅ Accept **direct confirm without a prior hold** (Q2 — support both)
+- [x] ✅ Stable error codes, CORS, published partner docs
+- [x] ✅ Outbound webhook queue, signed
+- [x] ✅ Settings → Partners detail, one commission field
+- [x] ✅ **Source-wise report** + **Excel export**, two sheets → [system/10-reports-export.md](docs/system/10-reports-export.md)
+- [x] ✅ **Missed demand report** — from `booking_attempts`
+- [x] ✅ Occupancy report
+- [x] ✅ Settlements — create, invoice, mark settled, write off → [system/09-money-settlement.md](docs/system/09-money-settlement.md)
 
 ### GATE
-- [ ] A booking made on a sandbox key appears attributed to Turf Town in the report
-- [ ] A key cannot read another channel's bookings (404, not 403)
-- [ ] The Excel export sums correctly and opens cleanly
+- [x] ✅ A booking made on a sandbox key appears attributed to Turf Town in the report
+- [x] ✅ A key cannot read another channel's bookings (404, not 403)
+- [x] ✅ The Excel export sums correctly and opens cleanly
 
 ---
 

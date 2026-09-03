@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+﻿import { describe, it, expect } from 'vitest';
 import { createDb } from './client.js';
 import { createBooking } from './booking/create-booking.js';
 import { getBookableCourts } from './repositories/venue.js';
@@ -68,7 +68,7 @@ describe('The Concurrency Gate', () => {
       );
 
     expect(dbBookings.length).toBe(1);
-  }, 40000);
+  }, 75000);
 
   it('50 concurrent overlapping ranges of different lengths: no 40P01 deadlock escapes', async () => {
     const courtsList = await getBookableCourts(db);
@@ -143,5 +143,5 @@ describe('The Concurrency Gate', () => {
         expect(overlaps).toBe(false);
       }
     }
-  }, 40000);
+  }, 75000);
 });

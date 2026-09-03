@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 
@@ -9,9 +9,17 @@ const montserrat = Montserrat({
   display: 'swap',
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
-  title: 'Pavilion Club — Pickleball Arena',
-  description: 'Premier pickleball club court booking & venue management.',
+  title: 'The Pavilion Club · Badminton Arena',
+  description: 'Premier indoor badminton arena. 3 BWF wooden synthetic courts, glare-free LED lighting.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
