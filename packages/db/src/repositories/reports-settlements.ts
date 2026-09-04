@@ -1,4 +1,4 @@
-﻿import type { Database } from '../client.js';
+import type { Database } from '../client.js';
 import { settlements } from '../schema/money.js';
 import { channels } from '../schema/channels.js';
 import { bookings } from '../schema/bookings.js';
@@ -239,6 +239,30 @@ export async function createSettlement(
     .returning();
 
   return settlement!;
+}
+
+
+// 4.5. Mark Settlement Invoiced (Audit §4.3)
+export async function markSettlementInvoiced(
+  db: Database,
+  input: {
+    settlementId: string;
+    note?: string | undefined;
+  }
+) {
+  const [s] = await db.select().from(settlements).where(eq(settlements.id, input.settlementId));
+  if (!s) throw new Error('Settlement not found');
+
+  const [updated] = await db
+    .update(settlements)
+    .set({
+      status: 'invoiced',
+      note: input.note !== undefined ? input.note : s.note,
+    })
+    .where(eq(settlements.id, s.id))
+    .returning();
+
+  return updated!;
 }
 
 // 5. Mark Settlement Settled

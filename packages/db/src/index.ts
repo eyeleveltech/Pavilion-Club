@@ -1,4 +1,4 @@
-﻿export * from './client.js';
+export * from './client.js';
 export * from './schema/index.js';
 export * from './repositories/venue.js';
 export * from './repositories/sweeper.js';
@@ -9,7 +9,7 @@ export * from './auth/password.js';
 export * from './auth/permissions.js';
 export * from './auth/audit.js';
 export * from './auth/session.js';
-export { sql, eq, and, or, not, desc, asc } from 'drizzle-orm';
+export { sql, eq, and, or, not, desc, asc, lt, lte, gt, gte } from 'drizzle-orm';
 export * from './repositories/calendar.js';
 export * from './repositories/search.js';
 export * from './repositories/customers.js';

@@ -217,19 +217,19 @@ the sender will stop customer login working entirely.
 ## 5. Pending work
 
 ### Before anything else
-- [ ] Fix the OTP `devCode` leak (§2.1)
-- [ ] Make `pnpm test` runnable without `.env` (§2.2a)
-- [ ] Fix the 2 typecheck errors (§2.2b)
-- [ ] Add Postgres to CI and run the gate there (§2.2c)
-- [ ] Rename the 5 hanging test files (§2.3)
+- [x] Fix the OTP `devCode` leak (§2.1)
+- [x] Make `pnpm test` runnable without `.env` (§2.2a)
+- [x] Fix the 2 typecheck errors (§2.2b)
+- [x] Add Postgres to CI and run the gate there (§2.2c)
+- [x] Rename the 5 hanging test files (§2.3)
 
 ### Then
-- [ ] Build `apps/worker` — sweeper, outbox drains, completion, reminders, summary (§3)
-- [ ] Integrate a WhatsApp BSP and SMS fallback (§3)
-- [ ] Stop writing OTP plaintext into `message_outbox` (§4.1)
-- [ ] Per-IP OTP rate limiting (§4.2)
-- [ ] `markSettlementInvoiced` (§4.3)
-- [ ] `/about`, `/contact`; resolve the duplicate cancellation page (§4.4, §4.5)
+- [x] Build `apps/worker` — sweeper, outbox drains, completion, reminders, summary (A 3)
+- [x] Integrate a WhatsApp BSP and SMS fallback (A 3)
+- [x] Stop writing OTP plaintext into `message_outbox` (§4.1)
+- [x] Per-IP OTP rate limiting (§4.2)
+- [x] `markSettlementInvoiced` (§4.3)
+- [x] `/about`, `/contact`; resolve the duplicate cancellation page (§4.4, §4.5)
 
 ### Still outstanding from the original plan
 - [ ] Send the Turf Town email — `docs/client/turf-town-email.md`, still unsent

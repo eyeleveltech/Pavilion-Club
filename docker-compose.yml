@@ -37,6 +37,23 @@ services:
     networks:
       - pavilion-internal
 
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pavilion-worker
+    command: ["pnpm", "--filter", "@pavilion/worker", "start"]
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-pavilion_app}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pavilion}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET required}
+    networks:
+      - pavilion-internal
   caddy:
     image: caddy:2-alpine
     container_name: pavilion-caddy

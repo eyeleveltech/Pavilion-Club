@@ -83,6 +83,15 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
+  apps/worker:
+    dependencies:
+      '@pavilion/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pavilion/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+
   packages/core: {}
 
   packages/db:

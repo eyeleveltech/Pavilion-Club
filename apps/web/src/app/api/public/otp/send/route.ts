@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createDb, generateAndSendOtp } from '@pavilion/db';
 
 export async function POST(request: Request) {
@@ -13,14 +13,18 @@ export async function POST(request: Request) {
       );
     }
 
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0]?.trim() : '127.0.0.1';
+
     const db = createDb();
-    const result = await generateAndSendOtp(db, phone);
+    const result = await generateAndSendOtp(db, phone, ip);
 
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error }, { status: 429 });
     }
 
-    return NextResponse.json({ ok: true, devCode: result.devCode });
+    const isDev = process.env.NODE_ENV !== 'production';
+    return NextResponse.json({ ok: true, ...(isDev && result.devCode ? { devCode: result.devCode } : {}) });
   } catch (err) {
     console.error('OTP send error:', err);
     return NextResponse.json({ ok: false, error: 'Failed to send OTP' }, { status: 500 });

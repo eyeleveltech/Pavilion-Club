@@ -1,4 +1,4 @@
-process.loadEnvFile?.('.env');
+try { process.loadEnvFile?.('.env'); } catch {}
 import { defineConfig, defaultExclude } from 'vitest/config';
 
 export default defineConfig({

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @pavilion/web dev",
+    "worker": "pnpm --filter @pavilion/worker dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:stress": "vitest run concurrency-gate",
@@ -16,8 +17,8 @@
     "typecheck": "tsc -b --pretty",
     "db:up": "docker compose -f infra/compose.yml up -d",
     "db:down": "docker compose -f infra/compose.yml down",
-    "db:migrate": "node scripts/migrate.mjs",
-    "db:reset": "node scripts/migrate.mjs --reset"
+    "db:migrate": "node --env-file=.env scripts/migrate.mjs",
+    "db:reset": "node --env-file=.env scripts/migrate.mjs --reset"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

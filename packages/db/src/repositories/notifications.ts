@@ -1,6 +1,6 @@
-﻿import { randomBytes, createHash } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 import type { Database } from '../client.js';
-import { otpCodes, messageOutbox, sessions } from '../schema/ops.js';
+import { otpCodes, messageOutbox, sessions, loginAttempts } from '../schema/ops.js';
 import { customers } from '../schema/customers.js';
 import { sql, eq, and, gt, desc } from 'drizzle-orm';
 
@@ -12,13 +12,31 @@ export interface OtpGenerateResult {
 
 export async function generateAndSendOtp(
   db: Database,
-  phoneParam: string
+  phoneParam: string,
+  ipParam?: string
 ): Promise<OtpGenerateResult> {
   const phone = phoneParam.trim();
   const now = new Date();
+  const ip = ipParam?.trim() || '127.0.0.1';
 
-  // Rate Limiting: max 3 OTP sends per phone per 15 minutes (docs/system/12-notifications.md)
   const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+
+  // 1. Rate Limiting per IP: max 10 requests per 15 min (Audit §4.2)
+  if (ip) {
+    const recentIpAttempts = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(loginAttempts)
+      .where(and(eq(loginAttempts.ip, ip), gt(loginAttempts.createdAt, fifteenMinutesAgo)));
+
+    if ((recentIpAttempts[0]?.count ?? 0) >= 10) {
+      return {
+        ok: false,
+        error: 'Too many OTP requests from this network. Please wait 15 minutes before requesting again.',
+      };
+    }
+  }
+
+  // 2. Rate Limiting per Phone: max 3 OTP sends per phone per 15 minutes (docs/system/12-notifications.md)
   const recentOtps = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(otpCodes)
@@ -32,6 +50,13 @@ export async function generateAndSendOtp(
     };
   }
 
+  // Record IP attempt
+  await db.insert(loginAttempts).values({
+    identifier: phone,
+    ip,
+    succeeded: true,
+  });
+
   // 6-digit random code
   const codeInt = Math.floor(100000 + Math.random() * 900000);
   const codeStr = codeInt.toString();
@@ -44,12 +69,12 @@ export async function generateAndSendOtp(
     expiresAt,
   });
 
-  // Queue in message_outbox
+  // Queue in message_outbox WITHOUT storing plaintext code in jsonb (Audit §4.1)
   await db.insert(messageOutbox).values({
     channel: 'whatsapp',
     toPhone: phone,
     template: 'otp',
-    payload: { code: codeStr, validMinutes: 5 },
+    payload: { codeHash, validMinutes: 5 },
     status: 'queued',
   });
 

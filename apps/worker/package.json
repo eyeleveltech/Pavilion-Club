@@ -1,0 +1,15 @@
+{
+  "name": "@pavilion/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -b && node --env-file=../../.env dist/index.js",
+    "build": "tsc -b",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@pavilion/core": "workspace:*",
+    "@pavilion/db": "workspace:*"
+  }
+}
