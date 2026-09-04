@@ -18,10 +18,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: result.error || 'Verification failed' }, { status: 400 });
     }
 
+    const isHttps = request.url.startsWith('https://') || request.headers.get('x-forwarded-proto') === 'https';
+
     const cookieStore = await cookies();
     cookieStore.set('pavilion_customer_session', result.sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHttps,
       sameSite: 'lax',
       path: '/',
       maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -29,6 +31,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      sessionToken: result.sessionToken,
       customer: result.customer,
     });
   } catch (err) {

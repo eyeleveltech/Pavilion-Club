@@ -40,10 +40,11 @@ export async function POST(request: Request) {
     }
 
     // Set secure HTTP-only cookie
+    const isHttps = request.url.startsWith('https://') || request.headers.get('x-forwarded-proto') === 'https';
     const cookieStore = await cookies();
     cookieStore.set('pavilion_session', result.token!, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHttps,
       sameSite: 'lax',
       path: '/',
       maxAge: 30 * 24 * 60 * 60, // 30 days

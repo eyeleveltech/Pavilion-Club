@@ -242,11 +242,15 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
       // 2. Confirm Booking on Pay at Venue
       const confirmRes = await fetch('/api/public/book/confirm', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(otpJson.sessionToken ? { Authorization: `Bearer ${otpJson.sessionToken}` } : {}),
+        },
         body: JSON.stringify({
           reference: holdReference,
           phone,
           name,
+          sessionToken: otpJson.sessionToken,
         }),
       });
       const confirmJson = await confirmRes.json();

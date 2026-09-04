@@ -136,11 +136,11 @@ export async function getMissedDemandReport(
 ) {
   // Query failure reasons
   const reasonQuery = await db.execute<{ failure_reason: string; count: number }>(sql`
-    SELECT COALESCE(failure_reason, 'unspecified') AS failure_reason, COUNT(*)::int AS count
+    SELECT COALESCE(outcome, 'unspecified') AS failure_reason, COUNT(*)::int AS count
     FROM booking_attempts
     WHERE created_at >= ${fromDate}::date AND created_at <= (${toDate}::date + INTERVAL '1 day')
-      AND success = false
-    GROUP BY failure_reason
+      AND outcome != 'success'
+    GROUP BY outcome
     ORDER BY count DESC
   `);
 

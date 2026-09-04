@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { and, eq, gte, sql } from 'drizzle-orm';
+import { and, eq, gte, or, sql } from 'drizzle-orm';
 import type { Database } from '../client.js';
 import { users } from '../schema/users.js';
 import { sessions, loginAttempts } from '../schema/ops.js';
@@ -59,14 +59,22 @@ export async function authenticateStaff(
     return { ok: false, error: 'ACCOUNT_LOCKED' };
   }
 
-  // 2. Lookup user by phone or email
+  // 2. Lookup user by phone or email (supports with or without +91)
+  const cleanedPhone = identifier.replace(/[^\d+]/g, '');
+  const withPlus91 = cleanedPhone.startsWith('+91') ? cleanedPhone : `+91${cleanedPhone.replace(/^0+/, '')}`;
+  const withoutPlus91 = cleanedPhone.replace(/^\+91/, '').replace(/^0+/, '');
+
   const foundUsers = await db
     .select()
     .from(users)
     .where(
       identifier.includes('@')
-        ? eq(users.email, identifier)
-        : eq(users.phone, identifier)
+        ? eq(users.email, identifier.trim().toLowerCase())
+        : or(
+            eq(users.phone, identifier.trim()),
+            eq(users.phone, withPlus91),
+            eq(users.phone, withoutPlus91)
+          )
     );
 
   const user = foundUsers[0];

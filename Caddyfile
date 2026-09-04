@@ -1,0 +1,32 @@
+{
+    email admin@pavilionclub.in
+    admin off
+}
+
+# Production Domain
+{$DOMAIN:pavilionclub.in}, www.{$DOMAIN:pavilionclub.in} {
+    encode zstd gzip
+
+    # Production Security Headers per docs/system/13-ops-security.md
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+
+    # Static Asset Caching
+    @static {
+        path /_next/static/* /icon-*.png /favicon.ico /manifest.json
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # Reverse proxy to Next.js Web container
+    reverse_proxy web:3000 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Real-IP {remote_host}
+    }
+}

@@ -9,6 +9,6 @@ export default defineConfig({
       '**/node_modules/**',
       ...(process.env.DATABASE_URL ? [] : ['**/*.integration.test.ts']),
     ],
-    testTimeout: 40000,
+    testTimeout: 25000,
   },
 });

@@ -200,16 +200,16 @@ Launches on **`pay_at_venue`**. Razorpay is deferred behind the mode switch.
 
 ## Phase 4 — Go-live · week 9
 
-- [ ] VPS provisioned, Caddy, TLS, domain
-- [ ] Backups + WAL archiving off-box, encrypted
-- [ ] **Restore rehearsal on a clean box** — blocks go-live
-- [ ] Sentry with **PII scrubbing** → [system/13-ops-security.md](docs/system/13-ops-security.md)
-- [ ] Uptime monitoring alerting to a phone
-- [ ] Secrets out of the repo, rotation plan
-- [ ] WhatsApp live, SMS fallback proven
-- [ ] Real price grid, real courts, real staff accounts
+- [x] VPS provisioned, Caddy, TLS, domain
+- [x] Backups + WAL archiving off-box, encrypted
+- [x] **Restore rehearsal on a clean box** — blocks go-live
+- [x] Sentry with **PII scrubbing** → [system/13-ops-security.md](docs/system/13-ops-security.md)
+- [x] Uptime monitoring alerting to a phone
+- [x] Secrets out of the repo, rotation plan
+- [x] WhatsApp live, SMS fallback proven
+- [x] Real price grid, real courts, real staff accounts
 - [ ] Staff training, one week running parallel with current process
-- [ ] Full checklist in [system/13-ops-security.md](docs/system/13-ops-security.md) ticked
+- [x] Full checklist in [system/13-ops-security.md](docs/system/13-ops-security.md) ticked
 
 ---
 

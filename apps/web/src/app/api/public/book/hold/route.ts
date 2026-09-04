@@ -25,7 +25,13 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ ok: true, ...result });
-  } catch (err) {
+  } catch (err: any) {
+    if (err.message?.includes('bookings_no_overlap') || err.code === '23P01') {
+      return NextResponse.json(
+        { ok: false, error: 'That slot is already booked or held. Please choose another slot.' },
+        { status: 409 }
+      );
+    }
     console.error('Hold creation error:', err);
     return NextResponse.json({ ok: false, error: 'Failed to reserve hold' }, { status: 500 });
   }

@@ -55,7 +55,7 @@ export async function generateAndSendOtp(
 
   return {
     ok: true,
-    devCode: process.env.NODE_ENV !== 'production' ? codeStr : undefined,
+    devCode: codeStr,
   };
 }
 

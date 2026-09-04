@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pavilion-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pavilion_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-pavilion}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pavilion_app} -d ${POSTGRES_DB:-pavilion}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pavilion-internal
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pavilion-web
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-pavilion_app}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-pavilion}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET required}
+      PARTNER_PEPPER: ${PARTNER_PEPPER:?PARTNER_PEPPER required}
+      PHONE_PEPPER: ${PHONE_PEPPER:?PHONE_PEPPER required}
+      PORT: 3000
+    networks:
+      - pavilion-internal
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: pavilion-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3 QUIC
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    networks:
+      - pavilion-internal
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  pavilion-internal:
+    driver: bridge
