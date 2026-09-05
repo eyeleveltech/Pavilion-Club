@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 
@@ -12,12 +12,10 @@ const montserrat = Montserrat({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export const metadata: Metadata = {
-  title: 'The Pavilion Club · Badminton Arena',
+  title: 'The Pavilion Club — Badminton Arena',
   description: 'Premier indoor badminton arena. 3 BWF wooden synthetic courts, glare-free LED lighting.',
   manifest: '/manifest.json',
 };
