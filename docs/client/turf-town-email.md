@@ -11,7 +11,7 @@ person answers five questions, not twelve. The remaining questions in
 Hi [name],
 
 We're building the booking and management system for **Pavilion Club**, a
-pickleball venue in [city]. They'd like to list on Turf Town, and we'd like the
+badminton arena in Chennai. They'd like to list on Turf Town, and we'd like the
 two systems to talk to each other so the availability your users see is always
 accurate.
 

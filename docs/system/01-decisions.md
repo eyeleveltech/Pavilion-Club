@@ -94,9 +94,9 @@ them. Only the request and response shapes move. **Unless** their model requires
 us to push availability to them and receive bookings asynchronously — that
 breaks R1, and needs a design conversation before any code.
 
-## D7 — Pickleball only
+## D7 — Badminton only
 
-Confirmed 2026-09-01. Every court is a pickleball court. There is no other sport
+Confirmed 2026-09-01. Every court is a badminton court. There is no other sport
 at this venue.
 
 - **No `sport` column on `courts`**, and no multi-sport logic anywhere. Courts

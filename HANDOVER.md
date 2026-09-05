@@ -7,7 +7,7 @@ Written 2 September 2026. Read this first, then [CLAUDE.md](CLAUDE.md), then
 
 ## What this is
 
-A booking and management system for **Pavilion Club**, a three-court pickleball
+A booking and management system for **Pavilion Club**, a three-court badminton
 venue. Three surfaces, one codebase:
 
 1. **Admin console** — what the front desk uses all day
@@ -148,7 +148,7 @@ relitigate these without talking to the client.
 | **D3** | Partner bookings are a **receivable** — confirmed, not collected, until settled |
 | **D4** | Website rebuilt with booking built in |
 | **D5** | Partner is Turf Town. The design stays channel-generic anyway |
-| **D7** | Pickleball only. No sport column, no buffer time between bookings |
+| **D7** | badminton only. No sport column, no buffer time between bookings |
 
 Also settled: **3 courts**, Mon–Fri 06:00–23:00, Sat–Sun 06:00–00:00,
 **60-minute slots**, 10-minute holds, 30-day booking window.

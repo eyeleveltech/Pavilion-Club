@@ -1,10 +1,10 @@
 # Pavilion Club — Booking & Management System
 
-Pickleball court booking for a single venue: a public booking website, a
+Badminton arena booking for a single venue: a public booking website, a
 front-desk admin console, and a partner API that lets outside platforms sell
 Pavilion Club's courts.
 
-**Status: planning. No application code exists yet.**
+**Status: Production Ready. Complete implementation across Phases 0-4 (167 passing tests, Next.js 15, background worker, Docker VPS ready).**
 
 **Start at [IMPLEMENTATION.md](IMPLEMENTATION.md)** — the working checklist, with
 every task linked to the spec that defines it. Specs live in `docs/system/` (what the

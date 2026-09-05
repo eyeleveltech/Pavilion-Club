@@ -1,6 +1,6 @@
 # Pavilion Club
 
-Booking and management system for a three-court pickleball venue: a public
+Booking and management system for a three-court badminton arena: a public
 booking site, a front-desk admin console, and a partner API that lets Turf Town
 sell the same courts without ever selling one twice.
 
