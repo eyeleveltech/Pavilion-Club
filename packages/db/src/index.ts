@@ -19,3 +19,6 @@ export * from './repositories/notifications.js';
 export * from './repositories/public-booking.js';
 export * from './repositories/partner-api.js';
 export * from './repositories/reports-settlements.js';
+
+export * from './email/smtp.js';
+export * from './email/templates.js';

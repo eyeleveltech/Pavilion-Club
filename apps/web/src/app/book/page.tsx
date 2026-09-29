@@ -20,7 +20,7 @@ export default async function PublicBookingPage({
       <main className="flex-1">
         <PublicBookingFlow initialDate={selectedDate} />
       </main>
-      <PublicFooter />
+      <PublicFooter className="mt-0" />
     </div>
   );
 }

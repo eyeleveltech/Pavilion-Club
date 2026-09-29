@@ -5,7 +5,7 @@ import { createDb, validateCustomerSession, confirmPublicPayAtVenue, customers, 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { reference, phone, name, sessionToken } = body;
+    const { reference, phone, name, email, sessionToken } = body;
 
     if (!reference) {
       return NextResponse.json({ ok: false, error: 'Booking reference is required' }, { status: 400 });
@@ -32,17 +32,23 @@ export async function POST(request: Request) {
         customerId = existing[0].id;
         customerName = name || existing[0].name || 'Player';
         customerPhone = cleanPhone;
+        if (email && email.trim()) {
+          await db.update(customers).set({ email: email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(customers.id, customerId));
+        }
       } else {
         const [inserted] = await db
           .insert(customers)
           .values({
             phone: cleanPhone,
             name: name || 'Player',
+            email: email?.trim().toLowerCase() || null,
           })
           .returning();
         customerId = inserted!.id;
         customerPhone = cleanPhone;
       }
+    } else if (customerId && email && email.trim()) {
+      await db.update(customers).set({ email: email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(customers.id, customerId));
     }
 
     if (!customerId) {

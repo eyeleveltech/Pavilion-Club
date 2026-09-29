@@ -5,14 +5,14 @@ import { createDb, verifyOtpAndCreateSession } from '@pavilion/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { phone, code, name } = body;
+    const { phone, code, name, email } = body;
 
     if (!phone || !code) {
       return NextResponse.json({ ok: false, error: 'Phone and OTP code are required' }, { status: 400 });
     }
 
     const db = createDb();
-    const result = await verifyOtpAndCreateSession(db, { phone, code, name });
+    const result = await verifyOtpAndCreateSession(db, { phone, code, name, email });
 
     if (!result.ok || !result.sessionToken) {
       return NextResponse.json({ ok: false, error: result.error || 'Verification failed' }, { status: 400 });

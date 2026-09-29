@@ -5,13 +5,21 @@ import { createDb, destroySession } from '@pavilion/db';
 export async function POST() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get('pavilion_session')?.value;
+    const staffToken = cookieStore.get('pavilion_session')?.value;
+    const customerToken = cookieStore.get('pavilion_customer_session')?.value;
 
-    if (token) {
+    if (staffToken || customerToken) {
       const db = createDb();
-      await destroySession(db, token);
-      cookieStore.delete('pavilion_session');
+      if (staffToken) {
+        await destroySession(db, staffToken);
+      }
+      if (customerToken) {
+        await destroySession(db, customerToken);
+      }
     }
+
+    cookieStore.delete('pavilion_session');
+    cookieStore.delete('pavilion_customer_session');
 
     return NextResponse.json({ ok: true });
   } catch (err) {

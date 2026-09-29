@@ -10,3 +10,8 @@ coverage/
 
 backups/
 *.enc
+
+# Internal Task & Executive Tracking Files (Do Not Push)
+apps/web/public/harish-tasks.html
+apps/web/src/app/tasks/
+task_sheet.md

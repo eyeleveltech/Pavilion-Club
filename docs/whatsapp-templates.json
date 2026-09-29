@@ -1,0 +1,247 @@
+[
+  {
+    "name": "booking_confirmed",
+    "category": "UTILITY",
+    "language": "en",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "🏸 Booking Confirmed — The Pavilion Club"
+      },
+      {
+        "type": "BODY",
+        "text": "Hi {{1}}, your badminton court booking at The Pavilion Club Adyar is confirmed!\n\n📋 Booking Ref: {{2}}\n🏸 Court: {{3}}\n📅 Date: {{4}}\n⏰ Time: {{5}}\n💰 Amount: ₹{{6}} (100% Pay at Venue — Cash/UPI)\n\n📍 Venue Address:\n4th Main Road, Gandhi Nagar, Adyar, Chennai 600020 (Near Besant Ave)\n\n👟 Important Guidelines:\n• Non-marking badminton shoes strictly required on synthetic courts.\n• Please arrive 10 minutes prior to your slot. Lockers & showers available.",
+        "example": {
+          "body_text": [
+            [
+              "Rahul Sharma",
+              "PC-260929-1A3B",
+              "Court 1 (BWF Synthetic)",
+              "Tuesday, 29 Sep 2026",
+              "07:00 AM – 08:00 AM",
+              "800"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club · Premier Badminton Arena"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "URL",
+            "text": "View Match Pass",
+            "url": "https://pavilionclub.in/my-bookings"
+          },
+          {
+            "type": "PHONE_NUMBER",
+            "text": "Call Reception",
+            "phone_number": "+919840012345"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "booking_reminder",
+    "category": "UTILITY",
+    "language": "en",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "🏸 Match Reminder — Today at The Pavilion Club"
+      },
+      {
+        "type": "BODY",
+        "text": "Hi {{1}}, friendly reminder for your upcoming badminton game today at The Pavilion Club Adyar!\n\n🏸 Court: {{2}}\n⏰ Time: {{3}}\n📋 Booking Ref: {{4}}\n\n📍 4th Main Road, Gandhi Nagar, Adyar, Chennai 600020\n\nPlease remember non-marking gum-sole shoes. Dedicated parking and hot-water shower rooms are ready for you. See you on court!",
+        "example": {
+          "body_text": [
+            [
+              "Rahul Sharma",
+              "Court 2",
+              "06:00 PM – 07:00 PM",
+              "PC-260929-8F9E"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club · Adyar, Chennai"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "URL",
+            "text": "Google Maps Directions",
+            "url": "https://maps.google.com/?q=Adyar+Chennai"
+          },
+          {
+            "type": "PHONE_NUMBER",
+            "text": "Call Reception",
+            "phone_number": "+919840012345"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "booking_cancelled",
+    "category": "UTILITY",
+    "language": "en",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "🏸 Booking Cancellation Notice"
+      },
+      {
+        "type": "BODY",
+        "text": "Hi {{1}}, your badminton booking (Ref: {{2}}) for {{3}} on {{4}} at The Pavilion Club has been cancelled.\n\nPer our Fair Play Booking Policy, your court slot has been released back into the arena pool with zero cancellation penalty.\n\nWe look forward to hosting you on court another day!",
+        "example": {
+          "body_text": [
+            [
+              "Rahul Sharma",
+              "PC-260929-1A3B",
+              "Court 1 (07:00 AM – 08:00 AM)",
+              "29 Sep 2026"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club · Fair Play Policy"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "URL",
+            "text": "Book Another Slot",
+            "url": "https://pavilionclub.in/book"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "booking_rescheduled",
+    "category": "UTILITY",
+    "language": "en",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "🏸 Slot Rescheduled — The Pavilion Club"
+      },
+      {
+        "type": "BODY",
+        "text": "Hi {{1}}, your booking (Ref: {{2}}) at The Pavilion Club Adyar has been rescheduled by our reception desk.\n\n🏸 New Court: {{3}}\n📅 New Date: {{4}}\n⏰ New Time: {{5}}\n\nPrevious slot: {{6}}. All other booking details and your pay-at-venue tariff remain unchanged.",
+        "example": {
+          "body_text": [
+            [
+              "Rahul Sharma",
+              "PC-260929-1A3B",
+              "Court 3",
+              "Wednesday, 30 Sep 2026",
+              "08:00 AM – 09:00 AM",
+              "29 Sep at 07:00 AM"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club · Front Desk"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "URL",
+            "text": "View Updated Pass",
+            "url": "https://pavilionclub.in/my-bookings"
+          },
+          {
+            "type": "PHONE_NUMBER",
+            "text": "Call Reception",
+            "phone_number": "+919840012345"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "otp_verification",
+    "category": "AUTHENTICATION",
+    "language": "en",
+    "components": [
+      {
+        "type": "BODY",
+        "text": "{{1}} is your verification code for The Pavilion Club. Valid for 5 minutes. Do not share this OTP with anyone.",
+        "example": {
+          "body_text": [
+            [
+              "482910"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club Security"
+      },
+      {
+        "type": "BUTTONS",
+        "buttons": [
+          {
+            "type": "OTP",
+            "otp_type": "COPY_CODE",
+            "text": "Copy Code"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "daily_summary",
+    "category": "UTILITY",
+    "language": "en",
+    "components": [
+      {
+        "type": "HEADER",
+        "format": "TEXT",
+        "text": "📊 Nightly Arena Close — The Pavilion Club"
+      },
+      {
+        "type": "BODY",
+        "text": "The Pavilion Club — Operational Close Report for {{1}}:\n\n🏸 Total Games Played: {{2}} court-hours\n💰 Cash Collected at Counter: ₹{{3}}\n💳 UPI / Card Payments: ₹{{4}}\n💵 Register Discrepancy: ₹{{5}}\n📅 Tomorrow's Advance Occupancy: {{6}}%\n\nClosed by: {{7}} at {{8}}.",
+        "example": {
+          "body_text": [
+            [
+              "29 Sep 2026",
+              "42",
+              "16,800",
+              "18,400",
+              "0",
+              "85",
+              "Suresh (Front Desk)",
+              "23:45 IST"
+            ]
+          ]
+        }
+      },
+      {
+        "type": "FOOTER",
+        "text": "The Pavilion Club · Internal Audit"
+      }
+    ]
+  }
+]

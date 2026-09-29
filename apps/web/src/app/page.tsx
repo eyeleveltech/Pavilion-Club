@@ -32,7 +32,7 @@ export default function PublicLandingPage() {
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-navy leading-[1.15]">
-                Championship Badminton Courts at <span className="text-gold font-serif italic">The Pavilion</span>
+                Championship Badminton Courts at <span className="text-gold-text font-serif italic">The Pavilion</span>
               </h1>
 
               <p className="text-ink-soft text-sm sm:text-base leading-relaxed">
@@ -81,7 +81,7 @@ export default function PublicLandingPage() {
                   <span className="text-[10px] uppercase tracking-wider text-gold font-bold">
                     Now Playing
                   </span>
-                  <h3 className="text-base font-bold text-white mt-0.5">Arena Status</h3>
+                  <h2 className="text-base font-bold text-white mt-0.5">Arena Status</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-2.5 w-2.5">
@@ -95,7 +95,7 @@ export default function PublicLandingPage() {
               <div className="space-y-3 text-xs">
                 <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-white">Court 1 & 2</h4>
+                    <h3 className="font-bold text-white">Court 1 & 2</h3>
                     <p className="text-[11px] text-ink-on-dark/70">BWF Wooden Synthetic</p>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-ok-soft text-ok">
@@ -105,7 +105,7 @@ export default function PublicLandingPage() {
 
                 <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-white">Court 3</h4>
+                    <h3 className="font-bold text-white">Court 3</h3>
                     <p className="text-[11px] text-ink-on-dark/70">Championship Synthetic</p>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-ok-soft text-ok">
@@ -211,7 +211,7 @@ export default function PublicLandingPage() {
 
             <div className="p-6 rounded-xl bg-surface border border-navy/30 ring-1 ring-navy/10 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gold font-semibold">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gold-text font-semibold">
                   Peak & Weekends
                 </span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-navy text-gold uppercase">

@@ -1,3 +1,5 @@
+import { sendEmail } from '../email/smtp.js';
+import { buildOtpHtmlEmail } from '../email/templates.js';
 import { randomBytes, createHash } from 'node:crypto';
 import type { Database } from '../client.js';
 import { otpCodes, messageOutbox, sessions, loginAttempts } from '../schema/ops.js';
@@ -13,9 +15,13 @@ export interface OtpGenerateResult {
 export async function generateAndSendOtp(
   db: Database,
   phoneParam: string,
-  ipParam?: string
+  ipParam?: string,
+  channelParam?: 'phone' | 'email' | 'whatsapp',
+  emailParam?: string
 ): Promise<OtpGenerateResult> {
   const phone = phoneParam.trim();
+  const email = emailParam?.trim().toLowerCase();
+  const channel = channelParam === 'email' ? 'email' : 'whatsapp';
   const now = new Date();
   const ip = ipParam?.trim() || '127.0.0.1';
 
@@ -36,7 +42,7 @@ export async function generateAndSendOtp(
     }
   }
 
-  // 2. Rate Limiting per Phone: max 3 OTP sends per phone per 15 minutes (docs/system/12-notifications.md)
+  // 2. Rate Limiting per Phone: max 3 OTP sends per phone per 15 minutes
   const recentOtps = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(otpCodes)
@@ -52,7 +58,7 @@ export async function generateAndSendOtp(
 
   // Record IP attempt
   await db.insert(loginAttempts).values({
-    identifier: phone,
+    identifier: channel === 'email' && email ? email : phone,
     ip,
     succeeded: true,
   });
@@ -69,14 +75,28 @@ export async function generateAndSendOtp(
     expiresAt,
   });
 
-  // Queue in message_outbox WITHOUT storing plaintext code in jsonb (Audit §4.1)
+  // Queue in message_outbox according to chosen channel (WhatsApp/SMS vs Email)
   await db.insert(messageOutbox).values({
-    channel: 'whatsapp',
+    channel,
     toPhone: phone,
+    toEmail: email || null,
     template: 'otp',
-    payload: { codeHash, validMinutes: 5 },
+    payload: { codeHash, validMinutes: 5, target: channel === 'email' ? email : phone },
     status: 'queued',
   });
+
+  // If channel is Email, trigger live dispatch via Gmail SMTP (or Resend fallback)
+  if (channel === 'email' && email) {
+    try {
+      await sendEmail({
+        to: email,
+        subject: `Your Pavilion Club Verification Code: ${codeStr}`,
+        html: buildOtpHtmlEmail(codeStr),
+      });
+    } catch (err) {
+      console.error('[Email Dispatch Error]', err);
+    }
+  }
 
   return {
     ok: true,
@@ -97,6 +117,7 @@ export async function verifyOtpAndCreateSession(
     phone: string;
     code: string;
     name?: string | undefined;
+    email?: string | undefined;
   }
 ): Promise<VerifyOtpResult> {
   const phone = input.phone.trim();
@@ -150,14 +171,24 @@ export async function verifyOtpAndCreateSession(
       .values({
         phone,
         name: input.name?.trim() || 'Pavilion Player',
+        email: input.email?.trim().toLowerCase() || null,
       })
       .returning();
     customer = inserted[0]!;
-  } else if (input.name && input.name.trim() && customer.name === 'Pavilion Player') {
-    await db
-      .update(customers)
-      .set({ name: input.name.trim(), updatedAt: now })
-      .where(eq(customers.id, customer.id));
+  } else {
+    const updates: Record<string, any> = { updatedAt: now };
+    if (input.name && input.name.trim() && customer.name === 'Pavilion Player') {
+      updates.name = input.name.trim();
+    }
+    if (input.email && input.email.trim()) {
+      updates.email = input.email.trim().toLowerCase();
+    }
+    if (Object.keys(updates).length > 1) {
+      await db
+        .update(customers)
+        .set(updates)
+        .where(eq(customers.id, customer.id));
+    }
   }
 
   // Create Customer Session (30-day session)
@@ -238,3 +269,47 @@ export async function queueNotificationMessage(
     status: 'queued',
   });
 }
+
+export async function sendEmailWithResend(options: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey.trim().length === 0) {
+    console.warn('[Resend] RESEND_API_KEY is not set in environment.');
+    return { ok: false, error: 'RESEND_API_KEY is not configured in .env' };
+  }
+
+  const fromEmail = process.env.EMAIL_FROM || 'The Pavilion Club <onboarding@resend.dev>';
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey.trim()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [options.to],
+        subject: options.subject,
+        html: options.html,
+      }),
+    });
+
+    const data = (await res.json()) as any;
+    if (!res.ok) {
+      console.error('[Resend Error]', data);
+      return { ok: false, error: data.message || 'Failed to dispatch email via Resend' };
+    }
+
+    console.log(`[Resend Success] OTP Email dispatched to ${options.to} (ID: ${data.id})`);
+    return { ok: true, id: data.id };
+  } catch (err: any) {
+    console.error('[Resend Network Error]', err);
+    return { ok: false, error: err.message || 'Network error sending email via Resend' };
+  }
+}
+
+

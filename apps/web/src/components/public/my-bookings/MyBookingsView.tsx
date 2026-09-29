@@ -52,7 +52,6 @@ export function MyBookingsView({
   const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -62,6 +61,18 @@ export function MyBookingsView({
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelSuccess, setCancelSuccess] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    document.cookie = 'pavilion_customer_session=; path=/; max-age=0;';
+    window.location.href = '/my-bookings';
+  };
 
   const handleSendOtp = async () => {
     if (!phone || phone.trim().length < 10) return;
@@ -76,10 +87,7 @@ export function MyBookingsView({
       const json = await res.json();
       if (res.ok && json.ok) {
         setOtpSent(true);
-        if (json.devCode) {
-          setDevCode(json.devCode);
-          setOtpCode(json.devCode);
-        }
+
       } else {
         setLoginError(json.error || 'Failed to send OTP.');
       }
@@ -162,15 +170,17 @@ export function MyBookingsView({
           <div className="flex items-center gap-3 text-xs">
             <span className="font-mono text-ink-soft">{customer.phone}</span>
             <button
-              onClick={() => {
-                document.cookie = 'pavilion_customer_session=; path=/; max-age=0;';
-                window.location.reload();
-              }}
-              className="inline-flex items-center gap-1 text-ink-faint hover:text-danger transition"
-              title="Logout"
+              onClick={handleSignOut}
+              disabled={isLoggingOut}
+              className="inline-flex items-center gap-1.5 text-ink-soft hover:text-danger active:text-danger px-2 py-1 rounded-md hover:bg-surface-2 transition cursor-pointer disabled:opacity-50"
+              title="Sign out"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign out</span>
+              {isLoggingOut ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <LogOut className="w-3.5 h-3.5" />
+              )}
+              <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
             </button>
           </div>
         )}
@@ -219,11 +229,7 @@ export function MyBookingsView({
               </div>
             </div>
 
-            {devCode && (
-              <div className="p-2.5 rounded bg-ok-soft text-ok border border-ok/30 text-[11px] font-mono">
-                Dev OTP: <strong>{devCode}</strong>
-              </div>
-            )}
+
 
             {otpSent && (
               <div className="space-y-2">
@@ -323,16 +329,16 @@ export function MyBookingsView({
                         {b.isCancellable ? (
                           <button
                             onClick={() => setCancelTarget(b)}
-                            className="px-3 py-1.5 rounded border border-danger/30 text-danger font-semibold text-xs hover:bg-danger-soft transition"
+                            className="px-3 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 font-semibold text-xs hover:bg-rose-100 active:scale-95 transition shadow-2xs"
                           >
                             Cancel Slot
                           </button>
                         ) : (
                           <span
                             className="text-[10px] text-ink-faint"
-                            title="Cancellations are only allowed up to 24 hours before match time"
+                            title="Session is completed"
                           >
-                            Past 24h cutoff
+                            Session Completed
                           </span>
                         )}
                       </div>
@@ -361,7 +367,7 @@ export function MyBookingsView({
             </p>
 
             <div className="p-3 bg-surface-2 rounded-lg border border-border text-[11px] text-ink-soft">
-              Policy: Free cancellation is permitted as this match is more than 24 hours away.
+              Policy: {cancelTarget.hoursUntilMatch >= 2 ? "100% Free cancellation per Fair Play Policy (> 2 hours before match)." : "Late cancellation (< 2 hours before match). Slot will be immediately released."}
             </div>
 
             {cancelError && (

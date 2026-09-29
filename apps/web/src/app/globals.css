@@ -19,7 +19,8 @@
   /* ---- Text ---- */
   --ink:         var(--navy);
   --ink-soft:    #4A5765;
-  --ink-faint:   #8A939E;
+  --ink-faint:   #5E6A78; /* WCAG AA 5.2:1 */
+  --gold-text:   #8A6223; /* WCAG AA 4.6:1 on light backgrounds */
   --ink-on-dark: #F2EFE6;
   --ink-on-gold: var(--navy);
 
@@ -66,3 +67,30 @@ body {
   font-variant-numeric: tabular-nums;
 }
 @media (max-width: 768px) { input, select, textarea { font-size: 16px !important; } } * { -webkit-tap-highlight-color: transparent; }
+
+
+button:focus,
+button:focus-visible {
+  outline: none !important;
+}
+
+/* ---- Luxury Shimmer Skeleton Animation ---- */
+@keyframes luxury-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton {
+  background: linear-gradient(
+    90deg,
+    #F3EEE1 25%,
+    #E4DFD0 50%,
+    #F3EEE1 75%
+  );
+  background-size: 200% 100%;
+  animation: luxury-shimmer 1.8s ease-in-out infinite;
+}

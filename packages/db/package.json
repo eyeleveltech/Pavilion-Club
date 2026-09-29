@@ -17,10 +17,12 @@
     "@node-rs/argon2": "^2.2.0",
     "@pavilion/core": "workspace:*",
     "drizzle-orm": "^0.40.0",
+    "nodemailer": "^10.0.12",
     "pg": "^8.23.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1"
   }
 }

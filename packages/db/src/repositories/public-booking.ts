@@ -36,6 +36,7 @@ export interface PublicDaySlotItem {
   assignedCourtName: string;
   availableCourts: { id: string; name: string }[];
   isAvailable: boolean;
+  isPast?: boolean;
 }
 
 export interface PublicMonthDayAvailability {
@@ -131,6 +132,7 @@ export async function getPublicDaySlots(
   slots: PublicDaySlotItem[];
   allCourts: { id: string; name: string }[];
 }> {
+  const now = new Date();
   const courtsList = await db.select().from(courts).where(eq(courts.isBookable, true)).orderBy(courts.sortOrder);
   const hoursList = await db.select().from(courtHours);
   const rulesList = await db.select().from(priceRules).where(eq(priceRules.isActive, true));
@@ -173,11 +175,13 @@ export async function getPublicDaySlots(
     const endIso = `${targetDate}T${String(Math.floor(endMin / 60)).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}:00+05:30`;
     const startDate = new Date(startIso);
     const endDate = new Date(endIso);
+    const isPast = startDate.getTime() <= now.getTime();
 
     // Find which courts are open and not booked or blacked out
     const availableCourts: { id: string; name: string }[] = [];
 
-    for (const c of courtsList) {
+    if (!isPast) {
+      for (const c of courtsList) {
       const h = hoursList.find((ch) => ch.courtId === c.id && ch.weekday === weekday);
       if (!h || min < h.openMinutes || endMin > h.closeMinutes) continue;
 
@@ -197,9 +201,10 @@ export async function getPublicDaySlots(
       if (isBooked) continue;
 
       availableCourts.push({ id: c.id, name: c.name });
+      }
     }
 
-    const isAvailable = availableCourts.length > 0;
+    const isAvailable = !isPast && availableCourts.length > 0;
     const assignedCourt = availableCourts[0] || { id: courtsList[0]!.id, name: courtsList[0]!.name };
 
     // Price calculation
@@ -221,6 +226,7 @@ export async function getPublicDaySlots(
       assignedCourtName: assignedCourt.name,
       availableCourts,
       isAvailable,
+      isPast,
     });
   }
 
@@ -343,16 +349,20 @@ export async function confirmPublicPayAtVenue(
     .where(eq(bookings.id, booking.id));
 
   // 4. Queue WhatsApp / SMS Confirmation Message
+  const courtRow = await db.select({ name: courts.name }).from(courts).where(eq(courts.id, booking.courtId)).limit(1);
+  const courtName = courtRow[0]?.name || 'Court 1 (BWF Synthetic)';
+
   await queueNotificationMessage(db, {
     toPhone: input.customerPhone,
     template: 'booking_confirmed',
     bookingId: booking.id,
     payload: {
-      reference: booking.reference,
-      date: booking.businessDate,
-      startsAt: booking.startsAt.toISOString(),
-      amountRupees: booking.amountPaise / 100,
       customerName: input.customerName,
+      reference: booking.reference,
+      courtName,
+      date: booking.businessDate,
+      timeSlot: `${minutesToLabel(booking.startsAt.getHours() * 60 + booking.startsAt.getMinutes())} – ${minutesToLabel(booking.endsAt.getHours() * 60 + booking.endsAt.getMinutes())}`,
+      amountRupees: booking.amountPaise / 100,
       venueName: 'The Pavilion Club',
     },
   });
@@ -411,7 +421,7 @@ export async function getCustomerBookingsList(
     const endMin = localMinutes(endDate, IST_OFFSET_MINUTES);
 
     const hoursUntilMatch = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-    const isCancellable = b.status === 'confirmed' && hoursUntilMatch >= 24;
+    const isCancellable = b.status === 'confirmed' && endDate > now;
 
     return {
       id: b.id,
@@ -453,12 +463,17 @@ export async function cancelBookingByCustomer(
   const now = new Date();
   const hoursUntilMatch = (booking.startsAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-  if (hoursUntilMatch < 24) {
+  if (booking.endsAt < now) {
     return {
       ok: false,
-      error: 'Cancellations within 24 hours of match time are not eligible for self-cancellation per club policy.',
+      error: 'Past completed match sessions cannot be cancelled.',
     };
   }
+
+  const isLate = hoursUntilMatch < 2;
+  const reason = isLate 
+    ? 'Late cancellation by player from self-service portal (< 2h)' 
+    : 'Cancelled by player from self-service portal';
 
   await db
     .update(bookings)
@@ -466,7 +481,7 @@ export async function cancelBookingByCustomer(
       status: 'cancelled',
       cancelledAt: now,
       cancelledBy: 'customer',
-      cancelReason: 'Cancelled by player from self-service portal',
+      cancelReason: reason,
       updatedAt: now,
     })
     .where(eq(bookings.id, booking.id));

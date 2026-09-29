@@ -5,6 +5,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const phone = body.phone;
+    const email = body.email;
+    const channel = body.channel === 'email' ? 'email' : 'phone';
 
     if (!phone || typeof phone !== 'string' || phone.trim().length < 10) {
       return NextResponse.json(
@@ -13,18 +15,30 @@ export async function POST(request: Request) {
       );
     }
 
+    if (channel === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || typeof email !== 'string' || !emailRegex.test(email.trim())) {
+        return NextResponse.json(
+          { ok: false, error: 'Please enter a valid email address to receive OTP' },
+          { status: 400 }
+        );
+      }
+    }
+
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0]?.trim() : '127.0.0.1';
 
     const db = createDb();
-    const result = await generateAndSendOtp(db, phone, ip);
+    const result = await generateAndSendOtp(db, phone, ip, channel, email);
 
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error }, { status: 429 });
     }
 
-    const isDev = process.env.NODE_ENV !== 'production';
-    return NextResponse.json({ ok: true, ...(isDev && result.devCode ? { devCode: result.devCode } : {}) });
+    return NextResponse.json({
+      ok: true,
+      channel,
+    });
   } catch (err) {
     console.error('OTP send error:', err);
     return NextResponse.json({ ok: false, error: 'Failed to send OTP' }, { status: 500 });

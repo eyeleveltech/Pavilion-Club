@@ -11,6 +11,7 @@ export default {
       colors: {
         navy: 'var(--navy)',
         gold: 'var(--gold)',
+        'gold-text': 'var(--gold-text, #8A6223)',
         ivory: 'var(--ivory)',
         bg: 'var(--bg)',
         surface: 'var(--surface)',

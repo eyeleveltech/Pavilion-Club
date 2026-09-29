@@ -149,9 +149,10 @@ export default async function BookingConfirmationPage({
 
             <Link
               href="/my-bookings"
-              className="w-full py-3 rounded-lg border border-border text-ink text-xs font-semibold hover:bg-surface-2 transition flex items-center justify-center"
+              className="w-full py-3 rounded-lg border border-border text-ink text-xs font-semibold hover:bg-surface-2 transition flex items-center justify-center gap-1.5"
             >
-              View My Bookings
+              <span>Manage &amp; Cancel in My Bookings</span>
+              <span className="text-gold font-bold">&rarr;</span>
             </Link>
           </div>
         </div>
