@@ -1,4 +1,4 @@
-﻿import { notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   createDb,
@@ -14,12 +14,15 @@ import {
   Clock,
   MapPin,
   Banknote,
-  Share2,
   ArrowRight,
   Sparkles,
+  QrCode,
+  ShieldCheck,
+  Footprints
 } from 'lucide-react';
 import { PublicHeader } from '@/components/public/PublicHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
+import { DigitalMatchPassActions } from '@/components/public/DigitalMatchPassActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,105 +60,128 @@ export default async function BookingConfirmationPage({
   const endMin = localMinutes(booking.endsAt, IST_OFFSET_MINUTES);
   const timeLabel = `${minutesToLabel(startMin)} – ${minutesToLabel(endMin)}`;
 
+  // ISO dates for calendar event creation
+  const startsAtISO = booking.startsAt.toISOString();
+  const endsAtISO = booking.endsAt.toISOString();
+
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col justify-between">
       <PublicHeader />
 
-      <main className="max-w-xl mx-auto px-4 py-12 w-full space-y-6">
-        <div className="p-8 rounded-2xl bg-surface border border-border shadow-md text-center space-y-6">
-          <div className="w-14 h-14 rounded-full bg-ok-soft text-ok flex items-center justify-center mx-auto shadow-sm">
-            <CheckCircle2 className="w-8 h-8" />
-          </div>
-
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-gold">
-              The Pavilion Club
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-navy">
-              Booking Confirmed!
-            </h1>
-            <p className="text-xs text-ink-soft">
-              Your court has been reserved. See you on the court!
-            </p>
-          </div>
-
-          {/* Golden Reference Pill */}
-          <div className="p-3.5 rounded-xl bg-surface-2 border border-border inline-block mx-auto">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-ink-soft block mb-0.5">
-              Booking Reference
-            </span>
-            <span className="text-xl font-mono font-bold text-navy tracking-wider select-all">
-              {booking.reference}
-            </span>
-          </div>
-
-          {/* Details Card */}
-          <div className="divide-y divide-border border border-border rounded-xl text-xs text-left bg-surface-2/20">
-            <div className="p-3.5 flex items-center justify-between">
-              <span className="text-ink-soft flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gold" />
-                <span>Date:</span>
-              </span>
-              <span className="font-bold text-navy">{booking.businessDate}</span>
+      <main className="max-w-xl mx-auto px-4 py-8 sm:py-12 w-full space-y-6">
+        
+        {/* Luxury Boarding Pass Ticket Container */}
+        <div className="relative rounded-2xl bg-surface border border-border shadow-lg overflow-hidden">
+          
+          {/* Top Ticket Header */}
+          <div className="p-6 sm:p-8 bg-gradient-to-b from-surface-2/70 to-surface border-b border-border/80 text-center space-y-3 relative">
+            
+            {/* Success Icon */}
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-ok-soft text-ok flex items-center justify-center mx-auto shadow-sm ring-4 ring-ok-soft/30">
+              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
-            <div className="p-3.5 flex items-center justify-between">
-              <span className="text-ink-soft flex items-center gap-2">
-                <Clock className="w-4 h-4 text-gold" />
-                <span>Match Time:</span>
-              </span>
-              <span className="font-bold text-navy">{timeLabel}</span>
-            </div>
-
-            <div className="p-3.5 flex items-center justify-between">
-              <span className="text-ink-soft flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-gold" />
-                <span>Assigned Court:</span>
-              </span>
-              <span className="font-bold text-navy">{booking.courtName}</span>
-            </div>
-
-            <div className="p-3.5 flex items-center justify-between">
-              <span className="text-ink-soft flex items-center gap-2">
-                <Banknote className="w-4 h-4 text-gold" />
-                <span>Amount Due at Venue:</span>
-              </span>
-              <span className="font-bold text-navy font-mono text-sm">
-                ₹{(booking.amountPaise / 100).toLocaleString('en-IN')}
-              </span>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-[10px] font-bold uppercase tracking-widest mb-1.5">
+                <Sparkles className="w-3 h-3" />
+                <span>Official Digital Match Pass</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-navy">
+                Booking Confirmed!
+              </h1>
+              <p className="text-xs text-ink-soft mt-1">
+                Your BWF badminton court is secured. Present this pass at reception.
+              </p>
             </div>
           </div>
 
-          {/* Instructions */}
-          <div className="p-4 rounded-xl bg-surface-2 text-left text-xs space-y-2 border border-border">
-            <h3 className="font-bold text-navy text-[11px] uppercase tracking-wider">
-              Match Day Guidelines
-            </h3>
-            <ul className="list-disc list-inside space-y-1 text-ink-soft text-[11px]">
-              <li>Please arrive 10 minutes early to clear payment at the front desk.</li>
-              <li>Non-marking badminton shoes strictly required on court.</li>
-              <li>Show your reference <strong>{booking.reference}</strong> at reception.</li>
-            </ul>
-          </div>
+          {/* Ticket Body Content */}
+          <div className="p-6 sm:p-8 space-y-6">
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-            <Link
-              href="/book"
-              className="w-full py-3 rounded-lg bg-navy text-white text-xs font-bold hover:opacity-90 transition shadow-xs flex items-center justify-center gap-1.5"
-            >
-              <span>Book Another Court</span>
-              <ArrowRight className="w-4 h-4 text-gold" />
-            </Link>
+            {/* Interactive Actions: Copy Reference, WhatsApp Share, Calendar, Google Maps */}
+            <DigitalMatchPassActions
+              reference={booking.reference}
+              businessDate={booking.businessDate}
+              timeLabel={timeLabel}
+              courtName={booking.courtName}
+              amountPaise={booking.amountPaise}
+              customerName={booking.customerName}
+              startsAt={startsAtISO}
+              endsAt={endsAtISO}
+            />
 
-            <Link
-              href="/my-bookings"
-              className="w-full py-3 rounded-lg border border-border text-ink text-xs font-semibold hover:bg-surface-2 transition flex items-center justify-center gap-1.5"
-            >
-              <span>Manage &amp; Cancel in My Bookings</span>
-              <span className="text-gold font-bold">&rarr;</span>
-            </Link>
+            {/* Match Specification Details Card */}
+            <div className="divide-y divide-border border border-border rounded-xl text-xs text-left bg-surface-2/30 shadow-2xs overflow-hidden">
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-ink-soft flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gold flex-shrink-0" />
+                  <span>Match Date:</span>
+                </span>
+                <span className="font-bold text-navy">{booking.businessDate}</span>
+              </div>
+
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-ink-soft flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gold flex-shrink-0" />
+                  <span>Slot Time:</span>
+                </span>
+                <span className="font-bold text-navy">{timeLabel}</span>
+              </div>
+
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-ink-soft flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gold flex-shrink-0" />
+                  <span>Reserved Court:</span>
+                </span>
+                <span className="font-bold text-navy">{booking.courtName}</span>
+              </div>
+
+              <div className="p-3.5 flex items-center justify-between bg-gold/5">
+                <span className="text-ink-soft flex items-center gap-2">
+                  <Banknote className="w-4 h-4 text-gold flex-shrink-0" />
+                  <span className="font-semibold text-navy">Amount Due at Venue:</span>
+                </span>
+                <span className="font-bold text-navy font-mono text-base">
+                  ₹{(booking.amountPaise / 100).toLocaleString('en-IN')}
+                </span>
+              </div>
+            </div>
+
+            {/* Match Day Guidelines */}
+            <div className="p-4 rounded-xl bg-surface-2/60 text-left text-xs space-y-2 border border-border">
+              <div className="flex items-center gap-1.5 text-navy font-bold text-[11px] uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-gold flex-shrink-0" />
+                <span>Match Day Guidelines</span>
+              </div>
+              <ul className="list-disc list-inside space-y-1.5 text-ink-soft text-[11px] leading-relaxed">
+                <li>Arrive <strong>10 minutes early</strong> to clear spot payment (Cash/UPI) at reception.</li>
+                <li><strong>Non-marking badminton shoes</strong> are strictly mandatory on the synthetic courts.</li>
+                <li>Show your reference <strong>{booking.reference}</strong> or WhatsApp pass at front desk.</li>
+              </ul>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+              <Link
+                href="/book"
+                className="w-full py-3.5 rounded-xl bg-navy text-white text-xs font-bold hover:opacity-95 transition shadow-xs flex items-center justify-center gap-1.5 active:scale-[0.98]"
+              >
+                <span>Book Another Court</span>
+                <ArrowRight className="w-4 h-4 text-gold" />
+              </Link>
+
+              <Link
+                href="/my-bookings"
+                className="w-full py-3.5 rounded-xl border border-border text-ink text-xs font-semibold hover:bg-surface-2 transition flex items-center justify-center gap-1.5 active:scale-[0.98]"
+              >
+                <span>Manage in My Bookings</span>
+                <span className="text-gold font-bold">&rarr;</span>
+              </Link>
+            </div>
+
           </div>
         </div>
+
       </main>
 
       <PublicFooter />
