@@ -149,7 +149,7 @@ export function DigitalMatchPassActions({
         type="button"
         onClick={handleCopyReference}
         title="Click to copy booking reference"
-        className="group relative w-full p-3.5 rounded-xl bg-surface-2/80 hover:bg-surface-2 border border-border hover:border-gold/40 transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-xs active:scale-[0.99]"
+        className="group relative w-full p-3.5 rounded-xl bg-surface-2/80 hover:bg-surface-2 border border-border hover:border-gold/40 transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-xs active:scale-[0.99] outline-none focus:outline-none select-none"
       >
         <span className="text-[10px] uppercase tracking-widest font-bold text-ink-soft flex items-center gap-1.5 mb-0.5">
           <span>Booking Reference</span>

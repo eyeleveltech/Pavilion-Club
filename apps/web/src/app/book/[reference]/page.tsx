@@ -77,7 +77,7 @@ export default async function BookingConfirmationPage({
           <div className="p-6 sm:p-8 bg-gradient-to-b from-surface-2/70 to-surface border-b border-border/80 text-center space-y-3 relative">
             
             {/* Success Icon */}
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-ok-soft text-ok flex items-center justify-center mx-auto shadow-sm ring-4 ring-ok-soft/30">
+            <div className="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-full bg-ok-soft text-ok flex items-center justify-center mx-auto shadow-sm border border-ok/30 shrink-0 select-none outline-none">
               <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
