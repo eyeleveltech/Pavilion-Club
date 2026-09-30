@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Download, Smartphone, X, Sparkles, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,12 +10,18 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PwaInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   useEffect(() => {
+    // Do not show install prompt or attach listeners on admin routes
+    if (pathname?.startsWith('/admin')) {
+      return;
+    }
+
     // 1. Check if already installed in standalone mode
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -59,7 +66,7 @@ export function PwaInstallPrompt() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
     };
-  }, []);
+  }, [pathname]);
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -82,7 +89,10 @@ export function PwaInstallPrompt() {
     sessionStorage.setItem('pavilion_pwa_dismissed', 'true');
   };
 
-  if (!showPrompt && !showIOSModal) return null;
+  // Do not render anything on admin routes or when prompt is inactive
+  if (pathname?.startsWith('/admin') || (!showPrompt && !showIOSModal)) {
+    return null;
+  }
 
   return (
     <>
