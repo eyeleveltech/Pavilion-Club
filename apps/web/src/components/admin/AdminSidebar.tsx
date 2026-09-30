@@ -29,7 +29,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col justify-between w-60 bg-navy text-white min-h-screen p-5 border-r border-border-dark select-none shrink-0">
+    <aside className="hidden md:flex flex-col justify-between w-60 bg-navy text-white h-screen sticky top-0 overflow-y-auto p-5 border-r border-border-dark select-none shrink-0 z-30">
       <div>
         {/* Luxury Brand Lockup */}
         <div className="mb-8 pt-2">
