@@ -27,9 +27,9 @@ export async function generateAndSendOtp(
 
   const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
   const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
-  const isDev = !isTest && (process.env.NODE_ENV !== 'production' || !process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD.includes('your_16_digit'));
-  const maxIpLimit = isDev ? 100 : 10;
-  const maxPhoneLimit = isDev ? 100 : 3;
+  const isDev = process.env.NODE_ENV !== 'production';
+  const maxIpLimit = (isTest || isDev) ? 500 : 10;
+  const maxPhoneLimit = 3;
 
   // 1. Rate Limiting per IP: max 10 requests per 15 min (Audit §4.2)
   if (ip) {
