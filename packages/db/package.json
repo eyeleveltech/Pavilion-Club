@@ -11,10 +11,6 @@
     "./schema": {
       "types": "./dist/schema/index.d.ts",
       "default": "./dist/schema/index.js"
-    },
-    "./email": {
-      "types": "./dist/email/templates.d.ts",
-      "default": "./dist/email/templates.js"
     }
   },
   "dependencies": {

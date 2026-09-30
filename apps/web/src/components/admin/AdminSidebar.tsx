@@ -11,7 +11,6 @@ import {
   Settings,
   BarChart3,
   Palette,
-  Mail,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -21,7 +20,6 @@ const NAV_ITEMS = [
   { label: 'Customers', href: '/admin/customers', icon: Users },
   { label: 'Daily Close', href: '/admin/close', icon: Lock },
   { label: 'Reports', href: '/admin/reports', icon: BarChart3 },
-  { label: 'Email Studio', href: '/admin/email-preview', icon: Mail },
   { label: 'Settings', href: '/admin/settings/courts', icon: Settings },
 ];
 
