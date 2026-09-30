@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/icon-192.png',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({
@@ -37,11 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={montserrat.variable}>
-      <head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-      </head>
+    <html lang="en" className={montserrat.variable} suppressHydrationWarning>
       <body className="font-sans antialiased bg-bg text-ink min-h-screen">
         {children}
         <PwaInstallPrompt />
