@@ -7,10 +7,7 @@ import {
   MapPin,
   Copy,
   Check,
-  Calendar,
-  ExternalLink,
-  QrCode,
-  Sparkles
+  ExternalLink
 } from 'lucide-react';
 
 interface DigitalMatchPassActionsProps {
@@ -82,7 +79,39 @@ export function DigitalMatchPassActions({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // Download .ics file for Apple Calendar / Google Calendar / Outlook
+  // Direct Google Calendar Event (Opens calendar app / web directly - NO FILE DOWNLOAD)
+  const handleAddToGoogleCalendar = () => {
+    try {
+      const formatGCalDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+
+      const startDate = formatGCalDate(new Date(startsAt));
+      const endDate = formatGCalDate(new Date(endsAt));
+      const title = `🏸 Badminton Match — ${courtName} (${reference})`;
+      const details = [
+        'THE PAVILION CLUB — BADMINTON MATCH PASS',
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        `Court: ${courtName}`,
+        `Booking Ref: ${reference}`,
+        `Date: ${businessDate}`,
+        `Time: ${timeLabel}`,
+        `Venue: ${venueName}`,
+        `Address: ${venueAddress}`,
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+        'Note: Non-marking badminton shoes strictly required on court.'
+      ].join('\n');
+
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(venueAddress)}`;
+
+      window.open(gcalUrl, '_blank', 'noopener,noreferrer');
+      showToast('Opening Google Calendar...');
+    } catch {
+      showToast('Could not open Google Calendar');
+    }
+  };
+
+  // Fallback .ics file download for Apple Calendar / Outlook
   const handleDownloadICS = () => {
     try {
       const startDate = new Date(startsAt);
@@ -126,11 +155,7 @@ export function DigitalMatchPassActions({
 
       showToast('Match event added to calendar file!');
     } catch {
-      // Fallback to Google Calendar URL
-      const startDate = new Date(startsAt).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      const endDate = new Date(endsAt).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Badminton Match - ${courtName}`)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(`Booking Ref: ${reference}\\nCourt: ${courtName}`)}&location=${encodeURIComponent(venueAddress)}`;
-      window.open(gcalUrl, '_blank', 'noopener,noreferrer');
+      handleAddToGoogleCalendar();
     }
   };
 
@@ -175,20 +200,32 @@ export function DigitalMatchPassActions({
         <button
           type="button"
           onClick={handleWhatsAppShare}
-          className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 active:scale-[0.98]"
+          className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 active:scale-[0.98] outline-none select-none cursor-pointer"
         >
           <Share2 className="w-4 h-4" />
           <span>Share Match Pass</span>
         </button>
 
-        {/* Add to Calendar (.ics / Google) */}
+        {/* Add to Calendar (Direct Google Calendar - No file download!) */}
         <button
           type="button"
-          onClick={handleDownloadICS}
-          className="w-full py-3 px-4 rounded-xl bg-surface border border-border hover:border-gold/50 text-ink text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98]"
+          onClick={handleAddToGoogleCalendar}
+          title="Add event directly to Google Calendar"
+          className="w-full py-3 px-4 rounded-xl bg-surface border border-border hover:border-gold/50 text-ink text-xs font-bold transition shadow-xs flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] outline-none select-none cursor-pointer"
         >
           <CalendarPlus className="w-4 h-4 text-gold" />
           <span>Add to Calendar</span>
+        </button>
+      </div>
+
+      {/* Apple / Outlook .ics fallback download option */}
+      <div className="text-center -mt-1">
+        <button
+          type="button"
+          onClick={handleDownloadICS}
+          className="text-[11px] text-ink-soft/80 hover:text-navy hover:underline transition-colors cursor-pointer select-none inline-flex items-center gap-1"
+        >
+          <span>Using Apple Calendar or Outlook? Download .ics</span>
         </button>
       </div>
 
@@ -197,7 +234,7 @@ export function DigitalMatchPassActions({
         href={googleMapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full py-2.5 px-4 rounded-xl bg-surface-2/60 hover:bg-surface-2 border border-border text-ink-soft hover:text-navy text-[11px] font-semibold transition flex items-center justify-center gap-1.5"
+        className="w-full py-2.5 px-4 rounded-xl bg-surface-2/60 hover:bg-surface-2 border border-border text-ink-soft hover:text-navy text-[11px] font-semibold transition flex items-center justify-center gap-1.5 outline-none select-none"
       >
         <MapPin className="w-3.5 h-3.5 text-gold flex-shrink-0" />
         <span>Navigate to Venue: Adyar (3rd Floor)</span>
