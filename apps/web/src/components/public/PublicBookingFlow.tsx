@@ -91,6 +91,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -290,7 +291,12 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
       const json = await res.json();
       if (res.ok && json.ok) {
         setOtpSent(true);
-        setOtpCode('');
+        if (json.devOtp) {
+          setDevOtp(json.devOtp);
+          setOtpCode(json.devOtp);
+        } else {
+          setOtpCode('');
+        }
         setResendCooldown(30);
       } else {
         setBookingError(json.error || 'Failed to send verification code. Please try again.');
@@ -313,6 +319,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const handleChangeChannel = () => {
     setOtpSent(false);
     setOtpCode('');
+    setDevOtp(null);
     setBookingError(null);
   };
 
@@ -1064,6 +1071,22 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
                       Change
                     </button>
                   </div>
+
+                  {/* Dev / Test OTP Helper Banner */}
+                  {devOtp && (
+                    <div className="p-3 rounded-xl bg-gold/10 border border-gold/40 text-navy flex items-center justify-between gap-2 animate-in fade-in">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-gold shrink-0" />
+                        <div className="text-[11px] leading-tight">
+                          <span className="font-semibold text-ink-soft">Test Verification Code: </span>
+                          <span className="font-mono font-extrabold text-navy text-sm tracking-wider">{devOtp}</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-navy bg-white px-2 py-0.5 rounded-full border border-gold/30 shadow-2xs">
+                        Auto-filled
+                      </span>
+                    </div>
+                  )}
 
                   {/* 6-Digit OTP Code Input */}
                   <div className="space-y-1.5">

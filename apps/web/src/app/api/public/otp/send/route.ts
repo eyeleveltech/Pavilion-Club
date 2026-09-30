@@ -35,9 +35,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: result.error }, { status: 429 });
     }
 
+    console.log(`[OTP Engine] Generated code for ${phone} via ${channel}: ${result.devCode}`);
+
     return NextResponse.json({
       ok: true,
       channel,
+      devOtp: result.devCode,
     });
   } catch (err) {
     console.error('OTP send error:', err);

@@ -26,6 +26,10 @@ export async function generateAndSendOtp(
   const ip = ipParam?.trim() || '127.0.0.1';
 
   const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+  const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+  const isDev = !isTest && (process.env.NODE_ENV !== 'production' || !process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD.includes('your_16_digit'));
+  const maxIpLimit = isDev ? 100 : 10;
+  const maxPhoneLimit = isDev ? 100 : 3;
 
   // 1. Rate Limiting per IP: max 10 requests per 15 min (Audit §4.2)
   if (ip) {
@@ -34,7 +38,7 @@ export async function generateAndSendOtp(
       .from(loginAttempts)
       .where(and(eq(loginAttempts.ip, ip), gt(loginAttempts.createdAt, fifteenMinutesAgo)));
 
-    if ((recentIpAttempts[0]?.count ?? 0) >= 10) {
+    if ((recentIpAttempts[0]?.count ?? 0) >= maxIpLimit) {
       return {
         ok: false,
         error: 'Too many OTP requests from this network. Please wait 15 minutes before requesting again.',
@@ -49,7 +53,7 @@ export async function generateAndSendOtp(
     .where(and(eq(otpCodes.phone, phone), gt(otpCodes.createdAt, fifteenMinutesAgo)));
 
   const count = recentOtps[0]?.count ?? 0;
-  if (count >= 3) {
+  if (count >= maxPhoneLimit) {
     return {
       ok: false,
       error: 'Too many OTP requests. Please wait 15 minutes before requesting again.',

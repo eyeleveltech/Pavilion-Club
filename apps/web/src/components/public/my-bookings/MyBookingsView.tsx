@@ -14,6 +14,7 @@ import {
   Loader2,
   LogOut,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 
 interface BookingRecord {
@@ -51,6 +52,7 @@ export function MyBookingsView({
   // OTP Login State (for unauthenticated players)
   const [phone, setPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -87,7 +89,10 @@ export function MyBookingsView({
       const json = await res.json();
       if (res.ok && json.ok) {
         setOtpSent(true);
-
+        if (json.devOtp) {
+          setDevOtp(json.devOtp);
+          setOtpCode(json.devOtp);
+        }
       } else {
         setLoginError(json.error || 'Failed to send OTP.');
       }
@@ -233,6 +238,18 @@ export function MyBookingsView({
 
             {otpSent && (
               <div className="space-y-2">
+                {devOtp && (
+                  <div className="p-2.5 rounded-lg bg-gold/10 border border-gold/40 text-navy flex items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+                      <span className="font-semibold text-ink-soft">Test Code:</span>
+                      <span className="font-mono font-bold text-navy text-sm tracking-wider">{devOtp}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-navy bg-white px-2 py-0.5 rounded-full border border-gold/30">
+                      Auto-filled
+                    </span>
+                  </div>
+                )}
                 <label className="block font-semibold text-ink-soft">
                   Enter 6-Digit OTP Code
                 </label>
