@@ -58,7 +58,15 @@ export default async function BookingConfirmationPage({
 
   const startMin = localMinutes(booking.startsAt, IST_OFFSET_MINUTES);
   const endMin = localMinutes(booking.endsAt, IST_OFFSET_MINUTES);
-  const timeLabel = `${minutesToLabel(startMin)} – ${minutesToLabel(endMin)}`;
+  function format12h(min: number): string {
+    const wrapped = ((min % 1440) + 1440) % 1440;
+    const h = Math.floor(wrapped / 60);
+    const m = wrapped % 60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+  }
+  const timeLabel = `${format12h(startMin)} – ${format12h(endMin)}`;
 
   // ISO dates for calendar event creation
   const startsAtISO = booking.startsAt.toISOString();

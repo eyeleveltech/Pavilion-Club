@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar as CalendarIcon,
@@ -43,6 +43,17 @@ function formatLocalDate(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+export function formatTo12Hour(timeStr: string): string {
+  if (!timeStr) return '';
+  return timeStr.replace(/(\d{1,2}):(\d{2})/g, (_, hStr, mStr) => {
+    let hour = parseInt(hStr, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${String(hour).padStart(2, '0')}:${mStr} ${ampm}`;
+  });
+}
+
 export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const router = useRouter();
 
@@ -76,6 +87,197 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   // Selected Slots State
   const [selectedSlotTimes, setSelectedSlotTimes] = useState<string[]>([]); // startsAt ISOs
   const [overrideCourtId, setOverrideCourtId] = useState<string | null>(null);
+
+  // Segmented Control State & 120fps Zero-Lag GPU Drag Ref Handling
+  const [selectedPeriod, setSelectedPeriod] = useState<'morning' | 'afternoon' | 'evening'>('afternoon');
+  const segContainerRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    startTime: number;
+    startPercent: number;
+    currentPercent: number;
+    segWidth: number;
+    hasMoved: boolean;
+    lockedHorizontal: boolean;
+    lastX: number;
+    lastTime: number;
+    velocity: number;
+  } | null>(null);
+
+  const getPeriodIndex = (p: 'morning' | 'afternoon' | 'evening') => (p === 'morning' ? 0 : p === 'afternoon' ? 1 : 2);
+  const indexToPeriod = (idx: number): 'morning' | 'afternoon' | 'evening' => (idx === 0 ? 'morning' : idx === 1 ? 'afternoon' : 'evening');
+
+  // Keep thumb in sync when selectedPeriod changes (e.g. tap, date change)
+  useEffect(() => {
+    if (thumbRef.current && (!dragRef.current || !dragRef.current.hasMoved)) {
+      const idx = getPeriodIndex(selectedPeriod);
+      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
+      thumbRef.current.style.transform = `translate3d(${idx * 100}%, 0, 0)`;
+    }
+  }, [selectedPeriod]);
+
+  // Auto-focus optimal period when slots load or date changes
+  useEffect(() => {
+    if (daySlots.length === 0) return;
+    if (selectedSlots.length > 0 && selectedSlots[0]?.period) {
+      setSelectedPeriod(selectedSlots[0].period);
+      return;
+    }
+    const nowMs = Date.now();
+    const hasMorning = daySlots.some(
+      (s) => s.period === 'morning' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
+    );
+    const hasAfternoon = daySlots.some(
+      (s) => s.period === 'afternoon' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
+    );
+    const hasEvening = daySlots.some(
+      (s) => s.period === 'evening' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
+    );
+
+    if (hasMorning) {
+      setSelectedPeriod('morning');
+    } else if (hasAfternoon) {
+      setSelectedPeriod('afternoon');
+    } else if (hasEvening) {
+      setSelectedPeriod('evening');
+    }
+  }, [selectedDate, daySlots]);
+
+  const handleSelectPeriod = (period: 'morning' | 'afternoon' | 'evening') => {
+    if (dragRef.current?.hasMoved) return;
+    const idx = getPeriodIndex(period);
+    if (thumbRef.current) {
+      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
+      thumbRef.current.style.transform = `translate3d(${idx * 100}%, 0, 0)`;
+    }
+    setSelectedPeriod(period);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(6);
+  };
+
+  const onPointerDownSeg = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!segContainerRef.current) return;
+    if (e.isPrimary === false) return;
+
+    const rect = segContainerRef.current.getBoundingClientRect();
+    const segWidth = (rect.width - 8) / 3;
+    const startIdx = getPeriodIndex(selectedPeriod);
+    const startPercent = startIdx * 100;
+
+    const drag = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startTime: performance.now(),
+      startPercent,
+      currentPercent: startPercent,
+      segWidth,
+      hasMoved: false,
+      lockedHorizontal: false,
+      lastX: e.clientX,
+      lastTime: performance.now(),
+      velocity: 0,
+    };
+    dragRef.current = drag;
+
+    const onWindowMove = (ev: PointerEvent) => {
+      if (!dragRef.current || !thumbRef.current) return;
+      const dx = ev.clientX - drag.startX;
+      const dy = ev.clientY - drag.startY;
+
+      if (!drag.lockedHorizontal) {
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            drag.lockedHorizontal = true;
+          } else {
+            // Vertical scroll detected: let page scroll naturally
+            cleanup();
+            dragRef.current = null;
+            return;
+          }
+        } else {
+          return;
+        }
+      }
+
+      drag.hasMoved = true;
+      const now = performance.now();
+      const dt = now - drag.lastTime;
+      if (dt > 8) {
+        drag.velocity = (ev.clientX - drag.lastX) / dt;
+        drag.lastX = ev.clientX;
+        drag.lastTime = now;
+      }
+
+      const percentDelta = (dx / drag.segWidth) * 100;
+      let newPercent = drag.startPercent + percentDelta;
+
+      // Elastic rubber-band spring damping at edges
+      if (newPercent < 0) {
+        newPercent = newPercent * 0.25;
+      } else if (newPercent > 200) {
+        newPercent = 200 + (newPercent - 200) * 0.25;
+      }
+
+      drag.currentPercent = newPercent;
+
+      // 100% Direct GPU compositor transform in PERCENTAGE (Never aborts or mismatches!)
+      thumbRef.current.style.transition = 'none';
+      thumbRef.current.style.transform = `translate3d(${newPercent}%, 0, 0)`;
+    };
+
+    const onWindowUp = () => {
+      cleanup();
+      if (!thumbRef.current) {
+        dragRef.current = null;
+        return;
+      }
+
+      const currentIdx = getPeriodIndex(selectedPeriod);
+      let targetIdx = currentIdx;
+
+      if (drag.hasMoved && drag.lockedHorizontal) {
+        const percentDelta = drag.currentPercent - drag.startPercent;
+
+        // Intentional swipe / flick: if dragged > 15% of segment or swiped with speed
+        if (drag.velocity > 0.25 || percentDelta > 15) {
+          // Swiped RIGHT -> next segment!
+          targetIdx = Math.min(2, currentIdx + 1);
+        } else if (drag.velocity < -0.25 || percentDelta < -15) {
+          // Swiped LEFT -> previous segment!
+          targetIdx = Math.max(0, currentIdx - 1);
+        } else {
+          // Position-based snap to nearest slot (0, 1, or 2)
+          targetIdx = Math.round(drag.currentPercent / 100);
+          targetIdx = Math.max(0, Math.min(2, targetIdx));
+        }
+      }
+
+      // Smooth animated snap to exact target slot in percentage (0%, 100%, 200%)
+      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
+      thumbRef.current.style.transform = `translate3d(${targetIdx * 100}%, 0, 0)`;
+
+      const targetPeriod = indexToPeriod(targetIdx);
+      setSelectedPeriod(targetPeriod);
+      if (targetPeriod !== selectedPeriod && typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(8);
+      }
+
+      setTimeout(() => {
+        dragRef.current = null;
+      }, 50);
+    };
+
+    const cleanup = () => {
+      window.removeEventListener('pointermove', onWindowMove);
+      window.removeEventListener('pointerup', onWindowUp);
+      window.removeEventListener('pointercancel', onWindowUp);
+    };
+
+    window.addEventListener('pointermove', onWindowMove);
+    window.addEventListener('pointerup', onWindowUp);
+    window.addEventListener('pointercancel', onWindowUp);
+  };
 
   // Hold State (10-minute timer)
   const [holdReference, setHoldReference] = useState<string | null>(null);
@@ -423,17 +625,17 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
               isSelected ? 'text-white' : 'text-navy'
             }`}
           >
-            {slot.timeLabel}
+            {formatTo12Hour(slot.timeLabel)}
           </span>
           {isSelected ? (
             <span className="w-5 h-5 rounded-full bg-gold text-navy flex items-center justify-center shrink-0 shadow-xs">
               <Check className="w-3 h-3 stroke-[3]" />
             </span>
-          ) : (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-ok-soft text-ok border border-ok/30">
-              {slot.availableCourts.length} Free
+          ) : slot.availableCourts.length === 1 ? (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+              1 Left
             </span>
-          )}
+          ) : null}
         </div>
 
         <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
@@ -463,6 +665,41 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const morningAvailable = availableSlots.filter((s) => s.period === 'morning');
   const afternoonAvailable = availableSlots.filter((s) => s.period === 'afternoon');
   const eveningAvailable = availableSlots.filter((s) => s.period === 'evening');
+
+  const allMorning = daySlots.filter((s) => s.period === 'morning');
+  const allAfternoon = daySlots.filter((s) => s.period === 'afternoon');
+  const allEvening = daySlots.filter((s) => s.period === 'evening');
+
+  const nowMs = Date.now();
+  const isMorningPassed = allMorning.length > 0 && allMorning.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
+  const isAfternoonPassed = allAfternoon.length > 0 && allAfternoon.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
+  const isEveningPassed = allEvening.length > 0 && allEvening.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
+
+  const getPeriodSubtitle = (period: 'morning' | 'afternoon' | 'evening') => {
+    if (period === 'morning') {
+      if (isMorningPassed) return 'Passed';
+      if (morningAvailable.length === 0) return 'Full';
+      return `${morningAvailable.length} free`;
+    }
+    if (period === 'afternoon') {
+      if (isAfternoonPassed) return 'Passed';
+      if (afternoonAvailable.length === 0) return 'Full';
+      return `${afternoonAvailable.length} free`;
+    }
+    if (period === 'evening') {
+      if (isEveningPassed) return 'Passed';
+      if (eveningAvailable.length === 0) return 'Full';
+      return `${eveningAvailable.length} free`;
+    }
+    return '';
+  };
+
+  const activePeriodSlots =
+    selectedPeriod === 'morning'
+      ? morningAvailable
+      : selectedPeriod === 'afternoon'
+      ? afternoonAvailable
+      : eveningAvailable;
 
   return (
     <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-10 sm:pb-12">
@@ -554,7 +791,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
                 <span className="w-2 h-2 rounded-full bg-ok animate-ping" />
               </div>
               <p className="text-xs text-white/90 font-medium mt-0.5">
-                {assignedCourt?.name} · {selectedDate} ({selectedSlots[0]?.timeLabel})
+                {assignedCourt?.name} · {selectedDate} ({formatTo12Hour(selectedSlots[0]?.timeLabel || "")})
               </p>
             </div>
           </div>
@@ -686,12 +923,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
               </p>
             </div>
 
-            {assignedCourt && (
-              <div className="flex items-center gap-1.5 text-xs text-ink-soft bg-surface-2 px-3 py-1.5 rounded-xl border border-border self-start sm:self-auto">
-                <span className="font-medium">Allocated:</span>
-                <span className="font-bold text-navy">{assignedCourt.name}</span>
-              </div>
-            )}
+
           </div>
 
           {/* Interactive Court Segmented Pills - Equal 3-column grid without swipe */}
@@ -740,44 +972,143 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Morning Sessions */}
-            {morningAvailable.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-soft">
-                  <Sunrise className="w-4 h-4 text-gold" />
-                  <span>Morning Sessions (06:00 AM – 12:00 PM)</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-                  {morningAvailable.map(renderSlotCard)}
-                </div>
-              </div>
-            )}
+            {/* Interactive Segmented Control (Morning / Afternoon / Evening) with 120fps Zero-Lag GPU Drag & Swipe */}
+            <div className="pt-2">
+            <div
+              ref={segContainerRef}
+              onPointerDown={onPointerDownSeg}
+              className="relative grid grid-cols-3 bg-[#EFE9DB] p-1 rounded-2xl border border-[#E0D8C6] select-none shadow-xs cursor-grab active:cursor-grabbing"
+              style={{ touchAction: 'none' }}
+            >
+              {/* Sliding Active Pill with Zero-Lag Direct GPU Transform */}
+              <div
+                ref={thumbRef}
+                className="absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] bg-white rounded-[13px] shadow-[0_2px_8px_rgba(15,30,46,0.12)] pointer-events-none will-change-transform"
+                style={{
+                  transform: `translate3d(${getPeriodIndex(selectedPeriod) * 100}%, 0, 0)`,
+                  transition: 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              />
 
-            {/* Afternoon Sessions */}
-            {afternoonAvailable.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-soft">
-                  <Sun className="w-4 h-4 text-gold" />
-                  <span>Afternoon Sessions (12:00 PM – 05:00 PM)</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-                  {afternoonAvailable.map(renderSlotCard)}
-                </div>
-              </div>
-            )}
+              {/* Morning Segment */}
+              <button
+                type="button"
+                onClick={() => handleSelectPeriod('morning')}
+                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
+              >
+                <span
+                  className={`text-xs sm:text-sm transition-colors ${
+                    selectedPeriod === 'morning'
+                      ? 'font-bold text-[#0f1e2e]'
+                      : isMorningPassed
+                      ? 'font-medium text-[#0f1e2e]/40'
+                      : 'font-semibold text-[#0f1e2e]/70'
+                  }`}
+                >
+                  Morning
+                </span>
+                <span
+                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
+                    isMorningPassed
+                      ? 'text-[#0f1e2e]/40'
+                      : morningAvailable.length === 0
+                      ? 'text-danger font-medium'
+                      : selectedPeriod === 'morning'
+                      ? 'text-[#0f1e2e]/70'
+                      : 'text-[#0f1e2e]/60'
+                  }`}
+                >
+                  {getPeriodSubtitle('morning')}
+                </span>
+              </button>
 
-            {/* Evening Sessions */}
-            {eveningAvailable.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-soft">
-                  <Moon className="w-4 h-4 text-gold" />
-                  <span>Evening & Prime Sessions (05:00 PM – 11:00 PM)</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-                  {eveningAvailable.map(renderSlotCard)}
-                </div>
+              {/* Afternoon Segment */}
+              <button
+                type="button"
+                onClick={() => handleSelectPeriod('afternoon')}
+                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
+              >
+                <span
+                  className={`text-xs sm:text-sm transition-colors ${
+                    selectedPeriod === 'afternoon'
+                      ? 'font-bold text-[#0f1e2e]'
+                      : isAfternoonPassed
+                      ? 'font-medium text-[#0f1e2e]/40'
+                      : 'font-semibold text-[#0f1e2e]/70'
+                  }`}
+                >
+                  Afternoon
+                </span>
+                <span
+                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
+                    isAfternoonPassed
+                      ? 'text-[#0f1e2e]/40'
+                      : afternoonAvailable.length === 0
+                      ? 'text-danger font-medium'
+                      : selectedPeriod === 'afternoon'
+                      ? 'text-[#0f1e2e]/70'
+                      : 'text-[#0f1e2e]/60'
+                  }`}
+                >
+                  {getPeriodSubtitle('afternoon')}
+                </span>
+              </button>
+
+              {/* Evening Segment */}
+              <button
+                type="button"
+                onClick={() => handleSelectPeriod('evening')}
+                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
+              >
+                <span
+                  className={`text-xs sm:text-sm transition-colors ${
+                    selectedPeriod === 'evening'
+                      ? 'font-bold text-[#0f1e2e]'
+                      : isEveningPassed
+                      ? 'font-medium text-[#0f1e2e]/40'
+                      : 'font-semibold text-[#0f1e2e]/70'
+                  }`}
+                >
+                  Evening
+                </span>
+                <span
+                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
+                    isEveningPassed
+                      ? 'text-[#0f1e2e]/40'
+                      : eveningAvailable.length === 0
+                      ? 'text-danger font-medium'
+                      : selectedPeriod === 'evening'
+                      ? 'text-[#0f1e2e]/70'
+                      : 'text-[#0f1e2e]/60'
+                  }`}
+                >
+                  {getPeriodSubtitle('evening')}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Active Period Slots Grid */}
+          <div className="space-y-4">
+            {activePeriodSlots.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
+                {activePeriodSlots.map(renderSlotCard)}
+              </div>
+            ) : (
+              <div className="p-6 sm:p-8 text-center rounded-2xl bg-surface-2/60 border border-border space-y-2">
+                <p className="text-xs sm:text-sm font-semibold text-navy">
+                  {selectedPeriod === 'morning' && isMorningPassed
+                    ? 'Morning sessions have passed for today.'
+                    : selectedPeriod === 'afternoon' && isAfternoonPassed
+                    ? 'Afternoon sessions have passed for today.'
+                    : `No available slots in the ${selectedPeriod} session for this date.`}
+                </p>
+                <p className="text-[11px] text-ink-soft">
+                  Select another session above or choose a different date.
+                </p>
               </div>
             )}
+          </div>
           </div>
         )
       )}
@@ -793,7 +1124,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 text-xs truncate">
                 <span className="font-bold text-navy truncate">
-                  {selectedSlots.length > 0 ? selectedSlots[0]!.timeLabel : 'Select a match slot'}
+                  {selectedSlots.length > 0 ? formatTo12Hour(selectedSlots[0]!.timeLabel) : 'Select a match slot'}
                 </span>
                 {assignedCourt && selectedSlots.length > 0 && (
                   <span className="text-ink-soft font-medium text-[11px] truncate">

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>The Pavilion Club — Mobile Testing Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060B14;
+      --card: #0D1626;
+      --card-border: #1E2D4A;
+      --gold: #D4AF37;
+      --gold-soft: rgba(212, 175, 55, 0.15);
+      --navy: #0B1B3D;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --accent: #38BDF8;
+      --ok: #10B981;
+      --ok-soft: rgba(16, 185, 129, 0.15);
+      --warn: #F59E0B;
+      --warn-soft: rgba(245, 158, 11, 0.15);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      padding-bottom: 80px;
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(180deg, #0D1B36 0%, #060B14 100%);
+      padding: 24px 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--gold-soft);
+      color: var(--gold);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 10px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .progress-bar-container {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.08);
+      height: 6px;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold) 0%, var(--ok) 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .container {
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .credentials-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .credentials-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .cred-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .cred-item {
+      background: rgba(0,0,0,0.3);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .cred-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 24px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title span {
+      background: var(--card-border);
+      color: var(--text);
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .card.completed {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(13, 22, 38, 0.7);
+    }
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .checkbox-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid var(--text-muted);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      shrink-0;
+      margin-top: 2px;
+      transition: all 0.2s;
+    }
+    .checkbox-btn.checked {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #000;
+    }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .step-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--navy);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--gold);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-link:active {
+      opacity: 0.7;
+    }
+    .tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .tag-user { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+    .tag-admin { background: rgba(245, 158, 11, 0.15); color: var(--warn); }
+    .copy-btn {
+      font-size: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text);
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="badge">🏓 100% Pickleball Arena</div>
+      <span style="font-size: 10px; color: var(--text-muted); font-family: monospace;">v1.0 Live</span>
+    </div>
+    <h1>Mobile Testing Sheet</h1>
+    <p class="subtitle">Tap checkboxes as you verify each step on your mobile phone.</p>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text">
+      <span id="progressLabel">0 of 10 steps completed</span>
+      <span id="progressPercent">0%</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Credentials Card -->
+    <div class="credentials-box">
+      <div class="credentials-header">
+        <span>🔑 ADMIN LOGIN CREDENTIALS</span>
+        <span style="font-size: 10px; color: var(--text-muted);">Pre-Seeded</span>
+      </div>
+      <div class="cred-grid">
+        <div class="cred-item">
+          <div class="cred-label">Desk Phone</div>
+          <div>+919876543210 <button class="copy-btn" onclick="copyText('+919876543210')">Copy</button></div>
+        </div>
+        <div class="cred-item">
+          <div class="cred-label">Desk Password</div>
+          <div>Desk@Pavilion2026 <button class="copy-btn" onclick="copyText('Desk@Pavilion2026')">Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 1: CUSTOMER JOURNEY -->
+    <div class="section-title">
+      <span>1</span> Customer (User) Mobile Journey
+    </div>
+
+    <!-- Step 1 -->
+    <div class="card" id="card-step1">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step1" onclick="toggleStep('step1')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 1: Landing Page & PWA Banner</div>
+            <span class="tag tag-user">Public</span>
+          </div>
+          <p class="step-desc">
+            • Header says <strong>"Club · Pickleball Arena"</strong>.<br>
+            • Hero says <strong>"Chennai's Premier Pickleball Arena"</strong>.<br>
+            • Floating <strong>"Install App"</strong> banner appears at the bottom.<br>
+            • Court specs display <strong>3 Championship Regulation Pickleball Courts</strong>.
+          </p>
+          <div class="step-actions">
+            <a href="/" class="btn-link" target="_blank">Open Home Page →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card" id="card-step2">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step2" onclick="toggleStep('step2')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 2: Court Booking Wizard</div>
+            <span class="tag tag-user">Public</span>
+          </div>
+          <p class="step-desc">
+            • Tap date (Today / Tomorrow).<br>
+            • Select an open evening slot (e.g., 18:00 – 19:00).<br>
+            • Verify court pills: <strong>Court 1, Court 2, Court 3</strong>.<br>
+            • Bottom summary drawer expands smoothly with court & price.
+          </p>
+          <div class="step-actions">
+            <a href="/book" class="btn-link" target="_blank">Open Booking Wizard →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card" id="card-step3">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step3" onclick="toggleStep('step3')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 3: Customer Details & 10-Min Hold</div>
+            <span class="tag tag-user">Public</span>
+          </div>
+          <p class="step-desc">
+            • Enter Name (e.g. <code>Jayaraman</code>) and Phone (<code>9876543210</code>).<br>
+            • Tap <strong>Reserve Slot</strong>.<br>
+            • Verify <strong>10-minute hold countdown timer</strong> starts.<br>
+            • Tap <strong>Confirm Booking</strong> (Pay at Venue mode).
+          </p>
+          <div class="step-actions">
+            <a href="/book" class="btn-link" target="_blank">Test Booking Flow →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="card" id="card-step4">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step4" onclick="toggleStep('step4')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 4: Digital Match Pass & WhatsApp</div>
+            <span class="tag tag-user">Public</span>
+          </div>
+          <p class="step-desc">
+            • Check Booking Reference (<code>PC-XXXXXX</code>).<br>
+            • Check sport label: <strong>🏓 Pickleball Court</strong>.<br>
+            • Tap <strong>"Share to WhatsApp"</strong>: prefilled with <code>🏓 *PICKLEBALL MATCH PASS*</code>.<br>
+            • Test <strong>"Add to Calendar"</strong> invite.
+          </p>
+          <div class="step-actions">
+            <span style="font-size: 11px; color: var(--text-muted);">Triggers automatically after Step 3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="card" id="card-step5">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step5" onclick="toggleStep('step5')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 5: Customer Portal Search</div>
+            <span class="tag tag-user">Public</span>
+          </div>
+          <p class="step-desc">
+            • Enter the same phone number (<code>9876543210</code>).<br>
+            • Tap <strong>Find My Bookings</strong>.<br>
+            • Verify your booking appears with <code>CONFIRMED (Pay at Venue)</code>.
+          </p>
+          <div class="step-actions">
+            <a href="/my-bookings" class="btn-link" target="_blank">Open My Bookings →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 2: STAFF ADMIN JOURNEY -->
+    <div class="section-title">
+      <span>2</span> Staff & Admin Mobile Journey
+    </div>
+
+    <!-- Step 6 -->
+    <div class="card" id="card-step6">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step6" onclick="toggleStep('step6')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 6: Admin Login (No Install Banner)</div>
+            <span class="tag tag-admin">Admin</span>
+          </div>
+          <p class="step-desc">
+            • Open <code>/admin</code> (redirects to <code>/admin/login</code>).<br>
+            • <strong>CRITICAL CHECK:</strong> The "Install Web App" banner is <strong>COMPLETELY HIDDEN</strong>.<br>
+            • Login with <code>+919876543210</code> / <code>Desk@Pavilion2026</code>.
+          </p>
+          <div class="step-actions">
+            <a href="/admin" class="btn-link" target="_blank">Open Admin Login →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="card" id="card-step7">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step7" onclick="toggleStep('step7')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 7: Admin Dashboard / Day Sheet</div>
+            <span class="tag tag-admin">Admin</span>
+          </div>
+          <p class="step-desc">
+            • Verify responsive top header and court status overview.<br>
+            • Find the customer booking created in Step 3.<br>
+            • Status shows <strong>UNPAID ⚠</strong> (Amber badge).
+          </p>
+          <div class="step-actions">
+            <a href="/admin" class="btn-link" target="_blank">View Day Sheet →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="card" id="card-step8">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step8" onclick="toggleStep('step8')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 8: Payment Collection at Desk</div>
+            <span class="tag tag-admin">Admin</span>
+          </div>
+          <p class="step-desc">
+            • Tap the unpaid booking card.<br>
+            • Tap <strong>Collect Payment</strong>.<br>
+            • Choose <strong>Cash</strong> or <strong>UPI</strong> and confirm.<br>
+            • Badge turns green <strong>PAID ✅</strong> instantly!
+          </p>
+          <div class="step-actions">
+            <span style="font-size: 11px; color: var(--text-muted);">Test directly in Admin Day Sheet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 9 -->
+    <div class="card" id="card-step9">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step9" onclick="toggleStep('step9')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 9: Walk-In Quick Booking</div>
+            <span class="tag tag-admin">Admin</span>
+          </div>
+          <p class="step-desc">
+            • Tap <strong>+ Quick Book</strong> on desk screen.<br>
+            • Select court, slot, and enter name <code>Walk-in Player</code>.<br>
+            • Confirm cash payment & slot lock.
+          </p>
+          <div class="step-actions">
+            <a href="/admin" class="btn-link" target="_blank">Test Quick Book →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 10 -->
+    <div class="card" id="card-step10">
+      <div class="step-header">
+        <button class="checkbox-btn" id="chk-step10" onclick="toggleStep('step10')"></button>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="step-title">Step 10: Cashier Register & Daily Close</div>
+            <span class="tag tag-admin">Admin</span>
+          </div>
+          <p class="step-desc">
+            • Navigate to <strong>Cashier</strong> via drawer.<br>
+            • Verify Cash vs UPI collected totals match Step 8 & 9.<br>
+            • Tap <strong>Sign Out</strong> to test clean logout.
+          </p>
+          <div class="step-actions">
+            <a href="/admin/cashier" class="btn-link" target="_blank">Open Cashier →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const STEPS = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7', 'step8', 'step9', 'step10'];
+
+    function loadState() {
+      let completedCount = 0;
+      STEPS.forEach(step => {
+        const checked = localStorage.getItem('pavilion_test_' + step) === 'true';
+        const chk = document.getElementById('chk-' + step);
+        const card = document.getElementById('card-' + step);
+        if (checked) {
+          chk.classList.add('checked');
+          chk.innerHTML = '✓';
+          card.classList.add('completed');
+          completedCount++;
+        } else {
+          chk.classList.remove('checked');
+          chk.innerHTML = '';
+          card.classList.remove('completed');
+        }
+      });
+
+      const pct = Math.round((completedCount / STEPS.length) * 100);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressPercent').innerText = pct + '%';
+      document.getElementById('progressLabel').innerText = completedCount + ' of ' + STEPS.length + ' steps completed';
+    }
+
+    function toggleStep(step) {
+      const current = localStorage.getItem('pavilion_test_' + step) === 'true';
+      localStorage.setItem('pavilion_test_' + step, (!current).toString());
+      loadState();
+    }
+
+    function copyText(txt) {
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('Copied: ' + txt);
+      });
+    }
+
+    window.onload = loadState;
+  </script>
+</body>
+</html>

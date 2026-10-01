@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F2E8">
+<title>Book a court — The Pavilion Club</title>
+<meta name="description" content="Book a court at The Pavilion Club in a few taps.">
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   THE PAVILION CLUB — booking, app style
+   One phone-shaped shell. Screens push and pop like a native app.
+   Minimal: one surface colour, one accent, large touch targets.
+------------------------------------------------------------------- */
+:root{
+  --bg:#F6F2E8;
+  --surface:#FFFFFF;
+  --tint:#EFE9DB;
+  --ink:#0f1e2e;
+  --ink-2:rgba(15,30,46,.62);
+  --ink-3:rgba(15,30,46,.4);
+  --line:rgba(15,30,46,.09);
+  --gold:#c7a26a;
+  --gold-ink:#8a6a3b;
+  --gold-soft:#F4ECDD;
+  --danger:#b04a3a;
+  --r-xl:28px;--r-lg:22px;--r-md:16px;--r-sm:12px;
+  --pad:20px;
+  --font:'Montserrat',system-ui,sans-serif;
+  --script:'Pinyon Script',cursive;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --ease:cubic-bezier(.2,.9,.25,1);
+  --shadow:0 1px 2px rgba(15,30,46,.04),0 8px 24px rgba(15,30,46,.06);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;text-align:inherit;touch-action:manipulation}
+h1,h2,h3,p,dl,dd{margin:0}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* --- shell --------------------------------------------------------- */
+.app{position:relative;width:100%;height:100dvh;background:var(--bg);overflow:hidden;overflow:clip;margin:0 auto}
+@media (min-width:560px){
+  body{display:grid;place-items:center;background:#0a1520}
+  .app{width:412px;height:min(868px,calc(100dvh - 40px));border-radius:40px;box-shadow:0 0 0 10px #16263a,0 0 0 11px rgba(199,162,106,.35),0 40px 80px rgba(0,0,0,.45)}
+}
+
+/* --- screens: push and pop ----------------------------------------- */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transform:translateX(100%);visibility:hidden;transition:transform .42s var(--ease),opacity .42s,visibility 0s .42s}
+.screen.is-active{transform:none;visibility:visible;transition:transform .42s var(--ease),opacity .42s,visibility 0s}
+.screen.is-behind{transform:translateX(-24%);opacity:0}
+.body{flex:1;overflow-y:auto;padding:0 var(--pad) 28px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.body::-webkit-scrollbar{display:none}
+.foot{padding:12px var(--pad) calc(16px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+
+/* --- shared bits ---------------------------------------------------- */
+.bar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 12px 6px}
+.bar b{text-align:center;font-weight:600;font-size:15px}
+.bar span{text-align:right;font-size:12px;color:var(--ink-3);font-weight:600;padding-right:8px}
+.round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:var(--shadow);transition:transform .15s}
+.round:active{transform:scale(.92)}
+.title{font-size:28px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
+.sub{color:var(--ink-2);font-size:14px;margin-top:4px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:18px;background:var(--ink);color:#fff;font-weight:600;font-size:15px;transition:transform .15s,opacity .25s,background .25s}
+.btn:active{transform:scale(.975)}
+.btn[disabled]{opacity:.35}
+.btn--gold{background:var(--gold);color:var(--ink)}
+.btn--soft{background:var(--tint);color:var(--ink)}
+.link{color:var(--gold-ink);font-weight:600;font-size:14px;padding:8px 0}
+.card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+
+/* --- home ----------------------------------------------------------- */
+.hd{display:flex;justify-content:space-between;align-items:center;padding:calc(14px + env(safe-area-inset-top)) 0 14px}
+.brand{display:inline-grid;justify-items:center;line-height:1;font-size:10px}
+.brand__the{font-family:var(--script);font-size:1.5em;transform:translateX(14%);margin-bottom:.02em}
+.brand__name{font-family:var(--serif);font-weight:600;letter-spacing:.42em;text-indent:.42em;text-transform:uppercase}
+.brand__club{font-family:var(--script);font-size:1.5em;transform:translateX(12%);margin-top:-.04em}
+.hero{position:relative;margin:18px 0 0;height:128px;border-radius:var(--r-lg);overflow:hidden;background:var(--ink)}
+.hero img{width:100%;height:100%;object-fit:cover;object-position:50% 62%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,21,32,.78),rgba(10,21,32,.1) 75%)}
+.hero figcaption{position:absolute;left:18px;bottom:16px;z-index:1;color:#fff}
+.hero b{display:block;font-weight:600;font-size:16px}
+.hero span{font-size:12.5px;opacity:.8}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}
+.sec h2{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.sec span{font-size:13px;color:var(--ink-2)}
+.sec button{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--gold-ink);padding:6px 0}
+.sec button .ic{width:16px;height:16px}
+
+/* date pills */
+.dates{display:flex;gap:8px;overflow-x:auto;margin:0 calc(-1 * var(--pad));padding:2px var(--pad) 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.date{flex:0 0 58px;height:78px;border-radius:20px;background:var(--surface);box-shadow:var(--shadow);display:grid;justify-items:center;align-content:center;gap:2px;scroll-snap-align:center;transition:background .28s,color .28s,transform .18s var(--ease)}
+.date:active{transform:scale(.93)}
+.date small{font-size:11px;font-weight:600;color:var(--ink-3)}
+.date b{font-size:20px;font-weight:600;line-height:1.15}
+.date i{width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:2px}
+.date i.is-filling{background:transparent;box-shadow:inset 0 0 0 1.5px var(--gold)}
+.date.is-full{opacity:.4}
+.date.is-full i{background:var(--ink-3)}
+.date.is-on{background:var(--ink);color:#fff;box-shadow:0 10px 22px rgba(15,30,46,.28)}
+.date.is-on small{color:rgba(255,255,255,.6)}
+
+/* segmented control */
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--tint);border-radius:16px;padding:4px}
+.seg__thumb{position:absolute;top:4px;bottom:4px;left:4px;will-change:transform;width:calc((100% - 8px) / 3);border-radius:13px;background:var(--surface);box-shadow:0 2px 8px rgba(15,30,46,.1);transition:transform .38s var(--ease)}
+.seg button{position:relative;z-index:1;height:46px;display:grid;place-content:center;justify-items:center;line-height:1.2;color:var(--ink-2);transition:color .25s}
+.seg button b{font-size:13px;font-weight:600}
+.seg button small{font-size:10.5px;color:var(--ink-3)}
+.seg button.is-on{color:var(--ink)}
+.seg button[disabled]{opacity:.45}
+
+/* time tiles */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tile{position:relative;height:72px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--shadow);padding:12px 14px;display:grid;align-content:space-between;transition:background .25s,color .25s,transform .16s var(--ease),box-shadow .25s;animation:pop .36s var(--ease) both;animation-delay:calc(var(--i,0) * 24ms)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}}
+.tile:active{transform:scale(.95)}
+.tile__t{font-weight:600;font-size:14.5px;letter-spacing:-.01em}
+.tile__m{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-2)}
+.dots{display:inline-flex;gap:3px;align-items:center}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.dots i.f{background:var(--gold)}
+.tile.is-last .tile__m em{font-style:normal;font-size:11.5px;font-weight:600;color:var(--gold-ink)}
+.tile.is-booked{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--ink-3)}
+.tile.is-booked .tile__t{text-decoration:line-through;font-weight:500}
+.tile.is-booked .tile__m{color:var(--ink-3)}
+.tile.is-booked:active{transform:none}
+.tile.is-on{background:var(--ink);color:#fff;box-shadow:0 10px 22px rgba(15,30,46,.28)}
+.tile.is-on .tile__m{color:var(--gold)}
+.tile.is-on .tile__m svg{width:18px;height:18px;stroke:var(--gold);stroke-width:2.2}
+.tile.is-on.is-mid{border-radius:var(--r-md)}
+.hint{margin-top:16px;font-size:12.5px;color:var(--ink-3);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.hint span{display:flex;align-items:center;gap:6px}
+.empty{grid-column:1/-1;padding:24px 18px;text-align:center}
+.empty b{display:block;font-size:16px;margin-bottom:4px}
+.empty p{color:var(--ink-2);font-size:13.5px;margin-bottom:16px}
+.states-btn{margin:26px auto 0;display:block;font-size:12px;color:var(--ink-3);border:1px dashed var(--ink-3);border-radius:999px;padding:8px 14px}
+.home-pad{height:214px}
+
+/* tab bar */
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(3,1fr);padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:rgba(246,242,232,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line);transition:transform .4s var(--ease)}
+.tabs.is-down{transform:translateY(110%)}
+.tab{display:grid;justify-items:center;gap:3px;padding:6px 0;font-size:11px;font-weight:600;color:var(--ink-3)}
+.tab.is-on{color:var(--ink)}
+.tab.is-on .ic{stroke:var(--gold-ink)}
+
+/* booking dock */
+.dock{position:absolute;left:0;right:0;bottom:0;z-index:6;background:var(--ink);color:#fff;border-radius:var(--r-xl) var(--r-xl) 0 0;padding:18px var(--pad) calc(18px + env(safe-area-inset-bottom));transform:translateY(110%);transition:transform .5s var(--ease);box-shadow:0 18px 40px rgba(10,21,32,.4)}
+.dock.is-up{transform:none}
+.dock__top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.dock__when{font-weight:600;font-size:15px}
+.dock__price{font-weight:600;font-size:20px;letter-spacing:-.02em}
+.dock__mid{display:flex;justify-content:space-between;align-items:center;margin:10px 0 14px}
+.dock__court{font-size:13px;color:rgba(255,255,255,.66)}
+.dock__court button{color:var(--gold);font-weight:600;margin-left:4px;padding:6px 0}
+.stepper{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.1);border-radius:999px;padding:3px}
+.stepper button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transition:background .2s,opacity .2s,transform .12s}
+.stepper button:active{transform:scale(.88);background:rgba(255,255,255,.16)}
+.stepper button[disabled]{opacity:.3}
+.stepper .ic{width:16px;height:16px;stroke-width:2}
+.stepper b{min-width:46px;text-align:center;font-size:13px;font-weight:600}
+
+/* --- forms ----------------------------------------------------------- */
+.lead{padding-top:8px}
+.lead .sub{margin:6px 0 20px;line-height:1.55}
+.mini{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;margin-bottom:22px}
+.mini b{display:block;font-weight:600;font-size:14.5px}
+.mini span{font-size:12.5px;color:var(--ink-2)}
+.mini em{font-style:normal;font-weight:600;font-size:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin:0 0 7px 4px}
+.input{display:flex;align-items:center;gap:10px;height:56px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);padding:0 16px;transition:box-shadow .25s}
+.input:focus-within{box-shadow:inset 0 0 0 2px var(--ink)}
+.input span{color:var(--ink-2);font-weight:500;padding-right:10px;border-right:1px solid var(--line)}
+.input input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px;font-weight:500;height:100%}
+.input input::placeholder{color:var(--ink-3);font-weight:400}
+.err{display:none;font-size:12.5px;color:var(--danger);margin:7px 0 0 4px}
+.field.is-bad .err{display:block}
+.field.is-bad .input{box-shadow:inset 0 0 0 2px var(--danger)}
+.fine{font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-top:14px}
+
+/* code */
+.otp{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.otp input{width:100%;height:60px;border:0;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);text-align:center;font-size:22px;font-weight:600;outline:0;caret-color:var(--gold);transition:box-shadow .2s,background .2s,transform .2s var(--ease)}
+.otp input:focus{box-shadow:inset 0 0 0 2px var(--ink)}
+.otp input.is-filled{transform:translateY(-2px)}
+.otp.is-bad{animation:shake .4s}
+.otp.is-bad input{box-shadow:inset 0 0 0 2px var(--danger)}
+.otp.is-ok input{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
+@keyframes shake{25%{transform:translateX(-7px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+.otp__err{min-height:20px;font-size:12.5px;color:var(--danger);margin:10px 0 2px 4px}
+.otp__row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--ink-2)}
+.otp__row button[disabled]{color:var(--ink-3)}
+
+/* review */
+.hold{padding:14px 16px;margin:8px 0 14px;background:var(--gold-soft);border-radius:var(--r-md)}
+.hold__row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:600}
+.hold__row span{display:flex;align-items:center;gap:8px}
+.hold__row .ic{width:18px;height:18px;stroke:var(--gold-ink)}
+.hold__track{height:4px;border-radius:2px;background:rgba(138,106,59,.18);margin-top:10px;overflow:hidden}
+.hold__track i{display:block;height:100%;width:100%;background:var(--gold);border-radius:2px;transform-origin:left;transition:transform 1s linear,background .4s}
+.hold.is-low{background:#F8E4DE}
+.hold.is-low .hold__track i{background:var(--danger)}
+.hold.is-low .ic{stroke:var(--danger)}
+.alert{padding:16px;margin-bottom:14px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.alert b{display:block;font-size:14.5px;margin-bottom:2px}
+.alert p{font-size:13.5px;color:var(--ink-2);margin-bottom:12px}
+.alert .btn{height:46px;border-radius:14px;font-size:14px}
+.rows{padding:6px 16px}
+.rows div{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+.rows div:last-child{border-bottom:0}
+.rows dd{color:var(--ink);font-weight:600;text-align:right}
+.pay{display:flex;gap:12px;align-items:center;padding:14px 16px;margin-top:12px}
+.pay .ic{stroke:var(--gold-ink)}
+.pay b{display:block;font-size:14px}
+.pay span{font-size:12.5px;color:var(--ink-2)}
+.foot--split{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.foot--split small{display:block;font-size:12px;color:var(--ink-2)}
+.foot--split b{font-size:21px;font-weight:600;letter-spacing:-.02em}
+
+/* wait + done */
+.center{flex:1;display:grid;place-content:center;justify-items:center;text-align:center;padding:0 32px}
+.spin{width:52px;height:52px;border-radius:50%;border:3px solid var(--tint);border-top-color:var(--gold);animation:spin .9s linear infinite;margin-bottom:22px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.done-top{text-align:center;padding:calc(34px + env(safe-area-inset-top)) 0 20px}
+.badge{width:68px;height:68px;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin:0 auto 16px;animation:badge .6s var(--ease) both}
+@keyframes badge{from{transform:scale(.4);opacity:0}}
+.badge svg{width:30px;height:30px;fill:none;stroke:var(--gold);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .35s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done-top h2{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.done-top h2 em{font-family:var(--script);font-style:normal;font-weight:400;color:var(--gold-ink);font-size:1.5em;line-height:.6;padding-left:.08em}
+.ticket{position:relative;animation:pop .5s .15s var(--ease) both}
+.ticket__a{padding:18px 18px 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.ticket__a div small,.ticket__b small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.ticket__a div b{font-size:15px;font-weight:600}
+.ticket__cut{position:relative;height:0;border-top:2px dashed var(--line);margin:0 18px}
+.ticket__cut::before,.ticket__cut::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--bg)}
+.ticket__cut::before{left:-29px}.ticket__cut::after{right:-29px}
+.ticket__b{padding:16px 18px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ticket__b b{font-size:24px;font-weight:700;letter-spacing:.1em}
+.copy{display:flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;background:var(--tint);font-size:13px;font-weight:600}
+.copy .ic{width:16px;height:16px}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.act{display:grid;justify-items:center;gap:6px;padding:14px 6px;font-size:12px;font-weight:600;transition:transform .15s}
+.act:active{transform:scale(.95)}
+.act .ic{stroke:var(--gold-ink)}
+
+/* --- sheets ---------------------------------------------------------- */
+.scrim{position:absolute;inset:0;z-index:20;background:rgba(10,21,32,.45);opacity:0;pointer-events:none;transition:opacity .35s}
+.scrim.is-open{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:21;max-height:88%;overflow-y:auto;background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:0 var(--pad) calc(22px + env(safe-area-inset-bottom));transform:translateY(104%);visibility:hidden;transition:transform .48s var(--ease),visibility 0s .48s;scrollbar-width:none}
+.sheet.is-open{transform:none;visibility:visible;transition:transform .48s var(--ease),visibility 0s}
+.sheet.is-dragging{transition:none}
+.sheet__grab{position:sticky;top:0;background:var(--bg);padding:10px 0 14px;display:grid;place-items:center;touch-action:none;z-index:1}
+.sheet__grab i{width:40px;height:5px;border-radius:3px;background:var(--line)}
+.sheet h3{font-size:21px;font-weight:600;letter-spacing:-.02em}
+.sheet .sub{margin:4px 0 18px}
+.month{margin-bottom:18px}
+.month h4{margin:0 0 8px;font-size:14px;font-weight:600}
+.month__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.month__grid small{font-size:11px;font-weight:600;color:var(--ink-3);padding-bottom:4px}
+.cell{aspect-ratio:1;border-radius:14px;display:grid;place-content:center;justify-items:center;gap:2px;font-size:14px;font-weight:500}
+.cell i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.cell i.is-filling{background:transparent;box-shadow:inset 0 0 0 1.2px var(--gold)}
+.cell.is-out{color:var(--ink-3);opacity:.5}
+.cell.is-full{color:var(--ink-3);text-decoration:line-through}
+button.cell{background:var(--surface)}
+button.cell:active{background:var(--gold-soft)}
+.cell.is-on{background:var(--ink)!important;color:#fff}
+.courts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.court{padding:14px 8px;display:grid;justify-items:center;gap:8px;text-align:center;transition:background .25s,color .25s,transform .15s}
+.court:active{transform:scale(.95)}
+.court svg{width:38px}
+.court svg rect,.court svg line{fill:none;stroke:currentColor;stroke-width:1.3}
+.court svg .k{fill:var(--gold-soft);stroke:none}
+.court b{font-size:13.5px;font-weight:600}
+.court span{font-size:11px;color:var(--ink-3);line-height:1.35}
+.court.is-on{background:var(--ink);color:#fff}
+.court.is-on span{color:rgba(255,255,255,.6)}
+.court.is-on svg .k{fill:rgba(199,162,106,.45)}
+.court[disabled]{opacity:.42}
+.alt{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;margin-bottom:10px}
+.alt b{font-size:14.5px;font-weight:600}
+.alt span{font-size:13px;color:var(--ink-2)}
+.alt button{height:38px;padding:0 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:13px;font-weight:600}
+.states{display:grid;gap:8px}
+.states button{height:48px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-size:13.5px;font-weight:500;padding:0 16px;display:flex;justify-content:space-between;align-items:center}
+.states button.is-on{box-shadow:inset 0 0 0 2px var(--ink)}
+.states h4{margin:10px 0 2px;font-size:12px;color:var(--ink-3);font-weight:600}
+
+/* toast */
+.toast{position:absolute;left:14px;right:14px;top:calc(12px + env(safe-area-inset-top));z-index:30;background:var(--ink);color:#fff;border-radius:16px;padding:13px 16px;font-size:13.5px;line-height:1.45;transform:translateY(-160%);opacity:0;transition:transform .45s var(--ease),opacity .3s;box-shadow:0 14px 30px rgba(10,21,32,.35)}
+.toast.is-on{transform:none;opacity:1}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2.5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 19z"/><path d="M10 20.5v-6h4v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M5 15.5V6.5A2 2 0 0 1 7 4.5h8.5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4M8 7.5L12 4l4 3.5M5 12.5v5A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="13" rx="3"/><path d="M3.5 10h17M16 14.500h1.500"/></symbol>
+</svg>
+
+<div class="app" id="app">
+
+  <!-- ============ HOME: pick a day and an hour ============ -->
+  <section class="screen is-active" data-screen="home" aria-label="Book a court">
+    <div class="body" id="home-body">
+      <header class="hd">
+        <a class="brand" href="/" aria-label="The Pavilion Club"><span class="brand__the">The</span><span class="brand__name">Pavilion</span><span class="brand__club">Club</span></a>
+        <a class="round" href="tel:+919876543210" aria-label="Call the desk"><svg class="ic"><use href="#i-phone"/></svg></a>
+      </header>
+      <h1 class="title">Book a court</h1>
+      <p class="sub">Pick a day, tap an hour. That's it.</p>
+      <figure class="hero">
+        <img src="assets/images/courts-close.jpg" alt="A court at The Pavilion Club">
+        <figcaption><b>Three courts, one roof</b><span id="open-line"></span></figcaption>
+      </figure>
+
+      <div class="sec"><h2>Date</h2><button type="button" id="open-cal"><span id="month-name" style="color:inherit;font-size:inherit"></span><svg class="ic"><use href="#i-down"/></svg></button></div>
+      <div class="dates" id="dates" role="listbox" aria-label="Days"></div>
+
+      <div class="sec"><h2>Time</h2><span id="day-long"></span></div>
+      <div class="seg" id="seg" role="tablist" aria-label="Part of the day"></div>
+      <div class="tiles" id="tiles" aria-live="polite"></div>
+      <p class="hint"><span><span class="dots"><i class="f"></i><i class="f"></i><i></i></span>Courts free at that hour</span><span>Tap the next hour to play longer</span></p>
+
+      <button class="states-btn" type="button" id="open-states">Design review: preview other states</button>
+      <div class="home-pad"></div>
+    </div>
+
+    <nav class="tabs" id="tabs" aria-label="Main">
+      <a class="tab is-on" href="#" aria-current="page"><svg class="ic"><use href="#i-cal"/></svg>Book</a>
+      <a class="tab" href="/my-bookings" data-soon="My bookings opens here."><svg class="ic"><use href="#i-ticket"/></svg>My bookings</a>
+      <a class="tab" href="/" data-soon="The club's home page opens here."><svg class="ic"><use href="#i-home"/></svg>Club</a>
+    </nav>
+
+    <div class="dock" id="dock" aria-live="polite">
+      <div class="dock__top"><span class="dock__when" id="dock-when"></span><span class="dock__price num" id="dock-price"></span></div>
+      <div class="dock__mid">
+        <span class="dock__court"><span id="dock-court"></span><button type="button" id="open-court">Change</button></span>
+        <span class="stepper" role="group" aria-label="Duration">
+          <button type="button" id="less" aria-label="One hour less"><svg class="ic"><use href="#i-minus"/></svg></button>
+          <b class="num" id="dur"></b>
+          <button type="button" id="more" aria-label="One hour more"><svg class="ic"><use href="#i-plus"/></svg></button>
+        </span>
+      </div>
+      <button class="btn btn--gold" type="button" id="continue">Continue</button>
+    </div>
+  </section>
+
+  <!-- ============ DETAILS ============ -->
+  <section class="screen" data-screen="details" aria-label="Your details">
+    <div class="bar"><button class="round" type="button" data-back aria-label="Back"><svg class="ic"><use href="#i-back"/></svg></button><b>Your details</b><span>1 of 3</span></div>
+    <div class="body lead">
+      <h2 class="title">Who's playing?</h2>
+      <p class="sub">We text you a code, then your booking reference. No account, no password.</p>
+      <div class="card mini" data-mini></div>
+      <form id="form-details" novalidate>
+        <div class="field" id="fld-name"><label for="in-name">Name</label><div class="input"><input id="in-name" type="text" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Your name"></div><p class="err">Enter the name for the booking.</p></div>
+        <div class="field" id="fld-phone"><label for="in-phone">Mobile number</label><div class="input"><span>+91</span><input id="in-phone" type="tel" inputmode="numeric" autocomplete="tel-national" enterkeyhint="send" maxlength="11" placeholder="98765 43210"></div><p class="err">Enter a ten-digit Indian mobile number.</p></div>
+      </form>
+    </div>
+    <div class="foot"><button class="btn" type="submit" form="form-details">Send code</button></div>
+  </section>
+
+  <!-- ============ CODE ============ -->
+  <section class="screen" data-screen="code" aria-label="Enter the code">
+    <div class="bar"><button class="round" type="button" data-back aria-label="Back"><svg class="ic"><use href="#i-back"/></svg></button><b>Verify</b><span>2 of 3</span></div>
+    <div class="body lead">
+      <h2 class="title">Enter the code</h2>
+      <p class="sub">Sent to <b class="num" id="otp-to" style="color:var(--ink)"></b></p>
+      <div class="otp" id="otp" role="group" aria-label="Six-digit code">
+        <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1"><input inputmode="numeric" maxlength="1" aria-label="Digit 2"><input inputmode="numeric" maxlength="1" aria-label="Digit 3"><input inputmode="numeric" maxlength="1" aria-label="Digit 4"><input inputmode="numeric" maxlength="1" aria-label="Digit 5"><input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+      </div>
+      <p class="otp__err" id="otp-err" role="alert"></p>
+      <div class="otp__row"><span id="otp-wait"></span><button class="link" type="button" id="otp-resend" disabled>Send again</button></div>
+      <p class="fine">Design demo: any six digits work. 000000 shows the wrong-code state.</p>
+    </div>
+  </section>
+
+  <!-- ============ REVIEW: the court is held ============ -->
+  <section class="screen" data-screen="review" aria-label="Review and confirm">
+    <div class="bar"><button class="round" type="button" data-back aria-label="Back, and release the court"><svg class="ic"><use href="#i-back"/></svg></button><b>Review</b><span>3 of 3</span></div>
+    <div class="body">
+      <div class="hold" id="hold"><div class="hold__row"><span><svg class="ic"><use href="#i-clock"/></svg><span id="hold-text"></span></span><span class="num" id="hold-t">10:00</span></div><div class="hold__track"><i id="hold-bar"></i></div></div>
+      <div class="alert" id="price-alert" hidden><b>The price changed</b><p id="price-alert-text"></p><button class="btn" type="button" id="price-accept">Accept the new price</button></div>
+      <dl class="card rows" id="rows"></dl>
+      <div class="card pay"><svg class="ic"><use href="#i-wallet"/></svg><div><b id="pay-title"></b><span id="pay-text"></span></div></div>
+      <p class="fine">Free cancellation up to 24 hours before your hour.</p>
+    </div>
+    <div class="foot foot--split"><div><small id="total-label"></small><b class="num" id="total"></b></div><button class="btn" type="button" id="confirm"></button></div>
+  </section>
+
+  <!-- ============ WAIT ============ -->
+  <section class="screen" data-screen="wait" aria-label="Confirming">
+    <div class="center"><div class="spin" aria-hidden="true"></div><h2 class="title" id="wait-title" style="font-size:22px">Confirming</h2><p class="sub" id="wait-text" role="status"></p></div>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section class="screen" data-screen="done" aria-label="Booking confirmed">
+    <div class="body">
+      <div class="done-top"><div class="badge"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h2>You're <em>booked</em></h2><p class="sub" id="done-sub"></p></div>
+      <div class="card ticket">
+        <div class="ticket__a" id="ticket"></div>
+        <div class="ticket__cut"></div>
+        <div class="ticket__b"><div><small>Booking reference</small><b class="num" id="ref"></b></div><button class="copy" type="button" id="ref-copy"><svg class="ic"><use href="#i-copy"/></svg>Copy</button></div>
+      </div>
+      <div class="acts">
+        <button class="card act" type="button" id="add-cal"><svg class="ic"><use href="#i-cal"/></svg>Calendar</button>
+        <a class="card act" id="share" target="_blank" rel="noopener"><svg class="ic"><use href="#i-share"/></svg>Share</a>
+        <a class="card act" href="https://maps.google.com/?q=The+Pavilion+Club,+Chennai" target="_blank" rel="noopener"><svg class="ic"><use href="#i-pin"/></svg>Directions</a>
+      </div>
+      <p class="fine" style="text-align:center">Show the reference at the desk when you arrive.</p>
+    </div>
+    <div class="foot"><button class="btn" type="button" id="finish">Done</button></div>
+  </section>
+
+  <!-- ============ SHEETS ============ -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="sheet__grab" id="grab"><i></i></div>
+
+    <div data-sheet="cal" hidden><h3>Pick a day</h3><p class="sub">Up to 30 days ahead.</p><div id="months"></div></div>
+
+    <div data-sheet="court" hidden><h3>Your court</h3><p class="sub">All three are identical. These are free for your whole time.</p><div class="courts" id="courts"></div><button class="btn" type="button" id="court-done">Use this court</button></div>
+
+    <div data-sheet="taken" hidden><h3>Just taken</h3><p class="sub" id="taken-text"></p><div id="alts"></div><button class="btn btn--soft" type="button" data-sheet-close>See all hours</button></div>
+
+    <div data-sheet="expired" hidden><h3>Your hold ran out</h3><p class="sub" id="expired-text"></p><button class="btn" type="button" data-sheet-close>Choose a time</button></div>
+
+    <div data-sheet="limit" hidden><h3>Two are waiting</h3><p class="sub">You already have two bookings to pay for at the desk, the most one number can hold. Pay for one or cancel one, and this hour is yours.</p><a class="btn" href="/my-bookings" data-soon="My bookings opens here.">See my bookings</a><a class="btn btn--soft" href="tel:+919876543210" style="margin-top:10px">Call the desk</a></div>
+
+    <div data-sheet="states" hidden>
+      <h3>Preview other states</h3><p class="sub">For design review only. Not part of the app.</p>
+      <div class="states">
+        <h4>Payment mode</h4>
+        <button type="button" data-mode="pay_at_venue" class="is-on">Pay at the desk<span>launch</span></button>
+        <button type="button" data-mode="gateway">Pay online<span>later</span></button>
+        <h4>Things that can happen</h4>
+        <button type="button" data-demo="taken">An hour is taken while choosing</button>
+        <button type="button" data-demo="price">The price changes at hold</button>
+        <button type="button" data-demo="expire">The hold is about to run out</button>
+        <button type="button" data-demo="slow">Payment confirmation is slow</button>
+        <button type="button" data-demo="limit">Unpaid limit reached</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+  const pad = n => String(n).padStart(2, '0');
+  const rupees = paise => '₹' + (paise / 100).toLocaleString('en-IN');   // money is integer paise until this line
+  const buzz = p => { if (navigator.vibrate) navigator.vibrate(p); };
+
+  /* ------------------------------------------------------------------
+     Demo data. In the product every value below comes from the server:
+     availability from the one availability function, prices recomputed
+     when the hold is created. Nothing here is trusted from the browser.
+  ------------------------------------------------------------------- */
+  const WINDOW_DAYS = 30, HOLD_SECONDS = 600, COURTS = [1, 2, 3];
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: WINDOW_DAYS }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+  const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+  const lastStart = d => isWeekend(d) ? 23 : 22;
+  const extraTaken = new Set(), bump = new Map();
+  const taken = (di, c, h) => extraTaken.has(`${di}-${c}-${h}`) || ((di * 37 + c * 17 + h * 29 + di * c) % 9) < ((h >= 17 && h <= 21) ? 5 : (h >= 7 && h <= 9) ? 3 : 1);
+  const rate = (di, h) => (isWeekend(days[di]) ? (h >= 17 ? 120000 : 100000) : (h >= 22 ? 100000 : h >= 17 ? 120000 : 80000)) + (bump.get(`${di}-${h}`) || 0);
+  const hoursOf = di => { const out = []; const from = di === 0 ? Math.max(6, new Date().getHours() + 1) : 6; for (let h = from; h <= lastStart(days[di]); h++) out.push(h); return out; };
+  const freeCourts = (di, h) => COURTS.filter(c => !taken(di, c, h));
+  const courtsForRange = (di, hs) => COURTS.filter(c => hs.every(h => !taken(di, c, h)));
+  const dayStatus = di => { const hs = hoursOf(di); if (!hs.length) return 'full'; const free = hs.reduce((n, h) => n + freeCourts(di, h).length, 0); return free === 0 ? 'full' : free / (hs.length * 3) < .5 ? 'filling' : 'free'; };
+  const PARTS = [['Morning', 6, 11], ['Afternoon', 12, 16], ['Evening', 17, 23]];
+  const partsOf = di => { const hs = hoursOf(di); return PARTS.map(([name, a, b]) => ({ name, hours: hs.filter(h => h >= a && h <= b) })); };
+  const autoPart = di => { const g = partsOf(di); let i = g.findIndex(x => x.hours.some(h => freeCourts(di, h).length)); if (i < 0) i = g.findIndex(x => x.hours.length); return Math.max(0, i); };
+
+  const fmtLong  = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+  const fmtShort = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const fmtWk    = new Intl.DateTimeFormat('en-IN', { weekday: 'short' });
+  const fmtMon   = new Intl.DateTimeFormat('en-IN', { month: 'long' });
+  const fmtMonth = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' });
+  const to12 = h => { const w = ((h % 24) + 24) % 24; const ampm = w >= 12 ? 'PM' : 'AM'; const h12 = w % 12 || 12; return `${pad(h12)}:00 ${ampm}`; };
+  const span = h => `${to12(h)} – ${to12((h + 1) % 24)}`;
+  const range = hs => `${to12(hs[0])} – ${to12((hs[hs.length - 1] + 1) % 24)}`;
+
+  const state = { day: dayStatus(0) === 'full' ? 1 : 0, part: 0, hours: [], court: null, mode: 'pay_at_venue', contact: { name: '', phone: '' }, hold: null, timer: null, priceOld: null, accepted: true, slow: false };
+  state.part = autoPart(state.day);
+  const assigned = () => { const ok = courtsForRange(state.day, state.hours); return ok.includes(state.court) ? state.court : ok[0] || null; };
+  const total = () => state.hours.reduce((s, h) => s + rate(state.day, h), 0);
+  const durLabel = () => `${state.hours.length} hr${state.hours.length > 1 ? 's' : ''}`;
+
+  /* ---------- toast ---------- */
+  let toastT; const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('is-on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('is-on'), 3000); };
+  document.addEventListener('click', e => { const a = e.target.closest('[data-soon]'); if (a) { e.preventDefault(); toast(a.dataset.soon); } });
+
+  /* ---------- navigation: a small stack, like a native app ---------- */
+  let stack = ['home'], skipPop = false;
+  const current = () => stack[stack.length - 1];
+  function show(name, dir) {
+    $$('.screen').forEach(s => { const on = s.dataset.screen === name; s.classList.toggle('is-active', on); s.classList.toggle('is-behind', !on && dir === 'fwd' && s.dataset.screen === show.last); if (on) s.classList.remove('is-behind'); if (!on && dir === 'back') s.classList.remove('is-behind'); s.inert = !on; });
+    show.last = name; $('#toast').classList.remove('is-on');
+    const f = name === 'details' ? $('#in-name') : name === 'code' ? $('#otp input') : null;
+    if (f) setTimeout(() => f.focus({ preventScroll: true }), 430);
+  }
+  show.last = 'home';
+  function push(name) { if (stack.length === 1) history.pushState({ flow: 1 }, ''); stack.push(name); show(name, 'fwd'); }
+  function swap(name) { if (stack.length === 1) return push(name); stack[stack.length - 1] = name; show(name, 'fwd'); }
+  function leaveFlow() { stack = ['home']; show('home', 'back'); if (history.state && history.state.flow) { skipPop = true; history.back(); } renderAll(); }
+  function back(fromSystem) {
+    const cur = current();
+    if (cur === 'home') return;
+    if (cur === 'wait') { if (fromSystem) history.pushState({ flow: 1 }, ''); return; }   // cannot leave while confirming
+    if (cur === 'done') { if (fromSystem) { stack = ['home']; show('home', 'back'); renderAll(); } else leaveFlow(); return; }
+    if (cur === 'review') { clearInterval(state.timer); state.hold = null; state.priceOld = null; state.accepted = true; toast('Court released. It is free for others again.'); }
+    stack.pop(); show(current(), 'back');
+    if (stack.length > 1) { if (fromSystem) history.pushState({ flow: 1 }, ''); }
+    else { renderAll(); if (!fromSystem && history.state && history.state.flow) { skipPop = true; history.back(); } }
+  }
+  addEventListener('popstate', () => { if (skipPop) { skipPop = false; return; } if (sheetOpen) { closeSheet(); if (stack.length > 1) history.pushState({ flow: 1 }, ''); return; } back(true); });
+  document.addEventListener('click', e => { if (e.target.closest('[data-back]')) back(false); });
+
+  /* ---------- sheets ---------- */
+  const sheet = $('#sheet'), scrim = $('#scrim'); let sheetOpen = null;
+  function openSheet(name) { sheetOpen = name; $$('[data-sheet]', sheet).forEach(s => s.hidden = s.dataset.sheet !== name); sheet.classList.add('is-open'); scrim.classList.add('is-open'); sheet.style.transform = ''; sheet.scrollTop = 0; $('#toast').classList.remove('is-on'); }
+  function closeSheet() { sheetOpen = null; sheet.classList.remove('is-open'); scrim.classList.remove('is-open'); sheet.style.transform = ''; }
+  scrim.addEventListener('click', closeSheet);
+  sheet.addEventListener('click', e => { if (e.target.closest('[data-sheet-close]')) closeSheet(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') sheetOpen ? closeSheet() : back(false); });
+  (() => { let y0 = null, dy = 0; const g = $('#grab');
+    g.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; dy = 0; sheet.classList.add('is-dragging'); }, { passive: true });
+    g.addEventListener('touchmove', e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); sheet.style.transform = `translateY(${dy}px)`; }, { passive: true });
+    g.addEventListener('touchend', () => { if (y0 === null) return; sheet.classList.remove('is-dragging'); y0 = null; dy > 90 ? closeSheet() : sheet.style.transform = ''; });
+    g.addEventListener('click', closeSheet);
+  })();
+
+  /* ---------- home: dates ---------- */
+  function renderDates() {
+    const d = days[state.day];
+    $('#day-long').textContent = fmtLong.format(d); $('#month-name').textContent = fmtMon.format(d);
+    $('#open-line').textContent = `${state.day === 0 ? 'Open today' : 'Open ' + fmtWk.format(d)} 06:00 – ${isWeekend(d) ? '00:00' : '23:00'}`;
+    const list = days.slice(0, 14).map((_, i) => i); if (state.day > 13) list.push(state.day);
+    $('#dates').innerHTML = list.map(i => { const d = days[i], st = dayStatus(i), on = i === state.day;
+      return `<button class="date${on ? ' is-on' : ''}${st === 'full' ? ' is-full' : ''}" type="button" role="option" aria-selected="${on}" data-day="${i}" ${st === 'full' ? 'disabled' : ''} aria-label="${fmtLong.format(d)}, ${st === 'full' ? 'full' : st === 'filling' ? 'filling up' : 'free'}"><small>${i === 0 ? 'Today' : fmtWk.format(d)}</small><b class="num">${d.getDate()}</b><i class="${st === 'filling' ? 'is-filling' : ''}"></i></button>`; }).join('');
+  }
+  function pickDay(i) {
+    if (i === state.day) return; state.day = i; state.hours = []; state.court = null; state.part = autoPart(i); buzz(6);
+    renderAll(); const rail = $('#dates'), el = $(`.date[data-day="${i}"]`); if (el) rail.scrollTo({ left: el.offsetLeft - rail.clientWidth / 2 + el.offsetWidth / 2, behavior: 'smooth' });
+  }
+  $('#dates').addEventListener('click', e => { const b = e.target.closest('.date'); if (b && !b.disabled) pickDay(+b.dataset.day); });
+
+  /* ---------- home: part of day + tiles ---------- */
+  function renderSeg() {
+    const gs = partsOf(state.day);
+    if (!gs[state.part].hours.length) state.part = autoPart(state.day);
+    $('#seg').innerHTML = `<i class="seg__thumb" style="transform:translateX(${state.part * 100}%)"></i>` + gs.map((g, i) => { const free = g.hours.filter(h => freeCourts(state.day, h).length).length; return `<button type="button" role="tab" aria-selected="${i === state.part}" class="${i === state.part ? 'is-on' : ''}" data-part="${i}" ${g.hours.length ? '' : 'disabled'}><b>${g.name}</b><small>${g.hours.length ? (free ? free + ' free' : 'Full') : (state.day === 0 ? 'Passed' : 'Closed')}</small></button>`; }).join('');
+  }
+  // Ultra-Smooth 120fps Zero-Lag GPU Drag & Swipe on Segmented Control
+  const segEl = $('#seg');
+  let segDrag = null;
+  let segJustDragged = false;
+
+  segEl.style.touchAction = 'none';
+
+  segEl.addEventListener('pointerdown', e => {
+    if (e.isPrimary === false) return;
+    const thumb = segEl.querySelector('.seg__thumb');
+    if (!thumb) return;
+    const rect = segEl.getBoundingClientRect();
+    const segWidth = (rect.width - 8) / 3;
+    const initialLeft = state.part * segWidth;
+    segDrag = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startTime: performance.now(),
+      initialLeft,
+      currentLeft: initialLeft,
+      segWidth,
+      maxLeft: segWidth * 2,
+      pointerId: e.pointerId,
+      hasMoved: false,
+      lockedHorizontal: false,
+      lastX: e.clientX,
+      lastTime: performance.now(),
+      velocity: 0,
+    };
+  });
+
+  segEl.addEventListener('pointermove', e => {
+    if (!segDrag) return;
+    const thumb = segEl.querySelector('.seg__thumb');
+    if (!thumb) return;
+    const dx = e.clientX - segDrag.startX;
+    const dy = e.clientY - segDrag.startY;
+
+    if (!segDrag.lockedHorizontal) {
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          segDrag.lockedHorizontal = true;
+          try { segEl.setPointerCapture(segDrag.pointerId); } catch (_) {}
+        } else {
+          segDrag = null;
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+
+    segDrag.hasMoved = true;
+    const now = performance.now();
+    const dt = now - segDrag.lastTime;
+    if (dt > 8) {
+      segDrag.velocity = (e.clientX - segDrag.lastX) / dt;
+      segDrag.lastX = e.clientX;
+      segDrag.lastTime = now;
+    }
+
+    let newLeft = segDrag.initialLeft + dx;
+    if (newLeft < 0) newLeft = newLeft * 0.25;
+    else if (newLeft > segDrag.maxLeft) newLeft = segDrag.maxLeft + (newLeft - segDrag.maxLeft) * 0.25;
+
+    segDrag.currentLeft = newLeft;
+    thumb.style.transition = 'none';
+    thumb.style.transform = `translate3d(${newLeft}px, 0, 0)`;
+  });
+
+  const onSegRelease = e => {
+    if (!segDrag) return;
+    const drag = segDrag;
+    segDrag = null;
+    try { segEl.releasePointerCapture(drag.pointerId); } catch (_) {}
+
+    const thumb = segEl.querySelector('.seg__thumb');
+    if (drag.hasMoved && drag.lockedHorizontal) {
+      segJustDragged = true;
+      setTimeout(() => { segJustDragged = false; }, 80);
+
+      const dx = e.clientX - drag.startX;
+      let targetPart = state.part;
+
+      if (drag.velocity > 0.35 || dx > 32) {
+        targetPart = Math.min(2, state.part + 1);
+      } else if (drag.velocity < -0.35 || dx < -32) {
+        targetPart = Math.max(0, state.part - 1);
+      } else {
+        targetPart = Math.round(drag.currentLeft / drag.segWidth);
+        targetPart = Math.max(0, Math.min(2, targetPart));
+      }
+
+      if (thumb) {
+        thumb.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
+        thumb.style.transform = `translate3d(${targetPart * 100}%, 0, 0)`;
+      }
+
+      if (targetPart !== state.part) {
+        state.part = targetPart;
+        buzz(8);
+        renderSeg();
+        renderTiles(true);
+      }
+    } else {
+      if (thumb) {
+        thumb.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
+        thumb.style.transform = `translate3d(${state.part * 100}%, 0, 0)`;
+      }
+    }
+  };
+
+  segEl.addEventListener('pointerup', onSegRelease);
+  segEl.addEventListener('pointercancel', onSegRelease);
+
+  $('#seg').addEventListener('click', e => {
+    if (segJustDragged) return;
+    const b = e.target.closest('button');
+    if (!b || b.disabled || +b.dataset.part === state.part) return;
+    state.part = +b.dataset.part;
+    buzz(5);
+    renderSeg();
+    renderTiles(true);
+  });
+  const CHECK = '<svg class="ic"><use href="#i-check"/></svg>';
+  function renderTiles(animate) {
+    const di = state.day, all = hoursOf(di), hs = partsOf(di)[state.part].hours, el = $('#tiles');
+    if (!all.length) { el.innerHTML = `<div class="card empty"><b>Today's last hour has started</b><p>Tomorrow opens at 06:00.</p><button class="btn" type="button" data-next-day>See tomorrow</button></div>`; return; }
+    el.innerHTML = hs.map((h, i) => {
+      const free = freeCourts(di, h), n = free.length, on = state.hours.includes(h), st = animate ? ` style="--i:${i}"` : ' style="animation:none"';
+      if (!n) return `<button class="tile is-booked" type="button" disabled${st} aria-label="${span(h)}, booked"><span class="tile__t num">${span(h)}</span><span class="tile__m">Booked</span></button>`;
+      const right = on ? CHECK : (n === 1 ? '<em>1 left</em>' : `<span class="dots" aria-hidden="true">${COURTS.map(c => `<i class="${free.includes(c) ? 'f' : ''}"></i>`).join('')}</span>`);
+      return `<button class="tile${on ? ' is-on' : ''}${n === 1 && !on ? ' is-last' : ''}" type="button" data-h="${h}" aria-pressed="${on}"${st} aria-label="${span(h)}, ${rupees(rate(di, h))}, ${n} of 3 courts free"><span class="tile__t num">${span(h)}</span><span class="tile__m"><b class="num" style="font-weight:500">${rupees(rate(di, h))}</b>${right}</span></button>`;
+    }).join('');
+  }
+  let told = false;
+  function tapHour(h) {
+    const s = state.hours, first = s[0], last = s[s.length - 1];
+    if (!s.length) state.hours = [h];
+    else if (s.includes(h)) state.hours = (h === first || h === last) ? s.filter(x => x !== h) : [h];
+    else if (h === last + 1 || h === first - 1) {
+      const next = [...s, h].sort((a, b) => a - b);
+      if (courtsForRange(state.day, next).length) state.hours = next;
+      else { state.hours = [h]; toast(`No single court is free for both hours, so your booking now starts at ${pad(h)}:00.`); }
+    } else { state.hours = [h]; if (!told) { told = true; toast('One booking is one continuous block, so your selection moved here.'); } }
+    buzz(8); renderTiles(false); renderDock();
+  }
+  $('#tiles').addEventListener('click', e => { const b = e.target.closest('.tile[data-h]'); if (b) return tapHour(+b.dataset.h); if (e.target.closest('[data-next-day]')) pickDay(Math.min(state.day + 1, WINDOW_DAYS - 1)); });
+
+  /* ---------- home: dock ---------- */
+  const nextHour = () => { const h = state.hours[state.hours.length - 1] + 1; return hoursOf(state.day).includes(h) && courtsForRange(state.day, [...state.hours, h]).length ? h : null; };
+  function renderDock() {
+    const has = state.hours.length > 0;
+    $('#dock').classList.toggle('is-up', has); $('#tabs').classList.toggle('is-down', has);
+    if (!has) return;
+    const c = assigned();
+    $('#dock-when').textContent = `${fmtShort.format(days[state.day])} · ${range(state.hours)}`;
+    $('#dock-price').textContent = rupees(total()); $('#dock-court').textContent = `Court ${c} ·`; $('#dur').textContent = durLabel();
+    $('#less').disabled = state.hours.length < 2; $('#more').disabled = nextHour() === null;
+    $$('[data-mini]').forEach(m => m.innerHTML = `<div><b>${fmtShort.format(days[state.day])} · ${range(state.hours)}</b><span>Court ${c} · ${durLabel()}</span></div><em class="num">${rupees(total())}</em>`);
+  }
+  $('#more').addEventListener('click', () => { const h = nextHour(); if (h === null) return; state.hours.push(h); buzz(8); const p = PARTS.findIndex(([, a, b]) => h >= a && h <= b); if (p !== state.part) { state.part = p; renderSeg(); renderTiles(true); } else renderTiles(false); renderDock(); });
+  $('#less').addEventListener('click', () => { if (state.hours.length < 2) return; state.hours.pop(); buzz(6); renderTiles(false); renderDock(); });
+  $('#continue').addEventListener('click', () => { if (!state.hours.length) return; renderDock(); push('details'); });
+  function renderAll() { renderDates(); renderSeg(); renderTiles(true); renderDock(); }
+
+  /* ---------- calendar sheet ---------- */
+  $('#open-cal').addEventListener('click', () => {
+    const months = []; days.forEach((d, i) => { const k = d.getFullYear() + '-' + d.getMonth(); (months.find(m => m.k === k) || months[months.push({ k, d, items: {} }) - 1]).items[d.getDate()] = i; });
+    $('#months').innerHTML = months.map(m => {
+      const y = m.d.getFullYear(), mo = m.d.getMonth(), lead = (new Date(y, mo, 1).getDay() + 6) % 7, n = new Date(y, mo + 1, 0).getDate();
+      let cells = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(x => `<small>${x}</small>`).join('') + '<span></span>'.repeat(lead);
+      for (let dd = 1; dd <= n; dd++) { const i = m.items[dd];
+        if (i === undefined) { cells += `<span class="cell is-out num">${dd}</span>`; continue; }
+        const st = dayStatus(i);
+        cells += st === 'full' ? `<span class="cell is-full num">${dd}</span>` : `<button type="button" class="cell num${i === state.day ? ' is-on' : ''}" data-day="${i}" aria-label="${fmtLong.format(days[i])}">${dd}<i class="${st === 'filling' ? 'is-filling' : ''}"></i></button>`; }
+      return `<div class="month"><h4>${fmtMonth.format(m.d)}</h4><div class="month__grid">${cells}</div></div>`; }).join('');
+    openSheet('cal');
+  });
+  $('#months').addEventListener('click', e => { const b = e.target.closest('button[data-day]'); if (!b) return; closeSheet(); pickDay(+b.dataset.day); });
+
+  /* ---------- court sheet ---------- */
+  const COURT_SVG = '<svg viewBox="0 0 46 92" aria-hidden="true"><rect class="k" x="1" y="31" width="44" height="30"/><rect x="1" y="1" width="44" height="90" rx="3"/><line x1="1" y1="31" x2="45" y2="31"/><line x1="1" y1="61" x2="45" y2="61"/><line x1="23" y1="1" x2="23" y2="31"/><line x1="23" y1="61" x2="23" y2="91"/><line x1="0" y1="46" x2="46" y2="46" stroke-width="2.2"/></svg>';
+  let pending = null;
+  function renderCourts() { const ok = courtsForRange(state.day, state.hours); $('#courts').innerHTML = COURTS.map(c => { const free = ok.includes(c), clash = state.hours.find(h => taken(state.day, c, h)); return `<button class="card court${c === pending ? ' is-on' : ''}" type="button" data-court="${c}" ${free ? '' : 'disabled'} aria-pressed="${c === pending}">${COURT_SVG}<b>Court ${c}</b><span>${free ? 'Free' : 'Booked at ' + pad(clash) + ':00'}</span></button>`; }).join(''); }
+  $('#open-court').addEventListener('click', () => { pending = assigned(); renderCourts(); openSheet('court'); });
+  $('#courts').addEventListener('click', e => { const b = e.target.closest('.court'); if (!b || b.disabled) return; pending = +b.dataset.court; buzz(6); renderCourts(); });
+  $('#court-done').addEventListener('click', () => { state.court = pending; closeSheet(); renderDock(); });
+
+  /* ---------- details ---------- */
+  const inName = $('#in-name'), inPhone = $('#in-phone');
+  inPhone.addEventListener('input', () => { const d = inPhone.value.replace(/\D/g, '').slice(0, 10); inPhone.value = d.length > 5 ? d.slice(0, 5) + ' ' + d.slice(5) : d; $('#fld-phone').classList.remove('is-bad'); });
+  inName.addEventListener('input', () => $('#fld-name').classList.remove('is-bad'));
+  $('#form-details').addEventListener('submit', e => {
+    e.preventDefault(); const name = inName.value.trim(), phone = inPhone.value.replace(/\D/g, '');
+    const badName = name.length < 2, badPhone = !/^[6-9]\d{9}$/.test(phone);
+    $('#fld-name').classList.toggle('is-bad', badName); $('#fld-phone').classList.toggle('is-bad', badPhone);
+    if (badName) return inName.focus(); if (badPhone) return inPhone.focus();
+    state.contact = { name, phone }; sendCode(); push('code');
+  });
+
+  /* ---------- code ---------- */
+  const boxes = $$('#otp input'); let resendT;
+  function sendCode() {
+    const p = state.contact.phone; $('#otp-to').textContent = `+91 ${p.slice(0, 5)} ${p.slice(5)}`;
+    boxes.forEach(b => { b.value = ''; b.classList.remove('is-filled'); b.disabled = false; }); $('#otp').classList.remove('is-bad', 'is-ok'); $('#otp-err').textContent = '';
+    let left = 30; const btn = $('#otp-resend'), w = $('#otp-wait'); clearInterval(resendT);
+    const tick = () => { w.textContent = left > 0 ? `Send again in 0:${pad(left)}` : 'Did not arrive?'; btn.disabled = left > 0; if (left-- <= 0) clearInterval(resendT); };
+    tick(); resendT = setInterval(tick, 1000);
+  }
+  function checkCode() {
+    const code = boxes.map(b => b.value).join(''); if (code.length < 6) return;
+    boxes.forEach(b => b.disabled = true);
+    setTimeout(() => {
+      if (code === '000000') { $('#otp').classList.add('is-bad'); $('#otp-err').textContent = 'That code is not right. Check the message and try again.'; buzz([20, 40, 20]);
+        setTimeout(() => { $('#otp').classList.remove('is-bad'); boxes.forEach(b => { b.disabled = false; b.value = ''; b.classList.remove('is-filled'); }); boxes[0].focus(); }, 600); }
+      else { $('#otp').classList.add('is-ok'); setTimeout(() => createHold(), 420); }
+    }, 380);
+  }
+  const fill = d => { d.split('').forEach((ch, j) => { if (boxes[j]) { boxes[j].value = ch; boxes[j].classList.add('is-filled'); } }); boxes[Math.min(d.length, 5)].focus(); checkCode(); };
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', () => { const d = box.value.replace(/\D/g, ''); $('#otp-err').textContent = ''; if (d.length > 1) return fill(d.slice(0, 6)); box.value = d; box.classList.toggle('is-filled', !!d); if (d && boxes[i + 1]) boxes[i + 1].focus(); checkCode(); });
+    box.addEventListener('keydown', e => { if (e.key === 'Backspace' && !box.value && boxes[i - 1]) { boxes[i - 1].value = ''; boxes[i - 1].classList.remove('is-filled'); boxes[i - 1].focus(); } });
+    box.addEventListener('paste', e => { const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!d) return; e.preventDefault(); fill(d); });
+  });
+  $('#otp-resend').addEventListener('click', () => { sendCode(); toast('A new code is on its way.'); boxes[0].focus(); });
+
+  /* ---------- review: the court is held for ten minutes ---------- */
+  function createHold(seconds = HOLD_SECONDS) {
+    state.court = assigned(); state.hold = { expires: Date.now() + seconds * 1000, total: seconds };
+    renderReview(); swap('review'); clearInterval(state.timer); tickHold(); state.timer = setInterval(tickHold, 1000);
+  }
+  function tickHold() {
+    if (!state.hold) return; const left = Math.max(0, Math.round((state.hold.expires - Date.now()) / 1000));
+    $('#hold-t').textContent = `${pad(Math.floor(left / 60))}:${pad(left % 60)}`; $('#hold-bar').style.transform = `scaleX(${left / state.hold.total})`; $('#hold').classList.toggle('is-low', left <= 60);
+    if (left === 0) { clearInterval(state.timer); $('#expired-text').textContent = `Court ${state.court} at ${pad(state.hours[0])}:00 is back on the list. Pick it again and we will hold it for another ten minutes.`; state.hold = null; state.hours = []; state.priceOld = null; state.accepted = true; leaveFlow(); openSheet('expired'); }
+  }
+  function renderReview() {
+    const d = days[state.day], t = total(), gateway = state.mode === 'gateway', changed = state.priceOld !== null && state.priceOld !== t;
+    $('#hold-text').textContent = `Court ${state.court} is held for you`;
+    const groups = []; state.hours.forEach(h => { const r = rate(state.day, h), g = groups[groups.length - 1]; g && g.r === r ? g.n++ : groups.push({ r, n: 1 }); });
+    $('#rows').innerHTML = `<div><dt>Date</dt><dd>${fmtLong.format(d)}</dd></div><div><dt>Time</dt><dd class="num">${range(state.hours)}</dd></div><div><dt>Court</dt><dd>Court ${state.court}</dd></div>` + groups.map(g => `<div><dt>${g.n} hr${g.n > 1 ? 's' : ''} × ${rupees(g.r)}</dt><dd class="num">${rupees(g.r * g.n)}</dd></div>`).join('');
+    $('#pay-title').textContent = gateway ? 'Pay online' : 'Pay at the desk';
+    $('#pay-text').textContent = gateway ? 'UPI, card or net banking. Confirmed when the payment clears.' : 'Cash, card or UPI when you arrive. Nothing to pay now.';
+    $('#total-label').textContent = gateway ? 'To pay now' : 'Pay at the desk'; $('#total').textContent = rupees(t);
+    $('#price-alert').hidden = !changed || state.accepted;
+    $('#price-alert-text').textContent = changed ? `It was ${rupees(state.priceOld)} when you opened the app. It is now ${rupees(t)}.` : '';
+    const btn = $('#confirm'); btn.disabled = changed && !state.accepted; btn.textContent = gateway ? `Pay ${rupees(t)}` : 'Confirm booking';
+  }
+  $('#price-accept').addEventListener('click', () => { state.accepted = true; renderReview(); });
+
+  /* ---------- confirm: the server confirms, never this page ---------- */
+  $('#confirm').addEventListener('click', () => {
+    clearInterval(state.timer); const gateway = state.mode === 'gateway';
+    $('#wait-title').textContent = gateway ? 'Confirming your payment' : 'Confirming';
+    $('#wait-text').textContent = gateway ? 'A few seconds. Please keep the app open.' : 'Writing your booking.';
+    swap('wait');
+    if (state.slow) setTimeout(() => { $('#wait-text').textContent = 'Still confirming. Your court is safe, even if you close the app. We will text you the reference.'; }, 2600);
+    setTimeout(done, state.slow ? 7000 : gateway ? 2400 : 1100);
+  });
+  function done() {
+    const d = days[state.day], hs = [...state.hours], court = state.court, t = total(), gateway = state.mode === 'gateway';
+    const ref = 'PC-' + Array.from({ length: 6 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
+    hs.forEach(h => extraTaken.add(`${state.day}-${court}-${h}`));
+    $('#ref').textContent = ref;
+    $('#done-sub').textContent = `We've sent the details to +91 ${state.contact.phone.slice(0, 5)} ${state.contact.phone.slice(5)}`;
+    $('#ticket').innerHTML = `<div><small>Date</small><b>${fmtShort.format(d)}</b></div><div><small>Time</small><b class="num">${range(hs)}</b></div><div><small>Court</small><b>Court ${court}</b></div><div><small>${gateway ? 'Paid' : 'Pay at the desk'}</small><b class="num">${rupees(t)}</b></div>`;
+    $('#share').href = 'https://wa.me/?text=' + encodeURIComponent(`Court ${court} at The Pavilion Club, ${fmtShort.format(d)}, ${range(hs)}. Reference ${ref}.`);
+    const utc = h => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), h) - 5.5 * 3600e3).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');   // IST is UTC+5:30
+    $('#add-cal').onclick = () => { const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', `UID:${ref}@pavilionclub.in`, `DTSTART:${utc(hs[0])}`, `DTEND:${utc(hs[hs.length - 1] + 1)}`, `SUMMARY:Court ${court} · The Pavilion Club`, `DESCRIPTION:Booking reference ${ref}`, 'LOCATION:The Pavilion Club\\, Chennai', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = ref + '.ics'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+    $('#ref-copy').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(ref) : Promise.reject()).then(() => toast('Reference copied.'), () => toast(ref)); };
+    state.hold = null; state.hours = []; state.priceOld = null; state.accepted = true; state.slow = false;
+    swap('done'); buzz([12, 60, 18]);
+  }
+  $('#finish').addEventListener('click', () => leaveFlow());
+
+  /* ---------- design-review states ---------- */
+  $('#open-states').addEventListener('click', () => openSheet('states'));
+  const ensure = () => { if (state.hours.length) return true; const h = hoursOf(state.day).find(h => freeCourts(state.day, h).length); if (h === undefined) return false; state.hours = [h]; state.court = null; state.part = PARTS.findIndex(([, a, b]) => h >= a && h <= b); renderAll(); return true; };
+  const setMode = m => { state.mode = m; $$('[data-mode]').forEach(x => x.classList.toggle('is-on', x.dataset.mode === m)); };
+  sheet.addEventListener('click', e => {
+    const m = e.target.closest('[data-mode]'); if (m) { setMode(m.dataset.mode); closeSheet(); return toast(m.dataset.mode === 'gateway' ? 'Online payment wording is on.' : 'Pay at the desk wording is on.'); }
+    const alt = e.target.closest('[data-alt]'); if (alt) { const h = +alt.dataset.alt; state.hours = [h]; state.court = null; state.part = PARTS.findIndex(([, a, b]) => h >= a && h <= b); closeSheet(); return renderAll(); }
+    const b = e.target.closest('[data-demo]'); if (!b || !ensure()) return; const kind = b.dataset.demo;
+    if (!state.contact.phone) state.contact = { name: 'Asha Raman', phone: '9876543210' };
+    if (kind === 'taken') {
+      const gone = state.hours[0]; COURTS.forEach(c => extraTaken.add(`${state.day}-${c}-${gone}`)); state.hours = state.hours.slice(1); state.court = null;
+      const alts = hoursOf(state.day).filter(h => freeCourts(state.day, h).length && !state.hours.includes(h)).sort((a, b) => Math.abs(a - gone) - Math.abs(b - gone)).slice(0, 3).sort((a, b) => a - b);
+      $('#taken-text').textContent = `${span(gone)} went to someone else a moment ago.${state.hours.length ? ' The rest of your selection is still yours.' : ' These are the closest free hours.'}`;
+      $('#alts').innerHTML = alts.map(h => `<div class="card alt"><div><b class="num">${span(h)}</b><br><span class="num">${rupees(rate(state.day, h))}</span></div><button type="button" data-alt="${h}">Select</button></div>`).join('') || '<p class="sub">Nothing else is free that day. Try another day.</p>';
+      renderAll(); return openSheet('taken');
+    }
+    if (kind === 'limit') return openSheet('limit');
+    closeSheet();
+    if (kind === 'price') { state.priceOld = total(); state.hours.forEach(h => bump.set(`${state.day}-${h}`, 20000)); state.accepted = false; renderAll(); createHold(); }
+    if (kind === 'expire') createHold(8);
+    if (kind === 'slow') { setMode('gateway'); state.slow = true; createHold(); }
+  });
+
+  $$('.screen').forEach(s => s.inert = !s.classList.contains('is-active'));
+  renderAll();
+})();
+</script>
+</body>
+</html>

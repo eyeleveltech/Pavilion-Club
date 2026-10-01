@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { Download, Smartphone, X, Sparkles, Share } from 'lucide-react';
+import { Download, Smartphone, X, Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -17,12 +17,12 @@ export function PwaInstallPrompt() {
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   useEffect(() => {
-    // Do not show install prompt or attach listeners on admin routes
+    // 1. Do not show install prompt or attach listeners on admin routes
     if (pathname?.startsWith('/admin')) {
       return;
     }
 
-    // 1. Check if already installed in standalone mode
+    // 2. Check if already installed in standalone mode
     const isStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true;
@@ -31,30 +31,33 @@ export function PwaInstallPrompt() {
       return; // Already installed, do not show
     }
 
-    // 2. Check if user dismissed it in this session
-    const dismissed = sessionStorage.getItem('pavilion_pwa_dismissed');
-    if (dismissed === 'true') {
+    // 3. STRICT ONE-TIME RULE: If user has already seen or dismissed it once, never show again
+    const hasSeenOrDismissed = localStorage.getItem('pavilion_pwa_shown');
+    if (hasSeenOrDismissed === 'true') {
       return;
     }
 
-    // 3. Android / Chrome beforeinstallprompt event
+    // 4. Android / Chrome beforeinstallprompt event
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowPrompt(true);
+      // Mark as shown once permanently in localStorage
+      localStorage.setItem('pavilion_pwa_shown', 'true');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // 4. iOS Safari detection
+    // 5. iOS Safari detection
     const isIosDevice =
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     if (isIosDevice) {
       setIsIOS(true);
-      // Show subtle banner after 3 seconds on iOS
+      // Show subtle banner after 3 seconds on iOS only if never shown before
       const timer = setTimeout(() => {
-        if (!sessionStorage.getItem('pavilion_pwa_dismissed')) {
+        if (!localStorage.getItem('pavilion_pwa_shown')) {
           setShowPrompt(true);
+          localStorage.setItem('pavilion_pwa_shown', 'true');
         }
       }, 3000);
       return () => {
@@ -69,6 +72,9 @@ export function PwaInstallPrompt() {
   }, [pathname]);
 
   const handleInstallClick = async () => {
+    // Always mark permanently as shown/handled
+    localStorage.setItem('pavilion_pwa_shown', 'true');
+
     if (isIOS) {
       setShowIOSModal(true);
       return;
@@ -86,7 +92,8 @@ export function PwaInstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    sessionStorage.setItem('pavilion_pwa_dismissed', 'true');
+    // Mark as dismissed permanently in localStorage (never show again)
+    localStorage.setItem('pavilion_pwa_shown', 'true');
   };
 
   // Do not render anything on admin routes or when prompt is inactive

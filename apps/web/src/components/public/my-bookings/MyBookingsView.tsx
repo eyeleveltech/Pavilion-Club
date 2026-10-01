@@ -42,6 +42,17 @@ interface MyBookingsViewProps {
   initialBookings?: BookingRecord[];
 }
 
+function formatTo12Hour(timeStr: string): string {
+  if (!timeStr) return '';
+  return timeStr.replace(/(\d{1,2}):(\d{2})/g, (_, hStr, mStr) => {
+    let hour = parseInt(hStr, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+    return `${String(hour).padStart(2, '0')}:${mStr} ${ampm}`;
+  });
+}
+
 export function MyBookingsView({
   initialCustomer = null,
   initialBookings = [],
@@ -326,7 +337,7 @@ export function MyBookingsView({
                       <span>·</span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-gold" />
-                        <span>{b.timeLabel}</span>
+                        <span>{formatTo12Hour(b.timeLabel)}</span>
                       </span>
                     </div>
                   </div>
@@ -380,7 +391,7 @@ export function MyBookingsView({
             </div>
 
             <p className="text-xs text-ink leading-relaxed">
-              Are you sure you want to cancel your session on <strong>{cancelTarget.businessDate} ({cancelTarget.timeLabel})</strong>? Your reserved court will immediately be made available for other players.
+              Are you sure you want to cancel your session on <strong>{cancelTarget.businessDate} ({formatTo12Hour(cancelTarget.timeLabel)})</strong>? Your reserved court will immediately be made available for other players.
             </p>
 
             <div className="p-3 bg-surface-2 rounded-lg border border-border text-[11px] text-ink-soft">
