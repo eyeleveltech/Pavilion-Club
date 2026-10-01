@@ -21,7 +21,7 @@ export function PublicHeader() {
               <span className="text-xs sm:text-sm font-bold tracking-wider text-navy uppercase">Pavilion</span>
             </div>
             <p className="hidden min-[360px]:block text-[9px] sm:text-[10px] text-ink-soft tracking-wider">
-              Club · Badminton Arena
+              Club · Pickleball Arena
             </p>
           </div>
         </Link>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Contact & Directions | The Pavilion Club Adyar',
-  description: 'Find The Pavilion Club badminton arena in Gandhi Nagar, Adyar, Chennai. Operating hours, location map, front desk phone, and amenities.',
+  description: 'Find The Pavilion Club pickleball arena in Gandhi Nagar, Adyar, Chennai. Operating hours, location map, front desk phone, and amenities.',
 };
 
 export default function ContactPage() {
@@ -165,7 +165,7 @@ export default function ContactPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-1.5"></span>
-                  <span>Non-marking badminton shoes strictly required on synthetic mats. Loaner shoes and racket grip restringing available at desk.</span>
+                  <span>Non-marking court shoes strictly required on court. Paddle rental and equipment available at desk.</span>
                 </li>
               </ul>
             </div>

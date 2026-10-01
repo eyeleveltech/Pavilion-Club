@@ -280,7 +280,7 @@ export function MyBookingsView({
             <div className="p-12 text-center text-xs text-ink-soft space-y-3 bg-surface border border-border rounded-xl">
               <p className="font-semibold text-navy text-sm">No bookings found</p>
               <p className="text-ink-faint">
-                You haven&apos;t booked any badminton courts yet.
+                You haven&apos;t booked any pickleball courts yet.
               </p>
               <div className="pt-2">
                 <Link

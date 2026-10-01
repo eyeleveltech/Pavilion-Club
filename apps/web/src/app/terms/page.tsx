@@ -12,7 +12,7 @@ export default function TermsPage() {
         <section className="space-y-2">
           <h2 className="text-sm font-bold text-navy">1. Court Licence & Use</h2>
           <p>
-            Booking a slot at The Pavilion Club grants a temporary, revocable licence to use the designated badminton court for the reserved time window. Players must strictly wear non-marking badminton shoes. Barefoot play, running shoes, or black-soled footwear are strictly prohibited to preserve court surface integrity.
+            Booking a slot at The Pavilion Club grants a temporary, revocable licence to use the designated pickleball court for the reserved time window. Players must strictly wear non-marking court shoes. Barefoot play, running shoes, or black-soled footwear are strictly prohibited to preserve court surface integrity.
           </p>
         </section>
 

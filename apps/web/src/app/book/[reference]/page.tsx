@@ -90,7 +90,7 @@ export default async function BookingConfirmationPage({
                 Booking Confirmed!
               </h1>
               <p className="text-xs text-ink-soft mt-1">
-                Your BWF badminton court is secured. Present this pass at reception.
+                Your pickleball court is secured. Present this pass at reception.
               </p>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default async function BookingConfirmationPage({
               </div>
               <ul className="list-disc list-inside space-y-1.5 text-ink-soft text-[11px] leading-relaxed">
                 <li>Arrive <strong>10 minutes early</strong> to clear spot payment (Cash/UPI) at reception.</li>
-                <li><strong>Non-marking badminton shoes</strong> are strictly mandatory on the synthetic courts.</li>
+                <li><strong>Non-marking court shoes</strong> are strictly mandatory on the pickleball courts.</li>
                 <li>Show your reference <strong>{booking.reference}</strong> or WhatsApp pass at front desk.</li>
               </ul>
             </div>

@@ -61,7 +61,7 @@ export function DigitalMatchPassActions({
   const handleWhatsAppShare = () => {
     const formattedAmount = '₹' + (amountPaise / 100).toLocaleString('en-IN');
     const msg = [
-      '🏸 *BADMINTON MATCH PASS — THE PAVILION CLUB*',
+      '🏓 *PICKLEBALL MATCH PASS — THE PAVILION CLUB*',
       '━━━━━━━━━━━━━━━━━━━━━',
       `📅 *Date:* ${businessDate}`,
       `⏰ *Time:* ${timeLabel}`,
@@ -71,7 +71,7 @@ export function DigitalMatchPassActions({
       `📌 *Venue:* ${venueName}`,
       `🗺️ *Location:* ${googleMapsUrl}`,
       '━━━━━━━━━━━━━━━━━━━━━',
-      '👟 *Note:* Non-marking badminton shoes strictly required on court.',
+      '👟 *Note:* Non-marking court shoes strictly required on court.',
       'See you on the court! 🔥'
     ].join('\n');
 
@@ -88,9 +88,9 @@ export function DigitalMatchPassActions({
 
       const startDate = formatGCalDate(new Date(startsAt));
       const endDate = formatGCalDate(new Date(endsAt));
-      const title = `🏸 Badminton Match — ${courtName} (${reference})`;
+      const title = `🏓 Pickleball Match — ${courtName} (${reference})`;
       const details = [
-        'THE PAVILION CLUB — BADMINTON MATCH PASS',
+        'THE PAVILION CLUB — PICKLEBALL MATCH PASS',
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
         `Court: ${courtName}`,
         `Booking Ref: ${reference}`,
@@ -99,7 +99,7 @@ export function DigitalMatchPassActions({
         `Venue: ${venueName}`,
         `Address: ${venueAddress}`,
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        'Note: Non-marking badminton shoes strictly required on court.'
+        'Note: Non-marking court shoes strictly required on court.'
       ].join('\n');
 
       const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(venueAddress)}`;
@@ -124,7 +124,7 @@ export function DigitalMatchPassActions({
       const icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//The Pavilion Club//Badminton Booking//EN',
+        'PRODID:-//The Pavilion Club//Pickleball Booking//EN',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'BEGIN:VEVENT',
@@ -132,14 +132,14 @@ export function DigitalMatchPassActions({
         `DTSTAMP:${formatICSDate(new Date())}`,
         `DTSTART:${formatICSDate(startDate)}`,
         `DTEND:${formatICSDate(endDate)}`,
-        `SUMMARY:🏸 Badminton Match — ${courtName} (${reference})`,
-        `DESCRIPTION:Match reserved at ${venueName}.\\nBooking Reference: ${reference}\\nTime: ${timeLabel}\\nCourt: ${courtName}\\nNote: Non-marking badminton shoes strictly required.`,
+        `SUMMARY:🏓 Pickleball Match — ${courtName} (${reference})`,
+        `DESCRIPTION:Match reserved at ${venueName}.\\nBooking Reference: ${reference}\\nTime: ${timeLabel}\\nCourt: ${courtName}\\nNote: Non-marking court shoes strictly required.`,
         `LOCATION:${venueAddress}`,
         'STATUS:CONFIRMED',
         'BEGIN:VALARM',
         'TRIGGER:-PT60M',
         'ACTION:DISPLAY',
-        'DESCRIPTION:Badminton Match at The Pavilion Club in 1 hour',
+        'DESCRIPTION:Pickleball Match at The Pavilion Club in 1 hour',
         'END:VALARM',
         'END:VEVENT',
         'END:VCALENDAR'

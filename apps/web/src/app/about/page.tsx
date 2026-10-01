@@ -4,8 +4,8 @@ import { Sparkles, Trophy, Shield, Zap, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'About The Pavilion Club | Chennai Badminton Arena',
-  description: 'World-class BWF standard badminton courts, pro synthetic flooring, and tournament-grade LED lighting in Chennai.',
+  title: 'About The Pavilion Club | Chennai Pickleball Arena',
+  description: 'World-class regulation pickleball courts, pro cushioned flooring, and tournament-grade LED lighting in Chennai.',
 };
 
 export default function AboutPage() {
@@ -17,13 +17,13 @@ export default function AboutPage() {
         <div className="space-y-4 text-center md:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy/5 border border-navy/15 text-navy text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-gold" />
-            <span>Chennai&apos;s Benchmark Badminton Experience</span>
+            <span>Chennai&apos;s Benchmark Pickleball Experience</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-navy">
             About <span className="text-gold font-serif italic">The Pavilion</span>
           </h1>
           <p className="text-ink-soft max-w-2xl text-base">
-            Engineered for passionate badminton athletes, weekend warriors, and tournament champions. We combine international court specifications with warm hospitality.
+            Engineered for passionate pickleball players, weekend warriors, and tournament champions. We combine international court specifications with warm hospitality.
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <div className="w-10 h-10 rounded-lg bg-navy/10 text-navy flex items-center justify-center font-bold">
               <Trophy className="w-5 h-5 text-gold" />
             </div>
-            <h3 className="text-base font-bold text-navy">BWF-Standard Courts</h3>
+            <h3 className="text-base font-bold text-navy">Regulation Pickleball Courts</h3>
             <p className="text-xs text-ink-soft leading-relaxed">
               3 international standard wooden sprung synthetic mat courts designed for optimal shock absorption and joint protection.
             </p>
@@ -64,7 +64,7 @@ export default function AboutPage() {
           <ul className="space-y-2 text-xs text-ink-soft">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-gold shrink-0" />
-              <span>Non-marking badminton shoes are strictly mandatory on synthetic mats.</span>
+              <span>Non-marking court shoes are strictly mandatory on pickleball courts.</span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-gold shrink-0" />

@@ -28,15 +28,15 @@ export default function PublicLandingPage() {
             <div className="space-y-6 max-w-xl text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy/5 border border-navy/15 text-navy text-xs font-semibold">
                 <Sparkles className="w-3.5 h-3.5 text-gold" />
-                <span>Chennai&apos;s Premier Badminton Arena</span>
+                <span>Chennai&apos;s Premier Pickleball Arena</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-navy leading-[1.15]">
-                Championship Badminton Courts at <span className="text-gold-text font-serif italic">The Pavilion</span>
+                Championship Pickleball Courts at <span className="text-gold-text font-serif italic">The Pavilion</span>
               </h1>
 
               <p className="text-ink-soft text-sm sm:text-base leading-relaxed">
-                3 international BWF-standard wooden synthetic courts, glare-free LED lighting, and premium locker facilities. Book your slot online in seconds — pay at the venue.
+                3 championship regulation pickleball courts, cushioned acrylic surface, glare-free LED lighting, and premium locker facilities. Book your slot online in seconds — pay at the venue.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 justify-center md:justify-start">
@@ -96,7 +96,7 @@ export default function PublicLandingPage() {
                 <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
                   <div>
                     <h3 className="font-bold text-white">Court 1 & 2</h3>
-                    <p className="text-[11px] text-ink-on-dark/70">BWF Wooden Synthetic</p>
+                    <p className="text-[11px] text-ink-on-dark/70">Regulation Tournament Surface</p>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-ok-soft text-ok">
                     Available
@@ -146,7 +146,7 @@ export default function PublicLandingPage() {
               <div className="w-10 h-10 rounded-lg bg-navy/10 text-navy flex items-center justify-center">
                 <Zap className="w-5 h-5 text-gold" />
               </div>
-              <h3 className="font-bold text-navy text-base">BWF Wooden Synthetic Flooring</h3>
+              <h3 className="font-bold text-navy text-base">Tournament-Grade Cushioned Acrylic Courts</h3>
               <p className="text-xs text-ink-soft leading-relaxed">
                 Dual-sprung cushioned subfloor with anti-skid PVC top layer to reduce knee and joint impact during intense rallies.
               </p>

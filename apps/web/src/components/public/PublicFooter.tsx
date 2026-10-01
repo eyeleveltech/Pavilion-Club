@@ -16,7 +16,7 @@ export function PublicFooter({ className = "mt-16" }: { className?: string }) {
             </span>
           </div>
           <p className="text-ink-on-dark/70 text-xs leading-relaxed">
-            Premier indoor badminton arena in Adyar. 3 professional BWF-grade wooden synthetic courts, glare-free lighting, and luxury player amenities.
+            Premier indoor pickleball arena in Adyar. 3 championship regulation pickleball courts, glare-free LED lighting, and luxury player amenities.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export function PublicFooter({ className = "mt-16" }: { className?: string }) {
 
       <div className="max-w-6xl mx-auto px-4 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-ink-on-dark/50 gap-2">
         <p>© 2026 The Pavilion Club. All rights reserved.</p>
-        <p>Non-marking badminton shoes strictly required on all courts.</p>
+        <p>Non-marking court shoes strictly required on all courts.</p>
       </div>
     </footer>
   );

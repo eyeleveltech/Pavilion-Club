@@ -475,7 +475,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
             <span className="truncate">Pavilion<span className="hidden sm:inline"> Club · Court Reservation</span></span>
           </span>
           <span className="inline-flex items-center justify-center sm:justify-start gap-1 px-1 sm:px-2.5 py-1 rounded-full font-medium bg-surface-2 text-ink-soft border border-border truncate">
-            <span className="truncate">3 BWF <span className="hidden sm:inline">Synthetic </span>Courts</span>
+            <span className="truncate">3 Pro <span className="hidden sm:inline">Regulation </span>Courts</span>
           </span>
           <span className="inline-flex items-center justify-center sm:justify-start gap-1 px-1 sm:px-2.5 py-1 rounded-full font-semibold text-ok bg-ok/10 border border-ok/30 truncate">
             <CheckCircle2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 shrink-0" />

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Cancellation & Refund Policy | The Pavilion Club Adyar',
-  description: 'Official cancellation terms, refund procedures, and third-party partner booking policies for The Pavilion Club badminton arena in Chennai.',
+  description: 'Official cancellation terms, refund procedures, and third-party partner booking policies for The Pavilion Club pickleball arena in Chennai.',
 };
 
 export default function CancellationPolicyPage() {
@@ -35,7 +35,7 @@ export default function CancellationPolicyPage() {
             <span>Pay at Venue &bull; Hassle-Free Online Booking</span>
           </div>
           <p className="text-xs text-emerald-800 leading-relaxed">
-            Because online reservations at The Pavilion Club require zero advance card deposit, you can cancel your slot anytime through our self-service portal without cancellation charges. We kindly ask that you cancel at least 2 hours ahead so other waiting badminton players can book the court.
+            Because online reservations at The Pavilion Club require zero advance card deposit, you can cancel your slot anytime through our self-service portal without cancellation charges. We kindly ask that you cancel at least 2 hours ahead so other waiting pickleball players can book the court.
           </p>
         </div>
 

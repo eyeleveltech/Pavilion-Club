@@ -17,8 +17,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'The Pavilion Club — Badminton Arena',
-  description: 'Premier indoor badminton arena in Adyar, Chennai. 3 BWF wooden synthetic courts, glare-free LED lighting.',
+  title: 'The Pavilion Club — Pickleball Arena',
+  description: 'Premier indoor pickleball arena in Adyar, Chennai. 3 championship regulation pickleball courts, glare-free LED lighting.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
