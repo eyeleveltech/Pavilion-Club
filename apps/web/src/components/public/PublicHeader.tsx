@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck } from 'lucide-react';
-
 export function PublicHeader() {
   const pathname = usePathname();
 
@@ -41,6 +39,17 @@ export function PublicHeader() {
           </Link>
 
           <Link
+            href="/membership"
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-xs font-semibold ${
+              pathname.startsWith('/membership')
+                ? 'bg-navy text-white shadow-xs'
+                : 'text-ink hover:text-navy hover:bg-surface-2'
+            }`}
+          >
+            Membership
+          </Link>
+
+          <Link
             href="/my-bookings"
             className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-xs font-semibold ${
               pathname.startsWith('/my-bookings')
@@ -49,15 +58,6 @@ export function PublicHeader() {
             }`}
           >
             My Bookings
-          </Link>
-
-          <Link
-            href="/admin"
-            className="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-ink-faint hover:text-ink hover:bg-surface-2 transition text-[11px]"
-            title="Desk Staff Login"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Staff</span>
           </Link>
         </nav>
       </div>

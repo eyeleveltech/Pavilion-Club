@@ -94,3 +94,75 @@ button:focus-visible {
   background-size: 200% 100%;
   animation: luxury-shimmer 1.8s ease-in-out infinite;
 }
+
+/* ---- Global Luxury Pavilion Cursor ---- */
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor [role="button"] {
+  cursor: none !important;
+}
+
+body.has-cursor input,
+body.has-cursor textarea,
+body.has-cursor select {
+  cursor: text !important;
+}
+
+.pavilion-cursor-dot,
+.pavilion-cursor-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 999999;
+  border-radius: 50%;
+  will-change: transform;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s ease;
+}
+
+.pavilion-cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #c7a26a;
+}
+
+.pavilion-cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(199, 162, 106, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #0f1e2e;
+  font-weight: 700;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.35s ease,
+              border-color 0.35s ease;
+}
+
+.pavilion-cursor-ring.is-link {
+  width: 52px;
+  height: 52px;
+  border-color: #c7a26a;
+}
+
+.pavilion-cursor-ring.is-hover {
+  width: 86px;
+  height: 86px;
+  background: #c7a26a;
+  border-color: #c7a26a;
+  color: #0f1e2e;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .pavilion-cursor-dot,
+  .pavilion-cursor-ring {
+    display: none !important;
+  }
+}

@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Pavilion Club — Pickleball, Anna Nagar West, Chennai</title>
+<meta name="description" content="Three tournament-grade pickleball courts in Anna Nagar West, Chennai. Book by the hour, pay online, walk in and play.">
+<link href="assets/fonts/fonts.css" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   THE PAVILION CLUB — home
+   Brand: Midnight #0f1e2e · Khaki gold #c7a26a · Ivory #F9F6ED
+   Type:  Montserrat (primary) · Pinyon Script (stand-in for Formale
+          Script, used only where the logo uses script) · Cormorant
+          Garamond (wordmark serif only)
+------------------------------------------------------------------- */
+:root{
+  --midnight:#0f1e2e;
+  --midnight-deep:#0a1520;
+  --gold:#c7a26a;
+  --gold-line:rgba(199,162,106,.26);
+  --gold-soft:rgba(199,162,106,.12);
+  --ivory:#F9F6ED;
+  --ivory-70:rgba(249,246,237,.72);
+  --ivory-45:rgba(249,246,237,.45);
+  --ivory-line:rgba(249,246,237,.14);
+  --ink:#0c0c0b;
+  --mid-70:rgba(15,30,46,.72);
+  --mid-55:rgba(15,30,46,.55);
+  --mid-line:rgba(15,30,46,.16);
+  --gutter:clamp(1.5rem,7.5vw,8.5rem);
+  --font-sans:'Montserrat',system-ui,sans-serif;
+  --font-script:'Pinyon Script',cursive;
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-io:cubic-bezier(.76,0,.24,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{margin:0;background:var(--midnight);color:var(--ivory);font-family:var(--font-sans);font-size:1rem;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:clip}
+body.has-cursor,body.has-cursor a,body.has-cursor button{cursor:none}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-align:inherit}
+h1,h2,h3,h4,p,figure,ul{margin:0}
+:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.skip{position:absolute;left:-999px;top:1rem;z-index:2000;background:var(--gold);color:var(--midnight);padding:.6rem 1rem;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase}
+.skip:focus{left:1rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* --- type ------------------------------------------------------- */
+.eyebrow{font-size:.66rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:1rem}
+.eyebrow::before{content:"";width:2rem;height:1px;background:currentColor;opacity:.7}
+.on-light .eyebrow{color:var(--mid-55)}
+.display{font-weight:800;text-transform:uppercase;letter-spacing:-.025em;line-height:.9}
+.display--xl{font-size:clamp(3.6rem,11.5vw,12.5rem)}
+.display--l{font-size:clamp(2.8rem,6.6vw,6.8rem)}
+.display--m{font-size:clamp(2.2rem,4.4vw,4.4rem)}
+.sc{font-family:var(--font-script);font-weight:400;font-style:normal;text-transform:none;letter-spacing:0;color:var(--gold);font-size:1.12em;line-height:.8;position:relative;top:.04em;padding:0 .06em}
+.ln{display:block;overflow:hidden;padding:.08em 0 .1em;margin:-.08em 0 -.1em}
+.ln>span{display:block;will-change:transform}
+.lede{font-size:clamp(1rem,1.2vw,1.18rem);line-height:1.75;color:var(--ivory-70)}
+.on-light{background:var(--ivory);color:var(--midnight)}
+.on-light .lede{color:var(--mid-70)}
+.small{font-size:.66rem;letter-spacing:.26em;text-transform:uppercase}
+
+/* section frame: the court's singles lines and centre line, drawn as hairlines */
+.section{position:relative;padding:clamp(6rem,12vw,11rem) var(--gutter)}
+.has-lines{background-image:linear-gradient(var(--line),var(--line)),linear-gradient(var(--line),var(--line)),linear-gradient(var(--line),var(--line));background-size:1px 100%;background-repeat:no-repeat;background-position:var(--gutter) 0,50% 0,calc(100% - var(--gutter)) 0}
+.has-lines{--line:var(--gold-soft)}
+.on-light.has-lines{--line:rgba(15,30,46,.08)}
+
+/* --- buttons ---------------------------------------------------- */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.8rem;padding:1.1rem 2.2rem;font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;border:1px solid var(--gold);color:var(--midnight);background:var(--gold);overflow:hidden;isolation:isolate;transition:color .5s var(--ease),border-color .5s;white-space:nowrap;will-change:transform}
+.btn::before{content:"";position:absolute;inset:0;background:var(--ivory);transform:translateY(101%);transition:transform .6s var(--ease);z-index:-1}
+.btn:hover::before,.btn:focus-visible::before{transform:translateY(0)}
+.btn--ghost{background:transparent;color:var(--ivory);border-color:rgba(249,246,237,.35)}
+.btn--ghost:hover{color:var(--midnight);border-color:var(--ivory)}
+.link-arrow{display:inline-flex;align-items:center;gap:1rem;font-size:.68rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;white-space:nowrap}
+.link-arrow i{width:2.6rem;height:1px;background:currentColor;position:relative;transition:width .5s var(--ease)}
+.link-arrow i::after{content:"";position:absolute;right:0;top:-3.5px;width:7px;height:7px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+.link-arrow:hover i{width:4rem}
+
+/* --- brand ------------------------------------------------------ */
+.brand{display:inline-grid;justify-items:center;line-height:1;color:var(--ivory);font-size:.78rem}
+.brand__the{font-family:var(--font-script);font-size:1.55em;transform:translateX(14%);margin-bottom:-.12em}
+.brand__name{font-family:var(--font-serif);font-weight:600;font-size:1em;letter-spacing:.4em;text-indent:.4em;text-transform:uppercase}
+.brand__club{font-family:var(--font-script);font-size:1.55em;transform:translateX(12%);margin-top:-.22em}
+.on-light .brand{color:var(--midnight)}
+
+/* --- loader ----------------------------------------------------- */
+.loader{position:fixed;inset:0;z-index:1000;background:var(--midnight-deep);display:grid;place-items:center;animation:loaderFallback 0s 9s forwards}
+@keyframes loaderFallback{to{visibility:hidden}}
+.loader__mono{width:58px;height:auto;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round}
+.loader__count{position:absolute;left:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--gold);font-variant-numeric:tabular-nums}
+.loader__word{position:absolute;right:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--ivory-45);text-transform:uppercase}
+.loader__line{position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:left}
+
+/* --- nav -------------------------------------------------------- */
+.nav{position:fixed;inset:0 0 auto 0;z-index:100;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:1.5rem var(--gutter);transition:padding .6s var(--ease),background .6s,border-color .6s;border-bottom:1px solid transparent}
+.nav.is-scrolled{padding:.8rem var(--gutter);background:rgba(15,30,46,.84);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-color:var(--gold-line)}
+.nav__links{display:flex;gap:2.4rem;justify-self:center}
+.nav__links a{font-size:.64rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;position:relative;padding:.4rem 0;color:var(--ivory-70);transition:color .3s}
+.nav__links a:hover{color:var(--ivory)}
+.nav__links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease)}
+.nav__links a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav__right{justify-self:end;display:flex;gap:1.4rem;align-items:center}
+.nav__right .btn{padding:.85rem 1.6rem}
+.nav__menu{display:none;font-size:.64rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;padding:.6rem 0}
+.menu{position:fixed;inset:0;z-index:90;background:var(--midnight-deep);display:flex;flex-direction:column;justify-content:center;padding:0 var(--gutter);clip-path:inset(0 0 100% 0);visibility:hidden}
+.menu a{font-size:clamp(2.2rem,9vw,4rem);font-weight:800;text-transform:uppercase;line-height:1.15;letter-spacing:-.02em;padding:.35rem 0;border-bottom:1px solid rgba(199,162,106,.16)}
+.menu__foot{margin-top:2.4rem;display:grid;gap:.5rem;font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
+@media (max-width:900px){
+  .nav{grid-template-columns:1fr auto}
+  .nav__links{display:none}
+  .nav__right .btn{display:none}
+  .nav__menu{display:inline-flex}
+}
+
+/* --- hero ------------------------------------------------------- */
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden;background:var(--midnight-deep)}
+.hero__media{position:absolute;inset:-8% 0;will-change:transform}
+.hero__media img{width:100%;height:100%;object-fit:cover;object-position:50% 58%;filter:saturate(.85) contrast(1.04)}
+.hero__tint{position:absolute;inset:0;background:var(--midnight);mix-blend-mode:color;opacity:.38}
+.hero__veil{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(15,30,46,.62) 0%,rgba(15,30,46,.1) 34%,rgba(15,30,46,.3) 62%,rgba(15,30,46,.96) 100%),
+  linear-gradient(90deg,rgba(15,30,46,.72) 0%,rgba(15,30,46,0) 60%)}
+.hero__inner{position:absolute;inset:0;z-index:2;display:grid;grid-template-columns:1.3fr 1fr;align-items:end;padding:0 var(--gutter) clamp(3rem,7vh,5.5rem);gap:2rem}
+.hero__meta{position:absolute;top:clamp(6.5rem,15vh,9rem);left:var(--gutter);display:flex;gap:2.5rem;font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ivory-70)}
+.hero__meta span{display:flex;align-items:center;gap:.8rem}
+.hero__meta span::before{content:"";width:5px;height:5px;background:var(--gold);border-radius:50%}
+.hero__title{align-self:end}
+.hero__aside{display:grid;gap:2rem;max-width:25rem;justify-self:end;padding-bottom:.4rem}
+.hero__cta{display:flex;align-items:center;gap:2.4rem;flex-wrap:wrap}
+.hero__side{position:absolute;right:2rem;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:.62rem;letter-spacing:.34em;text-transform:uppercase;color:var(--ivory-45);display:flex;align-items:center;gap:1.2rem}
+.hero__side::after{content:"";width:1px;height:5rem;background:var(--gold-line)}
+.hero__scroll{position:absolute;left:var(--gutter);bottom:clamp(3rem,7vh,5.5rem);display:none}
+@media (max-width:900px){
+  .hero__inner{grid-template-columns:1fr;align-items:end;align-content:end;gap:2rem;padding-bottom:3rem}
+  .hero__meta{flex-direction:column;gap:.6rem;top:6rem}
+  .hero__aside{justify-self:start;padding:0}
+  .hero__side{display:none}
+  .hero__media img{object-position:58% 58%}
+}
+
+/* --- ticker ----------------------------------------------------- */
+.ticker{position:relative;overflow:hidden;border-top:1px solid var(--gold-line);border-bottom:1px solid var(--gold-line);background:var(--midnight-deep);padding:1.05rem 0}
+.ticker__track{display:flex;width:max-content;will-change:transform}
+.ticker__item{display:flex;align-items:center;font-size:.64rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.ticker__item span{padding:0 2.2rem;display:flex;align-items:center;gap:2.2rem}
+.ticker__item span::after{content:"";width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.7}
+
+/* --- manifesto -------------------------------------------------- */
+.manifesto{display:grid;grid-template-columns:5fr 7fr;gap:clamp(2.5rem,7vw,8rem);align-items:start}
+.manifesto__fig{position:relative;margin-top:clamp(2rem,8vw,9rem)}
+.frame{overflow:hidden;position:relative}
+.frame img{width:100%;height:100%;object-fit:cover}
+.manifesto__fig .frame{aspect-ratio:3/4}
+.manifesto__fig figcaption{margin-top:1.1rem;display:flex;justify-content:space-between;font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:var(--mid-55)}
+.manifesto__fig .sc{position:absolute;left:-.25em;top:-.5em;font-size:clamp(5rem,11vw,11rem);line-height:1;z-index:2;pointer-events:none}
+.manifesto__text .eyebrow{margin-bottom:2.2rem}
+.manifesto__copy{font-size:clamp(1.55rem,2.7vw,2.85rem);line-height:1.32;font-weight:500;letter-spacing:-.015em;color:var(--midnight)}
+.manifesto__copy .sc{font-size:1.5em;top:.1em}
+.facts{margin-top:clamp(3rem,5vw,5.5rem);display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--mid-line)}
+.facts div{padding:1.5rem 1.6rem 0 0;border-right:1px solid var(--mid-line)}
+.facts div:last-child{border-right:0}
+.facts div+div{padding-left:1.6rem}
+.facts b{display:block;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mid-55);margin-bottom:.7rem;font-weight:600}
+.facts p{font-size:.92rem;line-height:1.6;color:var(--midnight)}
+@media (max-width:900px){
+  .manifesto{grid-template-columns:1fr}
+  .manifesto__fig{order:2;margin-top:2rem;max-width:22rem}
+  .facts{grid-template-columns:1fr}
+  .facts div{border-right:0;border-bottom:1px solid var(--mid-line);padding:1.3rem 0}
+  .facts div+div{padding-left:0}
+}
+
+/* --- chapters (pinned) ------------------------------------------ */
+.chapters{position:relative;background:var(--midnight);overflow:hidden}
+.chapters__pin{position:relative;height:100svh;min-height:600px;overflow:hidden}
+.chapter{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
+.chapter__body{align-self:center;padding:0 var(--gutter);max-width:38rem;position:relative;z-index:2}
+.chapter__n{display:flex;align-items:center;gap:1rem;font-size:.64rem;letter-spacing:.32em;color:var(--gold);margin-bottom:1.6rem;font-weight:600}
+.chapter__n::before{content:"";width:2rem;height:1px;background:var(--gold)}
+.chapter h3{font-size:clamp(2.6rem,5.2vw,5.6rem);font-weight:800;text-transform:uppercase;line-height:.92;letter-spacing:-.025em;margin-bottom:1.8rem}
+.chapter p{color:var(--ivory-70);max-width:27rem;font-size:1.02rem}
+.chapter__img{position:relative;overflow:hidden}
+.chapter__img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.chapter__img figcaption{position:absolute;left:2rem;bottom:2rem;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-70);display:flex;gap:1rem;align-items:center}
+.chapter__img figcaption::before{content:"";width:1.6rem;height:1px;background:var(--gold)}
+.chapters__ghost{position:absolute;left:calc(var(--gutter) - .06em);top:6vh;font-size:clamp(9rem,24vw,24rem);font-weight:800;line-height:1;letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.2);pointer-events:none;z-index:1;font-variant-numeric:tabular-nums}
+.chapters__progress{position:absolute;left:var(--gutter);bottom:3rem;display:flex;gap:.7rem;z-index:3}
+.chapters__progress i{display:block;width:3.2rem;height:1px;background:var(--ivory-line);position:relative;overflow:hidden}
+.chapters__progress i::after{content:"";position:absolute;inset:0;background:var(--gold);transform:scaleX(var(--p,0));transform-origin:left}
+@media (min-width:901px){
+  .chapter:not(:first-of-type) .chapter__img{clip-path:inset(100% 0% 0% 0%)}
+  .chapter:not(:first-of-type) .chapter__body{opacity:0}
+}
+@media (max-width:900px){
+  .chapters__pin{height:auto;min-height:0}
+  .chapter{position:relative;display:block;padding:4.5rem 0 0}
+  .chapter__body{padding:0 var(--gutter) 2.2rem;max-width:none}
+  .chapter__img{aspect-ratio:4/5;margin:0 var(--gutter)}
+  .chapter:last-of-type{padding-bottom:5rem}
+  .chapters__ghost,.chapters__progress{display:none}
+}
+
+/* --- facilities hover list --------------------------------------- */
+.facilities{background:var(--midnight-deep)}
+.facilities__head{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:2rem;margin-bottom:clamp(3rem,6vw,5.5rem)}
+.facilities__head .lede{max-width:24rem;justify-self:end}
+.rows{border-top:1px solid var(--gold-line)}
+.row{display:grid;grid-template-columns:4rem 1fr auto 3rem;align-items:center;gap:2rem;padding:2.3rem 0;border-bottom:1px solid var(--gold-line);color:var(--ivory);transition:color .45s var(--ease),opacity .45s var(--ease);width:100%}
+.rows:hover .row{opacity:.32}
+.rows .row:hover,.rows .row:focus-visible{opacity:1;color:var(--gold)}
+.row__n{font-size:.64rem;letter-spacing:.32em;color:var(--gold);font-weight:600}
+.row__name{font-size:clamp(2rem,5.2vw,5.2rem);font-weight:800;text-transform:uppercase;line-height:.95;letter-spacing:-.025em}
+.row__desc{font-size:.8rem;color:var(--ivory-70);max-width:19rem;text-align:right;line-height:1.6}
+.row__arrow{width:2.4rem;height:1px;background:currentColor;position:relative;justify-self:end;transition:width .5s var(--ease)}
+.row__arrow::after{content:"";position:absolute;right:0;top:-3.5px;width:7px;height:7px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+.row:hover .row__arrow{width:3.4rem}
+.row__thumb{display:none}
+.float-img{position:fixed;left:0;top:0;width:clamp(200px,22vw,340px);aspect-ratio:4/5;pointer-events:none;z-index:50;overflow:hidden;opacity:0;visibility:hidden}
+.float-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s var(--ease)}
+.float-img img.is-on{opacity:1}
+@media (max-width:900px){
+  .facilities__head{grid-template-columns:1fr}
+  .facilities__head .lede{justify-self:start}
+  .row{grid-template-columns:2.4rem 1fr 5.2rem;grid-template-rows:auto auto;gap:.6rem 1.2rem;padding:1.8rem 0}
+  .row__n{grid-row:1}.row__name{grid-row:1;font-size:clamp(1.7rem,8vw,2.6rem)}
+  .row__desc{grid-column:2;grid-row:2;text-align:left;max-width:none}
+  .row__arrow{display:none}
+  .row__thumb{display:block;grid-column:3;grid-row:1/3;width:5.2rem;aspect-ratio:4/5;object-fit:cover}
+  .rows:hover .row{opacity:1}
+  .float-img{display:none}
+}
+
+/* --- a day court-side (horizontal) ------------------------------- */
+.day{background:var(--ivory);color:var(--midnight);overflow:hidden;position:relative}
+.day__pin{height:100svh;min-height:600px;display:flex;align-items:center;overflow:hidden;position:relative;padding-top:4.5rem}
+.day__track{display:flex;align-items:center;gap:clamp(3rem,9vw,11rem);padding:0 var(--gutter);will-change:transform}
+.day__intro{flex:0 0 auto;width:min(32rem,78vw)}
+.day__intro .eyebrow{margin-bottom:2rem}
+.day__intro .lede{margin-top:2rem;max-width:24rem}
+.stop{flex:0 0 auto;position:relative;width:var(--w,44vw)}
+.stop:nth-child(odd){align-self:flex-start;margin-top:3vh}
+.stop:nth-child(even){align-self:flex-end;margin-bottom:3vh}
+.stop .frame{height:var(--h,50vh)}
+.stop .frame img{transform:scale(1.12)}
+.stop__time{font-size:clamp(3.6rem,8.5vw,9rem);font-weight:800;line-height:.85;letter-spacing:-.045em;font-variant-numeric:tabular-nums;color:var(--midnight);margin-bottom:-.28em;position:relative;z-index:2;padding-left:.04em}
+.stop__time small{font-size:.28em;letter-spacing:.2em;font-weight:600;vertical-align:top;margin-left:.3em;color:var(--gold)}
+.stop__cap{display:flex;justify-content:space-between;margin-top:1.2rem;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mid-55);font-weight:600}
+.stop__text{margin-top:.8rem;max-width:22rem;color:var(--mid-70);font-size:.95rem;line-height:1.65}
+.day__bar{position:absolute;left:var(--gutter);right:var(--gutter);bottom:2.4rem;height:1px;background:var(--mid-line)}
+.day__bar i{display:block;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:left}
+@media (max-width:900px){
+  .day__pin{height:auto;min-height:0;display:block;padding:5.5rem 0 5rem}
+  .day__track{flex-direction:column;align-items:stretch;gap:4.5rem;transform:none!important}
+  .day__intro{width:auto}
+  .stop{width:auto!important;margin:0!important}
+  .stop .frame{height:auto;aspect-ratio:4/5}
+  .stop__time{font-size:clamp(3.4rem,17vw,5rem)}
+  .day__bar{display:none}
+}
+
+/* --- booking ---------------------------------------------------- */
+.booking{background:var(--midnight);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(2.5rem,7vw,8rem);align-items:start}
+.booking__intro{position:sticky;top:8rem}
+.booking__intro .eyebrow{margin-bottom:2rem}
+.booking__intro .lede{margin-top:2rem;max-width:24rem}
+.booking__fine{margin-top:2rem;font-size:.74rem;line-height:1.7;color:var(--ivory-45);max-width:22rem;padding-top:1.4rem;border-top:1px solid var(--ivory-line)}
+.bw{border-top:1px solid var(--gold-line);min-width:0}
+.bw__label{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);padding:1.3rem 0 .6rem;font-weight:600;display:flex;justify-content:space-between;gap:1.5rem}
+.bw__label em{font-style:normal;color:var(--ivory-45);letter-spacing:.2em;text-align:right;min-width:0}
+.slot--empty{pointer-events:none}
+.bw__days{display:flex;border-bottom:1px solid var(--ivory-line);overflow-x:auto;scrollbar-width:none}
+.bw__days::-webkit-scrollbar{display:none}
+.bw__day{flex:1 0 auto;min-width:4.2rem;padding:.9rem 1rem 1rem 0;border-bottom:1px solid transparent;margin-bottom:-1px;color:var(--ivory-45);transition:color .3s,border-color .3s}
+.bw__day small{display:block;font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;font-weight:600}
+.bw__day b{display:block;font-size:1.6rem;font-weight:500;line-height:1.15;font-variant-numeric:tabular-nums}
+.bw__day:hover{color:var(--ivory)}
+.bw__day.is-on{color:var(--ivory);border-color:var(--gold)}
+.bw__courts{display:flex;gap:2.6rem;padding:1.3rem 0;border-bottom:1px solid var(--ivory-line)}
+.bw__court{font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);position:relative;padding-bottom:.35rem;font-weight:600;transition:color .3s}
+.bw__court::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+.bw__court:hover{color:var(--ivory)}
+.bw__court.is-on{color:var(--ivory)}
+.bw__court.is-on::after{transform:scaleX(1)}
+.bw__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ivory-line);border:1px solid var(--ivory-line);margin-top:.6rem}
+.slot{background:var(--midnight);padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.3rem;transition:background .3s,color .3s;position:relative;color:var(--ivory)}
+.slot b{font-weight:500;font-size:1rem;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.slot span{font-size:.66rem;letter-spacing:.14em;color:var(--ivory-45)}
+.slot:hover{background:var(--gold-soft)}
+.slot.is-on{background:var(--gold);color:var(--midnight)}
+.slot.is-on span{color:rgba(15,30,46,.7)}
+.slot.is-taken{color:rgba(249,246,237,.28);cursor:not-allowed;background-image:linear-gradient(to top right,transparent 49.6%,rgba(249,246,237,.14) 49.6%,rgba(249,246,237,.14) 50.4%,transparent 50.4%)}
+.slot.is-taken:hover{background-color:var(--midnight)}
+.slot.is-taken span{color:rgba(249,246,237,.28)}
+.bw__sum{display:grid;grid-template-columns:1fr auto;gap:1.5rem;align-items:center;padding:1.8rem 0 0;margin-top:1.4rem;border-top:1px solid var(--gold-line)}
+.bw__sum small{display:block;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.4rem}
+.bw__sum b{font-size:1.1rem;font-weight:500;display:block}
+.bw__sum .price{font-size:1.6rem;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.bw__sum .btn{margin-top:.6rem}
+@media (max-width:900px){
+  .booking{grid-template-columns:minmax(0,1fr)}
+  .booking__intro{position:static}
+  .bw__grid{grid-template-columns:repeat(3,1fr)}
+  .bw__sum{grid-template-columns:1fr}
+}
+
+/* --- stats ------------------------------------------------------ */
+.stats{background:var(--ivory);color:var(--midnight);position:relative;overflow:hidden}
+.stats__mono{position:absolute;right:calc(var(--gutter) - 1rem);top:50%;transform:translateY(-50%);width:clamp(10rem,20vw,20rem);height:auto;opacity:.09;fill:none;stroke:var(--midnight);stroke-width:.8;pointer-events:none}
+.stats__grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--mid-line);position:relative}
+.stat{padding:3rem 2rem 0 0;border-right:1px solid var(--mid-line)}
+.stat+.stat{padding-left:2rem}
+.stat:last-child{border-right:0}
+.stat:nth-child(2){margin-top:5.5rem}
+.stat:nth-child(3){margin-top:2.5rem}
+.stat:nth-child(4){margin-top:8rem}
+.stat__n{font-size:clamp(4.2rem,9.5vw,10rem);font-weight:800;line-height:.88;letter-spacing:-.05em;font-variant-numeric:tabular-nums;display:flex;align-items:flex-start}
+.stat__n .u{font-size:.3em;letter-spacing:.06em;margin-top:.22em;margin-left:.06em;color:var(--gold);font-weight:700}
+.stat__l{margin-top:1.4rem;font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mid-55);max-width:12rem;line-height:1.8;font-weight:600}
+@media (max-width:900px){
+  .stats__grid{grid-template-columns:1fr 1fr}
+  .stat{margin-top:0!important;padding:2rem 1rem 2rem 0;border-bottom:1px solid var(--mid-line)}
+  .stat:nth-child(even){border-right:0;padding-left:1rem}
+  .stat:nth-child(3){border-right:1px solid var(--mid-line)}
+  .stats__mono{display:none}
+}
+
+/* --- the club (collage + quote) --------------------------------- */
+.club{background:var(--midnight)}
+.club__head{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end;margin-bottom:clamp(3rem,7vw,7rem)}
+.club__head .lede{max-width:26rem;justify-self:end}
+.collage{display:grid;grid-template-columns:repeat(12,1fr);gap:1.4rem;align-items:start}
+.collage .frame img{transform:scale(1.15)}
+.c1{grid-column:1/8;aspect-ratio:4/3}
+.c2{grid-column:9/13;aspect-ratio:4/5;margin-top:-16vh}
+.c3{grid-column:5/10;aspect-ratio:16/9;margin-top:-6vh}
+.c4{grid-column:11/13;align-self:end;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-45);line-height:2;padding-bottom:1rem}
+.quote{margin-top:clamp(4rem,9vw,9rem);display:grid;grid-template-columns:1fr 3fr;gap:2rem;border-top:1px solid var(--gold-line);padding-top:clamp(2.5rem,5vw,4rem)}
+.quote__mark{font-family:var(--font-script);color:var(--gold);font-size:clamp(5rem,9vw,9rem);line-height:.5;padding-top:.2em}
+.quote p{font-size:clamp(1.4rem,2.5vw,2.5rem);font-weight:500;line-height:1.32;letter-spacing:-.01em;max-width:34rem}
+.quote cite{display:block;margin-top:1.8rem;font-style:normal;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600}
+@media (max-width:900px){
+  .club__head{grid-template-columns:1fr}
+  .club__head .lede{justify-self:start}
+  .c1{grid-column:1/11}.c2{grid-column:7/13;margin-top:-10vh}.c3{grid-column:1/9;margin-top:-4vh}.c4{grid-column:1/13;padding-top:1rem}
+  .quote{grid-template-columns:1fr}
+  .quote__mark{line-height:.7}
+}
+
+/* --- venue ------------------------------------------------------ */
+.venue{background:var(--ivory);color:var(--midnight);display:grid;grid-template-columns:7fr 5fr;min-height:100svh}
+.venue__media{position:relative;overflow:hidden;min-height:60vh}
+.venue__media img{width:100%;height:100%;object-fit:cover;position:absolute;inset:-8% 0;height:116%}
+.venue__coords{position:absolute;left:2rem;bottom:2rem;color:var(--ivory);font-size:.62rem;letter-spacing:.3em;font-weight:600;display:flex;gap:1rem;align-items:center}
+.venue__coords::before{content:"";width:1.6rem;height:1px;background:var(--gold)}
+.venue__body{padding:clamp(4rem,9vw,9rem) var(--gutter) clamp(4rem,9vw,9rem) clamp(2rem,5vw,5.5rem);display:flex;flex-direction:column;justify-content:center}
+.venue__body .eyebrow{margin-bottom:2rem}
+.venue__addr{margin-top:2.2rem;font-size:1.02rem;line-height:1.8;color:var(--mid-70)}
+.venue__addr b{color:var(--midnight);font-weight:600}
+.hours{border-top:1px solid var(--mid-line);margin-top:2.4rem}
+.hours div{display:flex;justify-content:space-between;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--mid-line);font-size:.84rem;color:var(--mid-70)}
+.hours b{font-weight:500;color:var(--midnight);font-variant-numeric:tabular-nums}
+.venue__links{display:flex;gap:2.6rem;margin-top:2.6rem;flex-wrap:wrap}
+@media (max-width:900px){
+  .venue{grid-template-columns:1fr;min-height:0}
+  .venue__media{min-height:56vh}
+  .venue__body{padding:4rem var(--gutter)}
+}
+
+/* --- final cta -------------------------------------------------- */
+.cta{position:relative;min-height:100svh;display:grid;align-items:center;padding:clamp(6rem,12vw,11rem) var(--gutter);overflow:hidden;isolation:isolate;background:var(--midnight-deep)}
+.cta__media{position:absolute;inset:-12% 0;z-index:-2;will-change:transform}
+.cta__media img{width:100%;height:100%;object-fit:cover;object-position:50% 60%;filter:saturate(.6)}
+.cta__veil{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(10,21,32,.88) 0%,rgba(10,21,32,.45) 55%,rgba(10,21,32,.2) 100%),linear-gradient(0deg,rgba(10,21,32,.9) 0%,rgba(10,21,32,0) 40%)}
+.cta__actions{display:flex;gap:2.6rem;align-items:center;margin-top:3rem;flex-wrap:wrap}
+.cta .lede{margin-top:2.2rem;max-width:24rem}
+
+/* --- footer ----------------------------------------------------- */
+.footer{background:var(--midnight-deep);padding:clamp(5rem,9vw,8rem) var(--gutter) 0;position:relative;overflow:hidden}
+.footer__top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:3rem;padding-bottom:4rem;border-bottom:1px solid var(--gold-line)}
+.footer .brand{font-size:1.5rem}
+.footer__tag{margin-top:1.8rem;font-size:.8rem;color:var(--ivory-45);max-width:16rem;line-height:1.7}
+.footer h4{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0 0 1.4rem;font-weight:600}
+.footer ul{list-style:none;padding:0;display:grid;gap:.7rem;font-size:.9rem;color:var(--ivory-70)}
+.footer ul a{transition:color .3s}
+.footer ul a:hover{color:var(--gold)}
+.footer__bottom{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1.8rem 0;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory-45)}
+.footer__ghost{font-size:clamp(4.6rem,19vw,19rem);font-weight:800;line-height:.78;letter-spacing:-.02em;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.22);text-align:center;transform:translateY(26%);pointer-events:none;user-select:none;white-space:nowrap}
+@media (max-width:900px){
+  .footer__top{grid-template-columns:1fr 1fr}
+  .footer__top>div:first-child{grid-column:1/-1}
+}
+
+/* --- cursor ----------------------------------------------------- */
+.cursor,.cursor-ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999;border-radius:50%;will-change:transform;opacity:0}
+.cursor{width:6px;height:6px;background:var(--gold)}
+.cursor-ring{width:34px;height:34px;border:1px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
+.cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
+.cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold)}
+@media (hover:none),(pointer:coarse){.cursor,.cursor-ring{display:none}}
+@media (prefers-reduced-motion:reduce){
+  .cursor,.cursor-ring{display:none}
+  .loader{display:none}
+  .chapter:not(:first-of-type) .chapter__img{clip-path:none}
+  .chapter:not(:first-of-type) .chapter__body{opacity:1}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mono" viewBox="0 0 64 104">
+    <rect x="2" y="2" width="60" height="100" rx="30"/>
+    <path d="M30 27v52"/>
+    <path d="M30 27h7a11 11 0 0 1 0 22h-7"/>
+    <path d="M45 42a19 19 0 1 0 0 34"/>
+  </symbol>
+</svg>
+
+<!-- loader -->
+<div class="loader" aria-hidden="true">
+  <svg class="loader__mono" viewBox="0 0 64 104">
+    <rect x="2" y="2" width="60" height="100" rx="30"/>
+    <path d="M30 27v52"/>
+    <path d="M30 27h7a11 11 0 0 1 0 22h-7"/>
+    <path d="M45 42a19 19 0 1 0 0 34"/>
+  </svg>
+  <div class="loader__count">000</div>
+  <div class="loader__word">Anna Nagar West · Chennai</div>
+  <div class="loader__line"></div>
+</div>
+
+<div class="cursor" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
+
+<!-- nav -->
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="The Pavilion Club, home">
+    <span class="brand__the">The</span>
+    <span class="brand__name">Pavilion</span>
+    <span class="brand__club">Club</span>
+  </a>
+  <nav class="nav__links" aria-label="Primary">
+    <a href="#courts">Courts</a>
+    <a href="#club">The club</a>
+    <a href="#day">Court-side</a>
+    <a href="/membership">Membership</a>
+    <a href="/book">Booking</a>
+    <a href="#venue">Find us</a>
+  </nav>
+  <div class="nav__right">
+    <a class="btn magnetic" href="/book">Book a court</a>
+    <button class="nav__menu" aria-expanded="false" aria-controls="menu">Menu</button>
+  </div>
+</header>
+<div class="menu" id="menu">
+  <a href="#courts">Courts</a>
+  <a href="#club">The club</a>
+  <a href="#day">Court-side</a>
+  <a href="/membership">Membership</a>
+  <a href="/book">Booking</a>
+  <a href="#venue">Find us</a>
+  <div class="menu__foot">
+    <span>Mon–Fri 06:00–23:00 · Sat–Sun 06:00–00:00</span>
+    <span>+91 98765 43210</span>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- hero -->
+<section class="hero" id="top">
+  <div class="hero__media">
+    <img src="assets/images/courts-hall.png" alt="Three pickleball courts under the pergola roof, nets up, the sides open to the trees" fetchpriority="high">
+  </div>
+  <div class="hero__tint"></div>
+  <div class="hero__veil"></div>
+  <div class="hero__inner">
+    <div class="hero__meta">
+      <span>Anna Nagar West · Chennai</span>
+      <span>Three courts · Pickleball</span>
+    </div>
+    <h1 class="hero__title display display--xl" data-lines>
+      <span class="ln"><span>Above</span></span>
+      <span class="ln"><span><em class="sc">the</em> Net.</span></span>
+    </h1>
+    <div class="hero__aside">
+      <p class="lede">Three tournament-grade pickleball courts under one pergola roof, lit until midnight. Book by the hour, pay online, walk in and play.</p>
+      <div class="hero__cta">
+        <a class="btn magnetic" href="/book">Book a court</a>
+        <a class="link-arrow" href="#courts">See the courts <i></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="hero__side">Open daily from 06:00</div>
+</section>
+
+<!-- ticker -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <div class="ticker__item"><span>Pickleball</span><span>Three courts</span><span>Mon–Fri 06:00–23:00</span><span>Sat–Sun 06:00–00:00</span><span>Book online, pay online</span><span>Anna Nagar West, Chennai</span></div>
+    <div class="ticker__item"><span>Pickleball</span><span>Three courts</span><span>Mon–Fri 06:00–23:00</span><span>Sat–Sun 06:00–00:00</span><span>Book online, pay online</span><span>Anna Nagar West, Chennai</span></div>
+  </div>
+</div>
+
+<!-- manifesto -->
+<section class="section on-light has-lines manifesto" id="club">
+  <figure class="manifesto__fig">
+    <span class="sc" aria-hidden="true">The</span>
+    <div class="frame" data-reveal="up" data-cursor="The mural">
+      <img style="object-position:88% 30%" src="assets/images/mural-close.jpg" alt="The line-drawn player on the lounge wall" loading="lazy">
+    </div>
+    <figcaption><span>The mural, Pavilion lounge</span><span>Fig. 01</span></figcaption>
+  </figure>
+  <div class="manifesto__text">
+    <p class="eyebrow">The club</p>
+    <p class="manifesto__copy">The Pavilion Club is a pickleball club, not a sports complex. Three courts under one roof, and everything around them done <em class="sc">properly</em>: a tournament-grade surface, light that never loses the ball, and a front desk that picks up the phone.</p>
+    <div class="facts">
+      <div data-fade><b>Surface</b><p>Tournament-grade acrylic, laid to regulation lines.</p></div>
+      <div data-fade><b>Light</b><p>LED lighting under the pergola roof, shielded to keep glare off the ball.</p></div>
+      <div data-fade><b>Desk</b><p>Staffed from first serve to last rally, every day from 06:00.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- chapters -->
+<section class="chapters" id="courts">
+  <div class="chapters__pin">
+    <div class="chapters__ghost" aria-hidden="true">01</div>
+    <article class="chapter" data-n="01">
+      <div class="chapter__body">
+        <span class="chapter__n">01 — The courts</span>
+        <h3>The<br>Courts</h3>
+        <p>Three courts laid to tournament dimensions under one pergola roof. An acrylic surface, nets at 34 inches at the centre, and sides open to the trees.</p>
+      </div>
+      <figure class="chapter__img">
+        <img src="assets/images/courts-close.jpg" alt="A court up close: net, lines and the roof above" loading="lazy">
+        <figcaption>Court 1, before first serve</figcaption>
+      </figure>
+    </article>
+    <article class="chapter" data-n="02">
+      <div class="chapter__body">
+        <span class="chapter__n">02 — The evening</span>
+        <h3>The<br>Evening</h3>
+        <p>Play runs to eleven on weeknights and midnight on weekends. The lights are LED, mounted high and shielded, so the ball stays visible at the top of a lob.</p>
+      </div>
+      <figure class="chapter__img">
+        <img src="assets/images/elevation-dusk-front.jpg" alt="The club at dusk, fins lit from below and the sign glowing" loading="lazy">
+        <figcaption>The entrance, 19:30</figcaption>
+      </figure>
+    </article>
+    <article class="chapter" data-n="03">
+      <div class="chapter__body">
+        <span class="chapter__n">03 — The club</span>
+        <h3>The<br>Club</h3>
+        <p>Cool down at Rally &amp; Brew, do the strength work in the wellness centre, book the banquet hall upstairs for the tournament after-party. It is a club, not a corridor of courts.</p>
+      </div>
+      <figure class="chapter__img">
+        <img src="assets/images/rally-and-brew.jpg" alt="Rally and Brew, the club café, tables set under pendant lights" loading="lazy">
+        <figcaption>Rally &amp; Brew, post-match</figcaption>
+      </figure>
+    </article>
+    <div class="chapters__progress" aria-hidden="true"><i style="--p:1"></i><i></i><i></i></div>
+  </div>
+</section>
+
+<!-- facilities -->
+<section class="section has-lines facilities">
+  <div class="facilities__head">
+    <div>
+      <p class="eyebrow" style="margin-bottom:2rem">What's here</p>
+      <h2 class="display display--l" data-lines>
+        <span class="ln"><span>One address.</span></span>
+        <span class="ln"><span><em class="sc">the</em> whole evening.</span></span>
+      </h2>
+    </div>
+    <p class="lede" data-fade>Everything you need before, during and after a session sits under one roof. Only the courts are booked online.</p>
+  </div>
+  <div class="rows">
+    <a class="row" href="/book" data-img="0" data-cursor="Book">
+      <span class="row__n">01</span>
+      <span class="row__name">Courts</span>
+      <span class="row__desc">Three tournament-grade courts, bookable by the hour</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="assets/images/courts-side.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="#club" data-img="1" data-cursor="View">
+      <span class="row__n">02</span>
+      <span class="row__name">Wellness centre</span>
+      <span class="row__desc">Strength, mobility and recovery for players and regulars</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="assets/images/wellness-b.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="#club" data-img="2" data-cursor="View">
+      <span class="row__n">03</span>
+      <span class="row__name">Rally &amp; Brew</span>
+      <span class="row__desc">Coffee, fresh food and the match on the screen</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="assets/images/cafe-wide.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="#venue" data-img="3" data-cursor="View">
+      <span class="row__n">04</span>
+      <span class="row__name">Banquet hall</span>
+      <span class="row__desc">Tournament dinners, corporate days and private events</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="assets/images/stair-brass.jpg" alt="" loading="lazy">
+    </a>
+  </div>
+  <div class="float-img" aria-hidden="true">
+    <img src="assets/images/courts-side.jpg" alt="" loading="lazy">
+    <img src="assets/images/wellness-b.jpg" alt="" loading="lazy">
+    <img src="assets/images/cafe-wide.jpg" alt="" loading="lazy">
+    <img src="assets/images/stair-brass.jpg" alt="" loading="lazy">
+  </div>
+</section>
+
+<!-- a day, court-side -->
+<section class="day" id="day">
+  <div class="day__pin">
+    <div class="day__track">
+      <div class="day__intro">
+        <p class="eyebrow" style="color:var(--mid-55)">A day, court-side</p>
+        <h2 class="display display--l" data-lines>
+          <span class="ln"><span>First serve</span></span>
+          <span class="ln"><span><em class="sc">to</em> last rally.</span></span>
+        </h2>
+        <p class="lede" data-fade>The courts open at six and stay lit long after the city has gone quiet. Scroll through a day at the club.</p>
+      </div>
+      <article class="stop" style="--w:32vw;--h:52vh">
+        <div class="stop__time">06:00<small>AM</small></div>
+        <div class="frame" data-cursor="06:00"><img src="assets/images/elevation-day-front.jpg" alt="The street front in morning light" loading="lazy"></div>
+        <div class="stop__cap"><span>First serve</span><span>Courts 1–3</span></div>
+        <p class="stop__text">Early doubles, cool air, and the courts still swept from the night before.</p>
+      </article>
+      <article class="stop" style="--w:54vw;--h:44vh">
+        <div class="stop__time">18:30<small>PM</small></div>
+        <div class="frame" data-cursor="18:30"><img src="assets/images/lounge-wall.jpg" alt="The Pavilion lounge, the wall reading train, compete, play, recover, belong" loading="lazy"></div>
+        <div class="stop__cap"><span>Peak hour</span><span>All three courts booked</span></div>
+        <p class="stop__text">Back-to-back sessions, and a full lounge between them. The best hour to be here is the one you reserved last week.</p>
+      </article>
+      <article class="stop" style="--w:36vw;--h:54vh">
+        <div class="stop__time">21:00<small>PM</small></div>
+        <div class="frame" data-cursor="21:00"><img src="assets/images/entrance-aerial.jpg" alt="The entrance from above at night, brass doors lit" loading="lazy"></div>
+        <div class="stop__cap"><span>Under the lights</span><span>The entrance</span></div>
+        <p class="stop__text">The floodlights come into their own. Long rallies, loud points, nothing lost in the glare.</p>
+      </article>
+      <article class="stop" style="--w:48vw;--h:42vh">
+        <div class="stop__time">23:00<small>PM</small></div>
+        <div class="frame" data-cursor="23:00"><img src="assets/images/reception.jpg" alt="The reception desk and the club shop wall" loading="lazy"></div>
+        <div class="stop__cap"><span>Last rally</span><span>Midnight on weekends</span></div>
+        <p class="stop__text">Weeknights close at eleven, weekends at midnight. The paddles go back on the wall.</p>
+      </article>
+    </div>
+    <div class="day__bar" aria-hidden="true"><i></i></div>
+  </div>
+</section>
+
+<!-- booking -->
+
+
+<!-- stats -->
+<section class="section on-light stats">
+  <svg class="stats__mono" viewBox="0 0 64 104" aria-hidden="true"><use href="#mono"/></svg>
+  <div class="stats__grid">
+    <div class="stat" data-fade><div class="stat__n"><span data-count="3" data-pad="2">00</span></div><p class="stat__l">Courts, laid to tournament spec</p></div>
+    <div class="stat" data-fade><div class="stat__n"><span data-count="17" data-pad="2">00</span><span class="u">hrs</span></div><p class="stat__l">Open every weekday, from six until eleven</p></div>
+    <div class="stat" data-fade><div class="stat__n"><span data-count="1" data-pad="2">00</span></div><p class="stat__l">Sport, and nothing else on the floor</p></div>
+    <div class="stat" data-fade><div class="stat__n"><span data-count="24" data-pad="2">00</span><span class="u">h</span></div><p class="stat__l">Free cancellation window before every slot</p></div>
+  </div>
+</section>
+
+<!-- the club -->
+<section class="section has-lines club">
+  <div class="club__head">
+    <div>
+      <p class="eyebrow" style="margin-bottom:2rem">More than the court</p>
+      <h2 class="display display--l" data-lines>
+        <span class="ln"><span>Stay for</span></span>
+        <span class="ln"><span><em class="sc">the</em> evening.</span></span>
+      </h2>
+    </div>
+    <p class="lede" data-fade>Rally &amp; Brew runs from first serve to last rally. The wellness centre is there for the strength work pickleball quietly demands. The banquet hall, one floor up, hosts tournament dinners, birthdays and the occasional wedding.</p>
+  </div>
+  <div class="collage">
+    <figure class="frame c1" data-reveal="up" data-parallax="40" data-cursor="The lounge"><img src="assets/images/pavilion-lounge.jpg" alt="The Pavilion lounge with the pickleball mural" loading="lazy"></figure>
+    <figure class="frame c2" data-reveal="up" data-parallax="-60" data-cursor="Wellness"><img src="assets/images/wellness-a.jpg" alt="The wellness studio, mirrored, mats laid out" loading="lazy"></figure>
+    <figure class="frame c3" data-reveal="left" data-parallax="20" data-cursor="Banquet"><img src="assets/images/lobby.jpg" alt="The banquet lobby, glass walls and planting" loading="lazy"></figure>
+    <div class="c4" data-fade>Rally &amp; Brew · Wellness centre<br>Banquet hall · Courts 1–3</div>
+  </div>
+  <blockquote class="quote">
+    <span class="quote__mark" aria-hidden="true">“</span>
+    <div>
+      <p data-split>I've walked in at ten on a Tuesday night and found the lights on, the courts swept and someone at the desk who knew my name.</p>
+      <cite data-fade>A regular · Court 2, Tuesdays</cite>
+    </div>
+  </blockquote>
+</section>
+
+<!-- venue -->
+<section class="venue" id="venue">
+  <div class="venue__media" data-reveal="left" data-cursor="Directions">
+    <img src="assets/images/elevation-day-wide.jpg" alt="The club's full street elevation by day, seen through the trees" loading="lazy">
+    <div class="venue__coords">13.09° N · 80.21° E</div>
+  </div>
+  <div class="venue__body">
+    <p class="eyebrow" style="color:var(--mid-55)">Find us</p>
+    <h2 class="display display--l" data-lines>
+      <span class="ln"><span>Anna Nagar</span></span>
+      <span class="ln"><span>West.</span></span>
+    </h2>
+    <p class="venue__addr" data-fade><b>The Pavilion Club</b><br>Sports Arena Complex, Anna Nagar West Extension<br>Chennai, Tamil Nadu 600101</p>
+    <div class="hours" data-fade>
+      <div><span>Monday – Friday</span><b>06:00 – 23:00</b></div>
+      <div><span>Saturday – Sunday</span><b>06:00 – 00:00</b></div>
+      <div><span>Front desk</span><b>+91 98765 43210</b></div>
+    </div>
+    <div class="venue__links" data-fade>
+      <a class="link-arrow" href="https://maps.google.com/?q=The+Pavilion+Club,+Anna+Nagar+West+Extension,+Chennai" target="_blank" rel="noopener" style="color:var(--midnight)">Get directions <i></i></a>
+      <a class="link-arrow" href="tel:+919876543210" style="color:var(--midnight)">Call the desk <i></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- final cta -->
+<section class="cta">
+  <div class="cta__media"><img src="assets/images/elevation-dusk-angle.jpg" alt="The club at dusk from the street, the sign lit" loading="lazy"></div>
+  <div class="cta__veil"></div>
+  <div>
+    <h2 class="display display--xl" data-lines>
+      <span class="ln"><span>Your court.</span></span>
+      <span class="ln"><span><em class="sc">your</em> hour.</span></span>
+    </h2>
+    <p class="lede" data-fade>Three courts. Book the hour, pay online, play tonight.</p>
+    <div class="cta__actions" data-fade>
+      <a class="btn magnetic" href="/book">Book a court</a>
+      <a class="link-arrow" href="tel:+919876543210">Or call +91 98765 43210 <i></i></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer__top">
+    <div>
+      <a class="brand" href="#top" aria-label="The Pavilion Club">
+        <span class="brand__the">The</span>
+        <span class="brand__name">Pavilion</span>
+        <span class="brand__club">Club</span>
+      </a>
+      <p class="footer__tag">Three pickleball courts in Anna Nagar West, run the way a club should be.</p>
+    </div>
+    <div>
+      <h4>The club</h4>
+      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/membership">Membership</a></li><li><a href="/book">Booking</a></li></ul>
+    </div>
+    <div>
+      <h4>Your bookings</h4>
+      <ul><li><a href="/my-bookings">My bookings</a></li><li><a href="/cancellation">Cancellation</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul><li><a href="tel:+919876543210">+91 98765 43210</a></li><li><a href="mailto:bookings@pavilionclub.in">bookings@pavilionclub.in</a></li><li><a href="https://wa.me/919876543210" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li></ul>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2026 The Pavilion Club · Chennai</span>
+    <span>Architecture and renders by Feel and Bari</span>
+  </div>
+  <div class="footer__ghost" aria-hidden="true">Pavilion</div>
+</footer>
+
+<script src="assets/js/gsap.min.js"></script>
+<script src="assets/js/ScrollTrigger.min.js"></script>
+<script src="assets/js/SplitText.min.js"></script>
+<script src="assets/js/lenis.min.js"></script>
+<script>
+(() => {
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine   = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const isDesk = () => innerWidth > 900;
+
+  /* ---------- booking widget (design demo; real availability comes from the server) ---------- */
+  (function booking() {
+    const daysEl = $('#bw-days'), courtsEl = $('#bw-courts'), gridEl = $('#bw-grid');
+    const sumEl = $('#bw-summary'), priceEl = $('#bw-price'), goEl = $('#bw-go'), monthEl = $('#bw-month');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+    const courts = ['Court 1', 'Court 2', 'Court 3'];
+    const state = { day: 0, court: 1, hours: new Set() };
+    const fmtW = new Intl.DateTimeFormat('en-IN', { weekday: 'short' });
+    const fmtM = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' });
+    const fmtD = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    const pad = n => String(n).padStart(2, '0');
+    const weekend = d => d.getDay() === 0 || d.getDay() === 6;
+    const rate = (d, h) => weekend(d) || h >= 17 ? 120000 : 100000;            // paise, illustrative
+    const rupees = p => '₹' + (p / 100).toLocaleString('en-IN');
+    const taken = (di, ci, h) => ((di * 31 + ci * 7 + h * 13) % 5) === 0;        // deterministic demo pattern
+    monthEl.textContent = fmtM.format(days[0]);
+
+    daysEl.innerHTML = days.map((d, i) => `<button class="bw__day${i === state.day ? ' is-on' : ''}" role="tab" aria-selected="${i === state.day}" data-i="${i}"><small>${i === 0 ? 'Today' : fmtW.format(d)}</small><b>${pad(d.getDate())}</b></button>`).join('');
+    courtsEl.innerHTML = courts.map((c, i) => `<button class="bw__court${i === state.court ? ' is-on' : ''}" role="tab" aria-selected="${i === state.court}" data-i="${i}">${c}</button>`).join('');
+
+    function grid() {
+      const d = days[state.day]; const last = weekend(d) ? 23 : 22; const now = new Date();
+      const cells = [];
+      for (let h = 6; h <= last; h++) {
+        const past = state.day === 0 && h <= now.getHours();
+        const isTaken = past || taken(state.day, state.court, h);
+        const on = state.hours.has(h);
+        cells.push(`<button class="slot${isTaken ? ' is-taken' : ''}${on ? ' is-on' : ''}" data-h="${h}" ${isTaken ? 'disabled aria-disabled="true"' : ''} aria-pressed="${on}"><b>${pad(h)}:00</b><span>${isTaken ? (past ? 'Past' : 'Booked') : rupees(rate(d, h))}</span></button>`);
+      }
+      gridEl.innerHTML = cells.join('');
+      fill(); summary();
+    }
+    function fill() {                                                        // blank cells so the hairline grid stays closed
+      $$('.slot--empty', gridEl).forEach(e => e.remove());
+      const cols = getComputedStyle(gridEl).gridTemplateColumns.split(' ').length;
+      const n = (cols - gridEl.children.length % cols) % cols;
+      for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'slot slot--empty'; gridEl.appendChild(d); }
+    }
+    addEventListener('resize', fill);
+    function summary() {
+      const d = days[state.day];
+      if (!state.hours.size) { sumEl.textContent = 'Pick an hour to begin'; priceEl.textContent = 'From ₹1,000'; goEl.setAttribute('aria-disabled', 'true'); return; }
+      const hs = [...state.hours].sort((a, b) => a - b);
+      const total = hs.reduce((s, h) => s + rate(d, h), 0);
+      sumEl.textContent = `${courts[state.court]} · ${fmtD.format(d)} · ${pad(hs[0])}:00–${pad((hs[hs.length - 1] + 1) % 24)}:00`;
+      priceEl.textContent = rupees(total); goEl.removeAttribute('aria-disabled');
+    }
+    daysEl.addEventListener('click', e => { const b = e.target.closest('.bw__day'); if (!b) return; state.day = +b.dataset.i; state.hours.clear(); $$('.bw__day', daysEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
+    courtsEl.addEventListener('click', e => { const b = e.target.closest('.bw__court'); if (!b) return; state.court = +b.dataset.i; state.hours.clear(); $$('.bw__court', courtsEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
+    gridEl.addEventListener('click', e => { const b = e.target.closest('.slot'); if (!b || b.disabled) return; const h = +b.dataset.h; state.hours.has(h) ? state.hours.delete(h) : state.hours.add(h); b.classList.toggle('is-on'); b.setAttribute('aria-pressed', b.classList.contains('is-on')); summary(); });
+    goEl.addEventListener('click', e => { if (goEl.getAttribute('aria-disabled') === 'true') e.preventDefault(); });
+    grid();
+  })();
+
+  /* ---------- mobile menu ---------- */
+  (function menu() {
+    const menu = $('#menu'), btn = $('.nav__menu'); let open = false;
+    const toggle = force => {
+      open = typeof force === 'boolean' ? force : !open;
+      btn.textContent = open ? 'Close' : 'Menu'; btn.setAttribute('aria-expanded', open);
+      if (open) { gsap.set(menu, { visibility: 'visible' }); gsap.to(menu, { clipPath: 'inset(0% 0% 0% 0%)', duration: .9, ease: 'power4.inOut' }); gsap.fromTo($$('a', menu), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .06, duration: .8, ease: 'power3.out', delay: .3 }); window.lenis && lenis.stop(); }
+      else { gsap.to(menu, { clipPath: 'inset(0% 0% 100% 0%)', duration: .7, ease: 'power4.inOut', onComplete: () => gsap.set(menu, { visibility: 'hidden' }) }); window.lenis && lenis.start(); }
+    };
+    btn.addEventListener('click', () => toggle());
+    $$('a', menu).forEach(a => a.addEventListener('click', () => toggle(false)));
+  })();
+
+  if (!window.gsap) return;
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+  gsap.config({ nullTargetWarn: false });
+
+  /* ---------- smooth scroll ---------- */
+  if (!reduce && window.Lenis) {
+    window.lenis = new Lenis({ lerp: .085, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+  $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+    const t = $(a.getAttribute('href')); if (!t) return; e.preventDefault();
+    if (window.lenis) lenis.scrollTo(t, { offset: 0, duration: 1.6, easing: x => 1 - Math.pow(1 - x, 4) }); else t.scrollIntoView({ behavior: 'smooth' });
+  }));
+
+  /* ---------- nav state ---------- */
+  ScrollTrigger.create({ start: 60, end: 'max', toggleClass: { targets: '#nav', className: 'is-scrolled' } });
+
+  /* ---------- initial states ---------- */
+  gsap.set('[data-lines] .ln > span', { yPercent: 112 });
+  gsap.set('[data-fade]', { autoAlpha: 0, y: 26 });
+  $$('[data-reveal]').forEach(el => gsap.set(el, { clipPath: el.dataset.reveal === 'left' ? 'inset(0% 100% 0% 0%)' : 'inset(100% 0% 0% 0%)' }));
+  $$('[data-reveal] img').forEach(img => gsap.set(img, { scale: 1.22 }));
+
+  document.fonts.ready.then(init);
+
+  function init() {
+    /* ---------- loader → hero ---------- */
+    const heroIntro = gsap.timeline({ paused: true })
+      .to('.hero__media img', { scale: 1, duration: 2.6, ease: 'power3.out' }, 0)
+      .to('.hero__title .ln > span', { yPercent: 0, duration: 1.5, ease: 'power4.out', stagger: .14 }, .3)
+      .from(['.hero__meta span', '.hero__aside > *', '.hero__side', '#nav > *'], { y: 22, autoAlpha: 0, duration: 1.1, stagger: .07, ease: 'power3.out' }, .9);
+    gsap.set('.hero__media img', { scale: 1.18 });
+
+    if (reduce) {
+      gsap.set('.loader', { display: 'none' });
+      gsap.set(['[data-lines] .ln > span', '[data-fade]', '.hero__media img'], { clearProps: 'all' });
+      gsap.set('[data-reveal]', { clipPath: 'inset(0% 0% 0% 0%)' }); gsap.set('[data-reveal] img', { scale: 1 });
+    } else {
+      const paths = $$('.loader__mono rect, .loader__mono path');
+      paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+      const n = { v: 0 }, cEl = $('.loader__count');
+      gsap.timeline()
+        .to(paths, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut', stagger: .12 }, 0)
+        .to(n, { v: 100, duration: 1.7, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
+        .to('.loader__line', { scaleX: 1, duration: 1.7, ease: 'power2.inOut' }, 0)
+        .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.2')
+        .set('.loader', { display: 'none' })
+        .add(() => heroIntro.play(), '-=1.05');
+    }
+
+    /* ---------- hero scroll parallax + mouse drift ---------- */
+    gsap.to('.hero__media', { yPercent: 16, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+    gsap.to('.hero__inner', { yPercent: -10, autoAlpha: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: '20% top', end: '80% top', scrub: true } });
+    if (fine && !reduce) {
+      const hx = gsap.quickTo('.hero__media img', 'x', { duration: 1.4, ease: 'power3' }), hy = gsap.quickTo('.hero__media img', 'y', { duration: 1.4, ease: 'power3' });
+      $('.hero').addEventListener('mousemove', e => { hx((e.clientX / innerWidth - .5) * -22); hy((e.clientY / innerHeight - .5) * -14); });
+    }
+
+    /* ---------- ticker, sped up by scroll velocity ---------- */
+    const tick = gsap.to('.ticker__track', { xPercent: -50, ease: 'none', duration: 42, repeat: -1 });
+    if (!reduce) {
+      let target = 1;
+      ScrollTrigger.create({ onUpdate: s => { target = 1 + Math.min(5, Math.abs(s.getVelocity()) / 350); } });
+      gsap.ticker.add(() => { tick.timeScale(gsap.utils.interpolate(tick.timeScale(), target, .06)); target += (1 - target) * .04; });
+    }
+
+    /* ---------- generic reveals ---------- */
+    $$('[data-lines]').forEach(el => {
+      if (el.closest('.hero')) return;
+      gsap.to($$('.ln > span', el), { yPercent: 0, duration: 1.4, ease: 'power4.out', stagger: .12, scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+    });
+    $$('[data-fade]').forEach(el => gsap.to(el, { autoAlpha: 1, y: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }));
+    $$('[data-reveal]').forEach(el => {
+      const img = $('img', el);
+      gsap.to(el, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'power4.inOut', scrollTrigger: { trigger: el, start: 'top 82%', once: true } });
+      gsap.to(img, { scale: 1, duration: 2.2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 82%', once: true } });
+    });
+    $$('[data-split]').forEach(el => {
+      const split = SplitText.create(el, { type: 'lines', mask: 'lines', autoSplit: true, onSplit: s => gsap.from(s.lines, { yPercent: 110, duration: 1.3, ease: 'power4.out', stagger: .09, scrollTrigger: { trigger: el, start: 'top 85%', once: true } }) });
+    });
+    $$('[data-parallax]').forEach(el => { const a = +el.dataset.parallax; gsap.fromTo(el, { y: a }, { y: -a, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } }); });
+
+    /* ---------- manifesto: words brighten as you read ---------- */
+    const copy = $('.manifesto__copy');
+    const words = SplitText.create(copy, { type: 'words', wordsClass: 'w', autoSplit: true, onSplit: s => gsap.fromTo(s.words, { opacity: .14 }, { opacity: 1, stagger: .035, ease: 'none', scrollTrigger: { trigger: copy, start: 'top 78%', end: 'bottom 48%', scrub: .4 } }) });
+
+    /* ---------- responsive: chapters + horizontal day ---------- */
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
+      // chapters — pinned, curtain reveals
+      const chapters = $$('.chapter'), ghost = $('.chapters__ghost'), bars = $$('.chapters__progress i');
+      chapters.slice(1).forEach(c => { gsap.set($('.chapter__img', c), { clipPath: 'inset(100% 0% 0% 0%)' }); gsap.set($('.chapter__body', c), { autoAlpha: 0 }); });
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.chapters', start: 'top top', end: '+=240%', pin: true, scrub: .7, anticipatePin: 1,
+          onUpdate: s => {
+            const p = s.progress * chapters.length; const i = Math.min(chapters.length - 1, Math.floor(p));
+            ghost.textContent = chapters[i].dataset.n;
+            bars.forEach((b, j) => b.style.setProperty('--p', gsap.utils.clamp(0, 1, p - j)));
+          }
+        }
+      });
+      chapters.forEach((ch, i) => {
+        if (!i) { tl.to({}, { duration: .5 }); return; }
+        const prev = chapters[i - 1], at = `c${i}`;
+        tl.addLabel(at)
+          .to($('.chapter__body', prev), { autoAlpha: 0, y: -34, duration: .6, ease: 'power2.in' }, at)
+          .to($('.chapter__img img', prev), { scale: 1.12, duration: 1.5, ease: 'none' }, at)
+          .to($('.chapter__img', ch), { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'power2.inOut' }, at)
+          .fromTo($('.chapter__body', ch), { autoAlpha: 0, y: 34 }, { autoAlpha: 1, y: 0, duration: .7, ease: 'power2.out' }, `${at}+=.7`)
+          .to({}, { duration: .5 });
+      });
+
+      // a day, court-side — horizontal
+      const track = $('.day__track'), bar = $('.day__bar i');
+      const dist = () => track.scrollWidth - innerWidth;
+      const hTween = gsap.to(track, {
+        x: () => -dist(), ease: 'none',
+        scrollTrigger: { trigger: '.day', start: 'top top', end: () => '+=' + dist(), pin: true, scrub: .8, invalidateOnRefresh: true, anticipatePin: 1, onUpdate: s => gsap.set(bar, { scaleX: s.progress }) }
+      });
+      $$('.stop .frame img').forEach(img => gsap.fromTo(img, { xPercent: -5 }, { xPercent: 5, ease: 'none', scrollTrigger: { trigger: img.closest('.stop'), containerAnimation: hTween, start: 'left right', end: 'right left', scrub: true } }));
+      $$('.stop').forEach(st => gsap.from($('.stop__time', st), { xPercent: 20, autoAlpha: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: st, containerAnimation: hTween, start: 'left 85%', toggleActions: 'play none none reverse' } }));
+
+      // facilities — floating image follows the cursor
+      if (fine) {
+        const fl = $('.float-img'), imgs = $$('img', fl);
+        gsap.set(fl, { xPercent: -50, yPercent: -50, scale: .9 });
+        const fx = gsap.quickTo(fl, 'x', { duration: .55, ease: 'power3' }), fy = gsap.quickTo(fl, 'y', { duration: .55, ease: 'power3' });
+        $$('.row').forEach(row => {
+          row.addEventListener('mouseenter', () => { imgs.forEach((im, j) => im.classList.toggle('is-on', j === +row.dataset.img)); gsap.to(fl, { autoAlpha: 1, scale: 1, duration: .55, ease: 'power3.out' }); });
+          row.addEventListener('mouseleave', () => gsap.to(fl, { autoAlpha: 0, scale: .9, duration: .4, ease: 'power3.out' }));
+        });
+        $('.rows').addEventListener('mousemove', e => { fx(e.clientX); fy(e.clientY); });
+      }
+      return () => {};
+    });
+    mm.add('(max-width: 900px)', () => {
+      $$('.chapter__img').forEach(el => gsap.set(el, { clipPath: 'inset(100% 0% 0% 0%)' }));
+      $$('.chapter__img').forEach(el => gsap.to(el, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'power4.inOut', scrollTrigger: { trigger: el, start: 'top 85%', once: true } }));
+      $$('.chapter__body').forEach(el => gsap.from(el, { y: 26, autoAlpha: 0, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } }));
+      $$('.stop').forEach(el => gsap.from(el, { y: 30, autoAlpha: 0, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', once: true } }));
+    });
+
+    /* ---------- stats counters ---------- */
+    $$('[data-count]').forEach(el => {
+      const end = +el.dataset.count, o = { v: 0 };
+      ScrollTrigger.create({ trigger: el, start: 'top 85%', once: true, onEnter: () => gsap.to(o, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: () => el.textContent = String(Math.round(o.v)).padStart(2, '0') }) });
+    });
+
+    /* ---------- venue + cta media motion ---------- */
+    gsap.fromTo('.venue__media img', { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '.venue', start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.fromTo('.cta__media', { yPercent: -10 }, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: '.cta', start: 'top bottom', end: 'bottom top', scrub: true } });
+    gsap.fromTo('.footer__ghost', { yPercent: 60 }, { yPercent: 26, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+
+    /* ---------- magnetic buttons + cursor ---------- */
+    if (fine && !reduce) {
+      $$('.magnetic').forEach(btn => {
+        const bx = gsap.quickTo(btn, 'x', { duration: .6, ease: 'power3' }), by = gsap.quickTo(btn, 'y', { duration: .6, ease: 'power3' });
+        btn.addEventListener('mousemove', e => { const r = btn.getBoundingClientRect(); bx((e.clientX - (r.left + r.width / 2)) * .32); by((e.clientY - (r.top + r.height / 2)) * .32); });
+        btn.addEventListener('mouseleave', () => { bx(0); by(0); });
+      });
+      document.body.classList.add('has-cursor');
+      const dot = $('.cursor'), ring = $('.cursor-ring');
+      gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
+      const dx = gsap.quickTo(dot, 'x', { duration: .1 }), dy = gsap.quickTo(dot, 'y', { duration: .1 });
+      const rx = gsap.quickTo(ring, 'x', { duration: .5, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: .5, ease: 'power3' });
+      let seen = false;
+      addEventListener('mousemove', e => { if (!seen) { seen = true; gsap.set([dot, ring], { x: e.clientX, y: e.clientY }); gsap.to([dot, ring], { opacity: 1, duration: .6 }); } dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
+      $$('a, button, [data-cursor]').forEach(el => {
+        el.addEventListener('mouseenter', () => { if (el.dataset.cursor) { ring.classList.add('is-hover'); ring.textContent = el.dataset.cursor; } else ring.classList.add('is-link'); });
+        el.addEventListener('mouseleave', () => { ring.classList.remove('is-hover', 'is-link'); ring.textContent = ''; });
+      });
+    }
+
+    if (document.readyState === 'complete') ScrollTrigger.refresh(); else addEventListener('load', () => ScrollTrigger.refresh());
+  }
+})();
+</script>
+</body>
+</html>
