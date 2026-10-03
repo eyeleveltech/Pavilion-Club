@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { PwaInstallPrompt } from '@/components/public/PwaInstallPrompt';
-import { GlobalCursor } from '@/components/public/GlobalCursor';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -45,7 +44,6 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-bg text-ink min-h-screen">
         {children}
         <PwaInstallPrompt />
-        <GlobalCursor />
       </body>
     </html>
   );

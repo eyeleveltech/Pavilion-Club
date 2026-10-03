@@ -76,10 +76,13 @@ export default function MembershipPage() {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider text-[#F9F6ED]/70">
-            <Link href="/" className="hover:text-[#F9F6ED] transition">Home</Link>
+          <nav className="flex items-center gap-5 text-xs font-semibold uppercase tracking-wider text-[#F9F6ED]/70">
+            <Link href="/#courts" className="hover:text-[#F9F6ED] transition">Courts</Link>
+            <Link href="/#club" className="hover:text-[#F9F6ED] transition">The club</Link>
+            <Link href="/#day" className="hover:text-[#F9F6ED] transition">Court-side</Link>
             <Link href="/membership" className="text-[#C7A26A] border-b border-[#C7A26A] pb-0.5">Membership</Link>
             <Link href="/book" className="hover:text-[#F9F6ED] transition">Booking</Link>
+            <Link href="/#venue" className="hover:text-[#F9F6ED] transition">Find us</Link>
             <Link
               href="/book"
               className="ml-2 px-4 py-2 rounded-full bg-[#C7A26A] text-[#0B141B] font-bold text-xs uppercase tracking-wider hover:bg-[#F9F6ED] transition shadow-md"

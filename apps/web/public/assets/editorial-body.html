@@ -1,4 +1,3 @@
-
 <a class="skip" href="#main">Skip to content</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -23,7 +22,8 @@
   <div class="loader__line"></div>
 </div>
 
-
+<div class="cursor" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
 
 <!-- nav -->
 <header class="nav" id="nav">
@@ -33,12 +33,12 @@
     <span class="brand__club">Club</span>
   </a>
   <nav class="nav__links" aria-label="Primary">
-    <a href="#courts">Courts</a>
-    <a href="#club">The club</a>
-    <a href="#day">Court-side</a>
+    <a href="/#courts">Courts</a>
+    <a href="/#club">The club</a>
+    <a href="/#day">Court-side</a>
     <a href="/membership">Membership</a>
     <a href="/book">Booking</a>
-    <a href="#venue">Find us</a>
+    <a href="/#venue">Find us</a>
   </nav>
   <div class="nav__right">
     <a class="btn magnetic" href="/book">Book a court</a>
@@ -49,8 +49,7 @@
   <a href="#courts">Courts</a>
   <a href="#club">The club</a>
   <a href="#day">Court-side</a>
-  <a href="/membership">Membership</a>
-  <a href="/book">Booking</a>
+  <a href="#booking">Booking</a>
   <a href="#venue">Find us</a>
   <div class="menu__foot">
     <span>Mon–Fri 06:00–23:00 · Sat–Sun 06:00–00:00</span>
@@ -79,8 +78,8 @@
     <div class="hero__aside">
       <p class="lede">Three tournament-grade pickleball courts under one pergola roof, lit until midnight. Book by the hour, pay online, walk in and play.</p>
       <div class="hero__cta">
-        <a class="btn magnetic" href="/book">Book a court</a>
-        <a class="link-arrow" href="#courts">See the courts <i></i></a>
+        <a class="btn magnetic" href="#booking">Book a court</a>
+        <a class="link-arrow" href="/#courts">See the courts <i></i></a>
       </div>
     </div>
   </div>
@@ -176,21 +175,21 @@
       <span class="row__arrow" aria-hidden="true"></span>
       <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="" loading="lazy">
     </a>
-    <a class="row" href="#club" data-img="1" data-cursor="View">
+    <a class="row" href="/#club" data-img="1" data-cursor="View">
       <span class="row__n">02</span>
       <span class="row__name">Wellness centre</span>
       <span class="row__desc">Strength, mobility and recovery for players and regulars</span>
       <span class="row__arrow" aria-hidden="true"></span>
       <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
     </a>
-    <a class="row" href="#club" data-img="2" data-cursor="View">
+    <a class="row" href="/#club" data-img="2" data-cursor="View">
       <span class="row__n">03</span>
       <span class="row__name">Rally &amp; Brew</span>
       <span class="row__desc">Coffee, fresh food and the match on the screen</span>
       <span class="row__arrow" aria-hidden="true"></span>
       <img class="row__thumb" src="/assets/images/cafe-wide.jpg" alt="" loading="lazy">
     </a>
-    <a class="row" href="#venue" data-img="3" data-cursor="View">
+    <a class="row" href="/#venue" data-img="3" data-cursor="View">
       <span class="row__n">04</span>
       <span class="row__name">Banquet hall</span>
       <span class="row__desc">Tournament dinners, corporate days and private events</span>
@@ -247,8 +246,7 @@
   </div>
 </section>
 
-<!-- booking -->
-
+<!-- booking removed: live routed to /book -->
 
 <!-- stats -->
 <section class="section on-light stats">
@@ -344,7 +342,7 @@
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/membership">Membership</a></li><li><a href="/book">Booking</a></li></ul>
+      <ul><li><a href="/#courts">Courts</a></li><li><a href="/#club">The club</a></li><li><a href="/#day">Court-side</a></li><li><a href="/membership">Membership</a></li><li><a href="/book">Booking</a></li></ul>
     </div>
     <div>
       <h4>Your bookings</h4>
@@ -353,7 +351,7 @@
         <li><a href="/cancellation">Cancellation</a></li>
         <li><a href="/privacy">Privacy</a></li>
         <li><a href="/terms">Terms</a></li>
-        </ul>
+      </ul>
     </div>
     <div>
       <h4>Contact</h4>
@@ -366,9 +364,3 @@
   </div>
   <div class="footer__ghost" aria-hidden="true">Pavilion</div>
 </footer>
-
-
-
-
-
-

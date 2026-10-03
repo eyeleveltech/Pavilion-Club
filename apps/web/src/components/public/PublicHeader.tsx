@@ -27,6 +27,18 @@ export function PublicHeader() {
         {/* Navigation Links */}
         <nav className="flex items-center gap-1 sm:gap-3 text-xs font-semibold shrink-0">
           <Link
+            href="/#courts"
+            className="hidden lg:inline-block px-2.5 py-1.5 rounded-lg text-ink hover:text-navy hover:bg-surface-2 transition text-xs font-semibold"
+          >
+            Courts
+          </Link>
+          <Link
+            href="/#club"
+            className="hidden lg:inline-block px-2.5 py-1.5 rounded-lg text-ink hover:text-navy hover:bg-surface-2 transition text-xs font-semibold"
+          >
+            The Club
+          </Link>
+          <Link
             href="/book"
             className={`px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-xs font-semibold ${
               pathname.startsWith('/book')

@@ -392,12 +392,12 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 
 /* --- cursor ----------------------------------------------------- */
 .cursor,.cursor-ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999999;border-radius:50%;will-change:transform;opacity:0}
+body.has-cursor,body.has-cursor a,body.has-cursor button{cursor:none}
 body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:text!important}
 .cursor{width:6px;height:6px;background:var(--gold)}
-.cursor-ring{width:34px;height:34px;border:1px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
+.cursor-ring{width:34px;height:34px;border:1.5px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
 .cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
-.cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold)}
-@media (hover:none) and (pointer:coarse){body:not(.has-cursor) .cursor,body:not(.has-cursor) .cursor-ring{display:none}}
+.cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold);color:var(--midnight)}
 @media (prefers-reduced-motion:reduce){
   .cursor,.cursor-ring{display:none}
   .loader{display:none}
@@ -486,3 +486,4 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .editorial-root .stop__time small {
   color: var(--gold) !important;
 }
+
