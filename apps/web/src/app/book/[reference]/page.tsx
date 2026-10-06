@@ -7,7 +7,7 @@ import {
   customers,
   eq,
 } from '@pavilion/db';
-import { minutesToLabel, localMinutes, IST_OFFSET_MINUTES } from '@pavilion/core';
+import { localMinutes, IST_OFFSET_MINUTES } from '@pavilion/core';
 import {
   CheckCircle2,
   Calendar,
@@ -16,9 +16,7 @@ import {
   Banknote,
   ArrowRight,
   Sparkles,
-  QrCode,
   ShieldCheck,
-  Footprints
 } from 'lucide-react';
 import { PublicHeader } from '@/components/public/PublicHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
@@ -26,34 +24,92 @@ import { DigitalMatchPassActions } from '@/components/public/DigitalMatchPassAct
 
 export const dynamic = 'force-dynamic';
 
+const TURFOS_API_URL = process.env.TURFOS_API_URL || 'http://localhost:3000';
+const TURFOS_API_KEY = process.env.TURFOS_API_KEY || 'tk_live_lfRJCbZ7byy4us4J8QaxeNH7sJaddAX0';
+
 export default async function BookingConfirmationPage({
   params,
 }: {
   params: Promise<{ reference: string }>;
 }) {
   const { reference } = await params;
-  const db = createDb();
 
-  const rows = await db
-    .select({
-      id: bookings.id,
-      reference: bookings.reference,
-      businessDate: bookings.businessDate,
-      startsAt: bookings.startsAt,
-      endsAt: bookings.endsAt,
-      amountPaise: bookings.amountPaise,
-      status: bookings.status,
-      courtName: courts.name,
-      customerName: customers.name,
-      customerPhone: customers.phone,
-    })
-    .from(bookings)
-    .innerJoin(courts, eq(bookings.courtId, courts.id))
-    .leftJoin(customers, eq(bookings.customerId, customers.id))
-    .where(eq(bookings.reference, reference))
-    .limit(1);
+  let booking: {
+    id: string;
+    reference: string;
+    businessDate: string;
+    startsAt: Date;
+    endsAt: Date;
+    amountPaise: number;
+    status: string;
+    courtName: string;
+    customerName?: string;
+    customerPhone?: string;
+  } | null = null;
 
-  const booking = rows[0];
+  // 1. First attempt to load booking from TurfOS Engine
+  try {
+    const turfRes = await fetch(`${TURFOS_API_URL}/api/v1/bookings/${reference}`, {
+      headers: {
+        Authorization: `Bearer ${TURFOS_API_KEY}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (turfRes.ok) {
+      const data = await turfRes.json();
+      booking = {
+        id: data.booking_id,
+        reference: data.booking_id,
+        businessDate: data.business_date,
+        startsAt: new Date(data.starts_at),
+        endsAt: new Date(data.ends_at),
+        amountPaise: data.amounts?.slot_paise || 80000,
+        status: data.status,
+        courtName: data.court?.display_name || 'Court 1',
+        customerName: data.customer?.name || 'Player',
+        customerPhone: data.customer?.phone || '',
+      };
+    }
+  } catch (err) {
+    console.error('Failed to fetch from TurfOS, falling back to local DB:', err);
+  }
+
+  // 2. Fallback to local DB if not found in TurfOS
+  if (!booking) {
+    try {
+      const db = createDb();
+      const rows = await db
+        .select({
+          id: bookings.id,
+          reference: bookings.reference,
+          businessDate: bookings.businessDate,
+          startsAt: bookings.startsAt,
+          endsAt: bookings.endsAt,
+          amountPaise: bookings.amountPaise,
+          status: bookings.status,
+          courtName: courts.name,
+          customerName: customers.name,
+          customerPhone: customers.phone,
+        })
+        .from(bookings)
+        .innerJoin(courts, eq(bookings.courtId, courts.id))
+        .leftJoin(customers, eq(bookings.customerId, customers.id))
+        .where(eq(bookings.reference, reference))
+        .limit(1);
+
+      if (rows[0]) {
+        booking = {
+          ...rows[0],
+          customerName: rows[0].customerName || undefined,
+          customerPhone: rows[0].customerPhone || undefined,
+        };
+      }
+    } catch (e) {
+      console.error('Local DB lookup error:', e);
+    }
+  }
+
   if (!booking) notFound();
 
   const startMin = localMinutes(booking.startsAt, IST_OFFSET_MINUTES);

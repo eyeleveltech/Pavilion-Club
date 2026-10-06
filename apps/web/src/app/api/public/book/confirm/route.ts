@@ -1,72 +1,49 @@
-﻿import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createDb, validateCustomerSession, confirmPublicPayAtVenue, customers, eq } from '@pavilion/db';
+import { NextResponse } from 'next/server';
+
+const TURFOS_API_URL = process.env.TURFOS_API_URL || 'http://localhost:3000';
+const TURFOS_API_KEY = process.env.TURFOS_API_KEY || 'tk_live_lfRJCbZ7byy4us4J8QaxeNH7sJaddAX0';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { reference, phone, name, email, sessionToken } = body;
+    const { reference, phone, name, email } = body;
 
     if (!reference) {
       return NextResponse.json({ ok: false, error: 'Booking reference is required' }, { status: 400 });
     }
 
-    const db = createDb();
-    const cookieStore = await cookies();
-    const token =
-      sessionToken ||
-      request.headers.get('Authorization')?.replace('Bearer ', '') ||
-      cookieStore.get('pavilion_customer_session')?.value;
-
-    const validated = token ? await validateCustomerSession(db, token) : null;
-
-    // Resilient Customer Resolution (works even if plain HTTP dropped the cookie)
-    let customerId = validated?.customer?.id;
-    let customerName = name || validated?.customer?.name || 'Player';
-    let customerPhone = phone || validated?.customer?.phone;
-
-    if (!customerId && phone) {
-      const cleanPhone = phone.trim();
-      const existing = await db.select().from(customers).where(eq(customers.phone, cleanPhone)).limit(1);
-      if (existing[0]) {
-        customerId = existing[0].id;
-        customerName = name || existing[0].name || 'Player';
-        customerPhone = cleanPhone;
-        if (email && email.trim()) {
-          await db.update(customers).set({ email: email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(customers.id, customerId));
-        }
-      } else {
-        const [inserted] = await db
-          .insert(customers)
-          .values({
-            phone: cleanPhone,
-            name: name || 'Player',
-            email: email?.trim().toLowerCase() || null,
-          })
-          .returning();
-        customerId = inserted!.id;
-        customerPhone = cleanPhone;
-      }
-    } else if (customerId && email && email.trim()) {
-      await db.update(customers).set({ email: email.trim().toLowerCase(), updatedAt: new Date() }).where(eq(customers.id, customerId));
-    }
-
-    if (!customerId) {
-      return NextResponse.json({ ok: false, error: 'Customer authentication required via OTP' }, { status: 401 });
-    }
-
-    const result = await confirmPublicPayAtVenue(db, {
-      reference,
-      customerId,
-      customerName,
-      customerPhone,
+    // Call TurfOS confirm API
+    const res = await fetch(`${TURFOS_API_URL}/api/v1/bookings/${reference}/confirm`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${TURFOS_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customer_name: name || 'Player',
+        customer_email: email || '',
+        customer_phone: phone || '',
+      }),
     });
 
-    if (!result.ok) {
-      return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('TurfOS confirm error:', res.status, errText);
+      return NextResponse.json(
+        { ok: false, error: 'Failed to confirm booking on engine' },
+        { status: res.status }
+      );
     }
 
-    return NextResponse.json({ ok: true, booking: result.booking });
+    const data = await res.json();
+    return NextResponse.json({
+      ok: true,
+      booking: {
+        id: data.booking_id,
+        reference: data.booking_id,
+        status: data.status,
+      },
+    });
   } catch (err) {
     console.error('Confirm pay at venue error:', err);
     return NextResponse.json({ ok: false, error: 'Failed to confirm booking' }, { status: 500 });
