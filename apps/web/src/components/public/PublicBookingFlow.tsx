@@ -85,6 +85,9 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   // Selected Slots State
+  const [selectedActivity, setSelectedActivity] = useState<'Pickleball' | 'Studio' | 'Gym' | 'Indoor Games'>('Pickleball');
+  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
+
   const [selectedSlotTimes, setSelectedSlotTimes] = useState<string[]>([]); // startsAt ISOs
   const [overrideCourtId, setOverrideCourtId] = useState<string | null>(null);
 
@@ -329,14 +332,18 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
     loadMonth();
   }, [currentYear, currentMonth]);
 
-  // 2. Fetch Day Slots when selectedDate changes
+  // 2. Fetch Day Slots when selectedDate, selectedActivity, or selectedCourtId changes
   useEffect(() => {
     async function loadSlots() {
       setIsLoadingSlots(true);
       setSelectedSlotTimes([]);
       setOverrideCourtId(null);
       try {
-        const res = await fetch(`/api/public/slots?date=${selectedDate}`);
+        let url = `/api/public/slots?date=${selectedDate}&sport=${encodeURIComponent(selectedActivity)}`;
+        if (selectedCourtId) {
+          url += `&court_id=${encodeURIComponent(selectedCourtId)}`;
+        }
+        const res = await fetch(url);
         if (res.ok) {
           const json = await res.json();
           if (json.ok) {
@@ -351,7 +358,7 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
       }
     }
     loadSlots();
-  }, [selectedDate]);
+  }, [selectedDate, selectedActivity, selectedCourtId]);
 
   // 3. Countdown timer effect
   useEffect(() => {
@@ -736,6 +743,75 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
             </span>
           </div>
         </div>
+
+        {/* Activity Switcher Tabs */}
+        <div className="pt-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {[
+              { id: 'Pickleball', label: '🎾 Pickleball', desc: '3 Courts' },
+              { id: 'Studio', label: '🧘 Yoga & Aerobics', desc: 'Studio' },
+              { id: 'Gym', label: '🏋️ Fitness Gym', desc: 'Day Pass' },
+              { id: 'Indoor Games', label: '🎮 Indoor Games', desc: 'PS5 & TT' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setSelectedActivity(tab.id as any);
+                  setSelectedCourtId(null);
+                  setSelectedSlotTimes([]);
+                }}
+                className={`px-3.5 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-2 border ${
+                  selectedActivity === tab.id
+                    ? 'bg-navy text-gold border-gold/40 shadow-sm'
+                    : 'bg-surface text-ink-soft hover:text-navy border-border hover:bg-surface-2'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[9.5px] px-1.5 py-0.5 rounded-full font-semibold ${
+                    selectedActivity === tab.id
+                      ? 'bg-gold/20 text-gold'
+                      : 'bg-surface-2 text-ink-soft'
+                  }`}
+                >
+                  {tab.desc}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Visual Court Selector for Pickleball */}
+        {selectedActivity === 'Pickleball' && (
+          <div className="p-2 sm:p-2.5 bg-surface-2/40 rounded-xl border border-border/80 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+            <span className="font-bold text-navy text-[11px] uppercase tracking-wider px-1">
+              Court Preference:
+            </span>
+            {[
+              { id: 'all', label: 'Any Court' },
+              { id: '6c2a1c6e-4455-4174-a2cd-5792cde1f0de', label: 'Court 1 (Corner)' },
+              { id: '15e9e5d7-798d-4e5c-b051-67fe80de326f', label: 'Court 2 (Middle)' },
+              { id: 'aaca34ba-978c-481d-9ec0-157049f96742', label: 'Court 3 (Center)' },
+            ].map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCourtId(c.id === 'all' ? null : c.id);
+                  setSelectedSlotTimes([]);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                  (selectedCourtId === null && c.id === 'all') || selectedCourtId === c.id
+                    ? 'bg-gold text-navy font-bold shadow-xs'
+                    : 'bg-surface text-ink-soft hover:text-navy border border-border/60 hover:bg-surface-2'
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Quick Date Shortcuts - 3-column equal grid, perfectly fitted without swipe */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-1">

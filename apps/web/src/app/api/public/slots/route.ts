@@ -16,6 +16,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date') || new Date().toISOString().split('T')[0]!;
+    const activity = searchParams.get('sport') || searchParams.get('activity') || 'Pickleball';
+    const filterCourtId = searchParams.get('court_id');
 
     const res = await fetch(
       `${TURFOS_API_URL}/api/v1/venues/${TURFOS_VENUE_ID}/availability?date=${date}`,
@@ -38,15 +40,30 @@ export async function GET(request: Request) {
     }
 
     const turfData = await res.json();
-    const allCourts = (turfData.courts || []).map((c: any) => ({
+    
+    // Filter courts by activity
+    let matchedCourts = (turfData.courts || []).filter((c: any) => {
+      if (activity === 'Pickleball') return c.sport_type === 'Pickleball';
+      if (activity === 'Studio') return c.sport_type === 'Studio';
+      if (activity === 'Gym') return c.sport_type === 'Gym';
+      if (activity === 'Indoor Games') return c.sport_type === 'PlayStation' || c.sport_type === 'Table Tennis';
+      return true;
+    });
+
+    if (filterCourtId) {
+      matchedCourts = matchedCourts.filter((c: any) => c.court_id === filterCourtId);
+    }
+
+    const allCourts = matchedCourts.map((c: any) => ({
       id: c.court_id,
       name: c.display_name,
+      sport: c.sport_type,
     }));
 
-    // Group distinct slot times across all courts
+    // Group distinct slot times across matched courts
     const slotMap = new Map<string, { startsAt: string; endsAt: string; courtSlots: Map<string, any> }>();
 
-    for (const court of turfData.courts || []) {
+    for (const court of matchedCourts) {
       for (const slot of court.slots || []) {
         if (!slotMap.has(slot.starts_at)) {
           slotMap.set(slot.starts_at, {
@@ -89,7 +106,7 @@ export async function GET(request: Request) {
       }
 
       const isAvailable = availableCourts.length > 0;
-      const assignedCourt = availableCourts[0] || allCourts[0] || { id: '', name: 'Court 1' };
+      const assignedCourt = availableCourts[0] || allCourts[0] || { id: '', name: 'Main Court' };
       const priceRupees = Math.round(samplePricePaise / 100);
 
       items.push({
@@ -112,7 +129,14 @@ export async function GET(request: Request) {
 
     items.sort((a, b) => a.startMinutes - b.startMinutes);
 
-    return NextResponse.json({ ok: true, date, slots: items, allCourts });
+    return NextResponse.json({
+      ok: true,
+      date,
+      activity,
+      slots: items,
+      allCourts,
+      totalArenas: turfData.courts?.length || 0,
+    });
   } catch (err) {
     console.error('Public day slots bridge error:', err);
     return NextResponse.json({ ok: false, error: 'Failed to fetch slots' }, { status: 500 });

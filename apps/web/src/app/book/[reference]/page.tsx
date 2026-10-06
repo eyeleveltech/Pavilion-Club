@@ -43,8 +43,8 @@ export default async function BookingConfirmationPage({
     amountPaise: number;
     status: string;
     courtName: string;
-    customerName?: string;
-    customerPhone?: string;
+    customerName: string | null;
+    customerPhone: string | null;
   } | null = null;
 
   // 1. First attempt to load booking from TurfOS Engine
@@ -67,8 +67,8 @@ export default async function BookingConfirmationPage({
         amountPaise: data.amounts?.slot_paise || 80000,
         status: data.status,
         courtName: data.court?.display_name || 'Court 1',
-        customerName: data.customer?.name || 'Player',
-        customerPhone: data.customer?.phone || '',
+        customerName: data.customer?.name ?? 'Player',
+        customerPhone: data.customer?.phone ?? null,
       };
     }
   } catch (err) {
@@ -101,8 +101,8 @@ export default async function BookingConfirmationPage({
       if (rows[0]) {
         booking = {
           ...rows[0],
-          customerName: rows[0].customerName || undefined,
-          customerPhone: rows[0].customerPhone || undefined,
+          customerName: rows[0].customerName ?? null,
+          customerPhone: rows[0].customerPhone ?? null,
         };
       }
     } catch (e) {
