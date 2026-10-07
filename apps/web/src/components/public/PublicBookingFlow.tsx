@@ -304,6 +304,81 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  // Active Customer Pack & Redemption State
+  const [activeCustomerPack, setActiveCustomerPack] = useState<{
+    id: string;
+    reference: string;
+    name: string;
+    creditsRemaining: number;
+    sport: string;
+  } | null>(null);
+  const [isCheckingPack, setIsCheckingPack] = useState(false);
+  const [isRedeemingPack, setIsRedeemingPack] = useState(false);
+
+  const checkCustomerPack = async (rawPhone: string) => {
+    const digits = rawPhone.replace(/\D/g, '').slice(-10);
+    if (digits.length !== 10) {
+      setActiveCustomerPack(null);
+      return;
+    }
+    setIsCheckingPack(true);
+    try {
+      const res = await fetch('/api/public/packs/customer?phone=' + digits);
+      const data = await res.json();
+      if (data.found && data.packs && data.packs.length > 0) {
+        const match = data.packs.find((p: any) => p.creditsRemaining > 0);
+        if (match) {
+          setActiveCustomerPack(match);
+        } else {
+          setActiveCustomerPack(null);
+        }
+      } else {
+        setActiveCustomerPack(null);
+      }
+    } catch {
+      setActiveCustomerPack(null);
+    } finally {
+      setIsCheckingPack(false);
+    }
+  };
+
+  const handleRedeemPackBooking = async () => {
+    if (!activeCustomerPack || selectedSlots.length === 0 || !assignedCourt) return;
+    setIsRedeemingPack(true);
+    setBookingError(null);
+
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+
+    try {
+      const res = await fetch('/api/public/book/redeem-pack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          court_id: assignedCourt.id,
+          starts_at: selectedSlots[0]!.startsAt,
+          ends_at: selectedSlots[selectedSlots.length - 1]!.endsAt,
+          customer_name: name.trim() || 'Club Member',
+          customer_phone: cleanPhone,
+          customer_email: email.trim() || undefined,
+          pack_id: activeCustomerPack.id,
+        }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.ok && json.booking) {
+        setShowOtpModal(false);
+        router.push('/book/' + json.booking.reference);
+      } else {
+        setBookingError(json.error?.message || json.error || 'Failed to redeem pack credit.');
+      }
+    } catch (err) {
+      console.error('Redeem error:', err);
+      setBookingError('Network error redeeming pack.');
+    } finally {
+      setIsRedeemingPack(false);
+    }
+  };
+
   // Resend OTP countdown timer
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -1341,6 +1416,11 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setPhone(val);
                         if (formError) setFormError(null);
+                        if (val.length === 10) {
+                          checkCustomerPack(val);
+                        } else {
+                          setActiveCustomerPack(null);
+                        }
                       }}
                       className="w-full pl-11 pr-3 py-2.5 rounded-xl border border-border bg-surface text-ink font-mono text-xs focus:border-navy focus:ring-1 focus:ring-navy outline-hidden"
                     />
@@ -1372,6 +1452,54 @@ export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
                   <div className="p-2.5 rounded-xl bg-danger-soft text-danger border border-danger/20 flex items-start gap-2 text-[11px] animate-in fade-in">
                     <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{formError}</span>
+                  </div>
+                )}
+
+                {/* Active Prepaid Pack Detection Card */}
+                {isCheckingPack && (
+                  <div className="text-[11px] text-ink-soft flex items-center gap-1.5 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin text-gold" />
+                    <span>Checking active member packs & balance...</span>
+                  </div>
+                )}
+
+                {activeCustomerPack && (
+                  <div className="p-3.5 rounded-xl bg-gold/15 border border-gold/40 space-y-2.5 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-gold-text" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-gold-text">
+                          Active Prepaid Pack Found
+                        </span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-navy text-gold text-[10px] font-bold">
+                        {activeCustomerPack.creditsRemaining} Credits Left
+                      </span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-navy">{activeCustomerPack.name}</div>
+                      <div className="text-[11px] text-ink-soft">
+                        You have prepaid hours! Pay ₹0 now by redeeming 1 hour from your balance.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRedeemPackBooking}
+                      disabled={isRedeemingPack}
+                      className="w-full py-2.5 rounded-xl bg-navy text-gold font-bold text-xs uppercase tracking-wider hover:bg-gold hover:text-navy transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isRedeemingPack ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                          <span>Redeeming 1 Credit...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Pay ₹0 via Pack (1 Credit)</span>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-gold" />
+                        </>
+                      )}
+                    </button>
                   </div>
                 )}
 
