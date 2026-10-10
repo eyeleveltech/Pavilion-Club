@@ -41,7 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <head>
+      <head suppressHydrationWarning>
         <link rel="stylesheet" href="/assets/fonts/fonts.css" />
       </head>
       <body className="font-sans antialiased bg-bg text-ink min-h-screen">
