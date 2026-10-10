@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { PwaInstallPrompt } from '@/components/public/PwaInstallPrompt';
@@ -41,6 +41,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+      </head>
       <body className="font-sans antialiased bg-bg text-ink min-h-screen">
         {children}
         <PwaInstallPrompt />
