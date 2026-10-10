@@ -7,6 +7,7 @@ import { useState } from 'react';
 export function PublicHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isBookingPage = pathname.startsWith('/book');
 
   const navLinks = [
     { label: 'COURTS', href: '/#courts' },
@@ -69,10 +70,10 @@ export function PublicHeader() {
         {/* Right CTA Button & Mobile Toggle */}
         <div className="flex items-center gap-3 shrink-0">
           <Link
-            href="/book"
+            href={isBookingPage ? '/my-bookings' : '/book'}
             className="bg-[#C7A26A] hover:bg-[#B89358] text-[#0f1e2e] font-bold text-[11px] uppercase tracking-[0.2em] px-6 sm:px-7 py-2.5 sm:py-3 transition-all shadow-xs active:scale-[0.98] whitespace-nowrap"
           >
-            BOOK A COURT
+            {isBookingPage ? 'MY BOOKINGS' : 'BOOK A COURT'}
           </Link>
 
           {/* Mobile Menu Hamburger */}
@@ -110,6 +111,15 @@ export function PublicHeader() {
               {link.label}
             </Link>
           ))}
+          <div className="pt-2 border-t border-white/10">
+            <Link
+              href={isBookingPage ? '/my-bookings' : '/book'}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-center bg-[#C7A26A] text-[#0f1e2e] font-bold text-xs uppercase tracking-[0.2em] py-2.5 shadow-xs"
+            >
+              {isBookingPage ? 'MY BOOKINGS' : 'BOOK A COURT'}
+            </Link>
+          </div>
         </div>
       ) : null}
     </header>
