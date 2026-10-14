@@ -1,10 +1,10 @@
 // Client-side Direct TurfOS Integration for Static Pavilion Frontend
 export const TURFOS_API_URL =
-  process.env.NEXT_PUBLIC_TURFOS_API_URL || 'http://localhost:3000';
+  process.env.NEXT_PUBLIC_TURFOS_API_URL || 'https://clubops.theeyelevelstudio.com';
 export const TURFOS_API_KEY =
-  process.env.NEXT_PUBLIC_TURFOS_API_KEY || 'tk_live_lfRJCbZ7byy4us4J8QaxeNH7sJaddAX0';
+  process.env.NEXT_PUBLIC_TURFOS_API_KEY || 'tk_live_6vmRho68mosKuEUsjVZkn4Vd_aowM60L';
 export const TURFOS_VENUE_ID =
-  process.env.NEXT_PUBLIC_TURFOS_VENUE_ID || '98944320-a082-427e-86d8-cbf811c83a1d';
+  process.env.NEXT_PUBLIC_TURFOS_VENUE_ID || '49b28d07-f093-4bc4-8cfc-9f6de9b9db9f';
 
 export interface PublicDaySlotItem {
   startsAt: string;
