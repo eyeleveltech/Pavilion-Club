@@ -1,7 +1,10 @@
 Write-Host ">>> 1. Building Next.js Static Export..." -ForegroundColor Cyan
-pnpm --filter @pavilion/web build
+pnpm --dir "$PSScriptRoot" --filter @pavilion/web build
 
-Write-Host ">>> 2. Writing .htaccess for Hostinger LiteSpeed/Apache..." -ForegroundColor Cyan
+Write-Host ">>> 2. Installing Pristine Luxury Editorial Homepage to out/index.html..." -ForegroundColor Cyan
+Copy-Item "$PSScriptRoot\apps\web\public\index.html" "$PSScriptRoot\apps\web\out\index.html" -Force
+
+Write-Host ">>> 3. Writing .htaccess for Hostinger LiteSpeed/Apache..." -ForegroundColor Cyan
 $htaccess = @"
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -24,12 +27,10 @@ $htaccess = @"
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 "@
-[System.IO.File]::WriteAllText("$PSScriptRoot/apps/web/out/.htaccess", $htaccess, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText("$PSScriptRoot\apps\web\out\.htaccess", $htaccess, [System.Text.UTF8Encoding]::new($false))
 
-Write-Host ">>> 3. Creating Hostinger ZIP package..." -ForegroundColor Cyan
-$zipPath = "$env:USERPROFILE/Desktop/thepavilionclub-hostinger.zip"
-Push-Location "$PSScriptRoot/apps/web/out"
-tar -a -cf "$zipPath" * .htaccess
-Pop-Location
+Write-Host ">>> 4. Creating Hostinger ZIP package..." -ForegroundColor Cyan
+$zipPath = "$env:USERPROFILE\Desktop\thepavilionclub-hostinger.zip"
+Compress-Archive -Path "$PSScriptRoot\apps\web\out\*" -DestinationPath $zipPath -Force
 
-Write-Host ">>> SUCCESS! Static zip ready on Desktop: $zipPath" -ForegroundColor Green
+Write-Host ">>> SUCCESS! Pristine static zip ready on Desktop: $zipPath" -ForegroundColor Green
