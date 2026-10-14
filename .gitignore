@@ -15,3 +15,8 @@ backups/
 apps/web/public/harish-tasks.html
 apps/web/src/app/tasks/
 task_sheet.md
+
+# Static build exports and zip archives
+out/
+apps/web/out/
+*.zip
