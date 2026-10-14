@@ -24,10 +24,12 @@ $htaccess = @"
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 "@
-[System.IO.File]::WriteAllText("$PSScriptRoot\apps\web\out\.htaccess", $htaccess, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText("$PSScriptRoot/apps/web/out/.htaccess", $htaccess, [System.Text.UTF8Encoding]::new($false))
 
 Write-Host ">>> 3. Creating Hostinger ZIP package..." -ForegroundColor Cyan
-$zipPath = "$env:USERPROFILE\Desktop\thepavilionclub-hostinger.zip"
-Compress-Archive -Path "$PSScriptRoot\apps\web\out\*" -DestinationPath $zipPath -Force
+$zipPath = "$env:USERPROFILE/Desktop/thepavilionclub-hostinger.zip"
+Push-Location "$PSScriptRoot/apps/web/out"
+tar -a -cf "$zipPath" * .htaccess
+Pop-Location
 
 Write-Host ">>> SUCCESS! Static zip ready on Desktop: $zipPath" -ForegroundColor Green
