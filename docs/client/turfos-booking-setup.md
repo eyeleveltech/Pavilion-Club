@@ -25,8 +25,11 @@ TurfOS must be running with the worker (`apps/worker`) — it sends the emails a
 
 ## Building the site
 
+Live TurfOS: **https://clubops.theeyelevelstudio.com**. It must be running the TurfOS
+version with `/api/public/v1` (migrations 0030–0032) before a site built against it can book.
+
 ```powershell
-$env:NEXT_PUBLIC_TURFOS_API_URL = 'https://<turfos-host>'   # not a secret; baked in at build
+$env:NEXT_PUBLIC_TURFOS_API_URL = 'https://clubops.theeyelevelstudio.com'   # not a secret; baked in at build
 .\build-hostinger.ps1
 ```
 
