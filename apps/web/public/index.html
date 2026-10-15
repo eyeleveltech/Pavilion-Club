@@ -412,9 +412,8 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .cursor-ring{width:34px;height:34px;border:1px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
 .cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
 .cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold)}
-@media (hover:none),(pointer:coarse){.cursor,.cursor-ring{display:none}}
+@media (hover:none) and (pointer:coarse){body:not(.has-cursor) .cursor,body:not(.has-cursor) .cursor-ring{display:none}}
 @media (prefers-reduced-motion:reduce){
-  .cursor,.cursor-ring{display:none}
   .loader{display:none}
   .chapter:not(:first-of-type) .chapter__img{clip-path:none}
   .chapter:not(:first-of-type) .chapter__body{opacity:1}
@@ -887,9 +886,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     /* ---------- hero scroll parallax + mouse drift ---------- */
     gsap.to('.hero__media', { yPercent: 16, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('.hero__inner', { yPercent: -10, autoAlpha: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: '20% top', end: '80% top', scrub: true } });
-    if (fine && !reduce) {
-      const hx = gsap.quickTo('.hero__media img', 'x', { duration: 1.4, ease: 'power3' }), hy = gsap.quickTo('.hero__media img', 'y', { duration: 1.4, ease: 'power3' });
-      $('.hero').addEventListener('mousemove', e => { hx((e.clientX / innerWidth - .5) * -22); hy((e.clientY / innerHeight - .5) * -14); });
+    const heroEl = $('.hero'), heroImg = $('.hero__media img');
+    if (heroEl && heroImg) {
+      const hx = gsap.quickTo(heroImg, 'x', { duration: 1.4, ease: 'power3' }), hy = gsap.quickTo(heroImg, 'y', { duration: 1.4, ease: 'power3' });
+      heroEl.addEventListener('mousemove', e => { hx((e.clientX / innerWidth - .5) * -22); hy((e.clientY / innerHeight - .5) * -14); });
+      heroEl.addEventListener('mouseleave', () => { hx(0); hy(0); });
     }
 
     /* ---------- ticker, sped up by scroll velocity ---------- */
@@ -960,15 +961,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       $$('.stop').forEach(st => gsap.from($('.stop__time', st), { xPercent: 20, autoAlpha: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: st, containerAnimation: hTween, start: 'left 85%', toggleActions: 'play none none reverse' } }));
 
       // facilities — floating image follows the cursor
-      if (fine) {
-        const fl = $('.float-img'), imgs = $$('img', fl);
+      const fl = $('.float-img');
+      if (fl) {
+        const imgs = $$('img', fl);
         gsap.set(fl, { xPercent: -50, yPercent: -50, scale: .9 });
         const fx = gsap.quickTo(fl, 'x', { duration: .55, ease: 'power3' }), fy = gsap.quickTo(fl, 'y', { duration: .55, ease: 'power3' });
+        const hideFloat = () => gsap.to(fl, { autoAlpha: 0, scale: .9, duration: .3, ease: 'power3.out', overwrite: 'auto' });
+        window.__pavilionHideFloat = hideFloat;
+
         $$('.row').forEach(row => {
-          row.addEventListener('mouseenter', () => { imgs.forEach((im, j) => im.classList.toggle('is-on', j === +row.dataset.img)); gsap.to(fl, { autoAlpha: 1, scale: 1, duration: .55, ease: 'power3.out' }); });
-          row.addEventListener('mouseleave', () => gsap.to(fl, { autoAlpha: 0, scale: .9, duration: .4, ease: 'power3.out' }));
+          row.addEventListener('mouseenter', () => {
+            imgs.forEach((im, j) => im.classList.toggle('is-on', j === +row.dataset.img));
+            gsap.to(fl, { autoAlpha: 1, scale: 1, duration: .4, ease: 'power3.out', overwrite: 'auto' });
+          });
+          row.addEventListener('mouseleave', hideFloat);
         });
-        $('.rows').addEventListener('mousemove', e => { fx(e.clientX); fy(e.clientY); });
+
+        const rowsEl = $('.rows');
+        if (rowsEl) {
+          rowsEl.addEventListener('mousemove', e => { fx(e.clientX); fy(e.clientY); });
+          rowsEl.addEventListener('mouseleave', hideFloat);
+        }
+        const facEl = $('.facilities');
+        if (facEl) {
+          facEl.addEventListener('mouseleave', hideFloat);
+        }
       }
       return () => {};
     });
@@ -990,24 +1007,129 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     gsap.fromTo('.cta__media', { yPercent: -10 }, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: '.cta', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.fromTo('.footer__ghost', { yPercent: 60 }, { yPercent: 26, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
 
-    /* ---------- magnetic buttons + cursor ---------- */
-    if (fine && !reduce) {
-      $$('.magnetic').forEach(btn => {
-        const bx = gsap.quickTo(btn, 'x', { duration: .6, ease: 'power3' }), by = gsap.quickTo(btn, 'y', { duration: .6, ease: 'power3' });
-        btn.addEventListener('mousemove', e => { const r = btn.getBoundingClientRect(); bx((e.clientX - (r.left + r.width / 2)) * .32); by((e.clientY - (r.top + r.height / 2)) * .32); });
-        btn.addEventListener('mouseleave', () => { bx(0); by(0); });
-      });
+    /* ---------- magnetic buttons + cursor (luxury animated cursor) ---------- */
+    $$('.magnetic').forEach(btn => {
+      const bx = gsap.quickTo(btn, 'x', { duration: .6, ease: 'power3' }), by = gsap.quickTo(btn, 'y', { duration: .6, ease: 'power3' });
+      btn.addEventListener('mousemove', e => { const r = btn.getBoundingClientRect(); bx((e.clientX - (r.left + r.width / 2)) * .32); by((e.clientY - (r.top + r.height / 2)) * .32); });
+      btn.addEventListener('mouseleave', () => { bx(0); by(0); });
+    });
+
+    const dot = $('.cursor'), ring = $('.cursor-ring');
+    if (dot && ring) {
       document.body.classList.add('has-cursor');
-      const dot = $('.cursor'), ring = $('.cursor-ring');
       gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
       const dx = gsap.quickTo(dot, 'x', { duration: .1 }), dy = gsap.quickTo(dot, 'y', { duration: .1 });
       const rx = gsap.quickTo(ring, 'x', { duration: .5, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: .5, ease: 'power3' });
       let seen = false;
-      addEventListener('mousemove', e => { if (!seen) { seen = true; gsap.set([dot, ring], { x: e.clientX, y: e.clientY }); gsap.to([dot, ring], { opacity: 1, duration: .6 }); } dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
-      $$('a, button, [data-cursor]').forEach(el => {
-        el.addEventListener('mouseenter', () => { if (el.dataset.cursor) { ring.classList.add('is-hover'); ring.textContent = el.dataset.cursor; } else ring.classList.add('is-link'); });
-        el.addEventListener('mouseleave', () => { ring.classList.remove('is-hover', 'is-link'); ring.textContent = ''; });
-      });
+      let lastX = innerWidth / 2;
+      let lastY = innerHeight / 2;
+
+      // Real-time hover evaluator: checks element directly at (x, y)
+      const checkHoverAt = (x, y) => {
+        if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
+          if (ring.classList.contains('is-hover')) {
+            ring.classList.remove('is-hover');
+            ring.textContent = '';
+          }
+          ring.classList.remove('is-link');
+          return;
+        }
+
+        const el = document.elementFromPoint(x, y);
+        const hoverEl = el && el.closest ? el.closest('[data-cursor]') : null;
+
+        if (hoverEl && hoverEl.dataset.cursor) {
+          if (!ring.classList.contains('is-hover') || ring.textContent !== hoverEl.dataset.cursor) {
+            ring.classList.add('is-hover');
+            ring.textContent = hoverEl.dataset.cursor;
+          }
+        } else {
+          if (ring.classList.contains('is-hover')) {
+            ring.classList.remove('is-hover');
+            ring.textContent = '';
+          }
+        }
+
+        const linkEl = el && el.closest ? el.closest('a, button, .magnetic') : null;
+        if (linkEl && !hoverEl) {
+          ring.classList.add('is-link');
+        } else {
+          ring.classList.remove('is-link');
+        }
+
+        // Auto-hide floating image if cursor moves or scrolls away from .row
+        if (window.__pavilionHideFloat) {
+          if (!el || !el.closest('.row')) {
+            window.__pavilionHideFloat();
+          }
+        }
+      };
+
+      const onMouseMove = e => {
+        lastX = e.clientX;
+        lastY = e.clientY;
+        if (!seen) {
+          seen = true;
+          gsap.set([dot, ring], { x: e.clientX, y: e.clientY });
+          gsap.to([dot, ring], { opacity: 1, duration: .3, overwrite: 'auto' });
+          document.body.classList.add('has-cursor');
+        }
+        dx(e.clientX); dy(e.clientY);
+        rx(e.clientX); ry(e.clientY);
+        checkHoverAt(e.clientX, e.clientY);
+      };
+
+      // Real-time scroll handler: immediately updates hover state while scrolling
+      const onScrollUpdate = () => {
+        if (seen) {
+          checkHoverAt(lastX, lastY);
+        }
+      };
+
+      const onMouseLeave = () => {
+        gsap.to([dot, ring], { opacity: 0, duration: .2, overwrite: 'auto' });
+        ring.classList.remove('is-hover', 'is-link');
+        ring.textContent = '';
+        if (window.__pavilionHideFloat) window.__pavilionHideFloat();
+        seen = false;
+      };
+
+      const onMouseEnter = e => {
+        seen = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        gsap.set([dot, ring], { x: e.clientX, y: e.clientY });
+        gsap.to([dot, ring], { opacity: 1, duration: .2, overwrite: 'auto' });
+        document.body.classList.add('has-cursor');
+        checkHoverAt(e.clientX, e.clientY);
+      };
+
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('scroll', onScrollUpdate, { passive: true });
+      document.addEventListener('mouseleave', onMouseLeave);
+      document.addEventListener('mouseenter', onMouseEnter);
+
+      // Connect to Lenis scroll if active
+      if (window.lenis) {
+        window.lenis.on('scroll', onScrollUpdate);
+      }
+
+      // Register clean SPA destroyer
+      window.__pavilionDestroy = () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('scroll', onScrollUpdate);
+        document.removeEventListener('mouseleave', onMouseLeave);
+        document.removeEventListener('mouseenter', onMouseEnter);
+        if (window.lenis) {
+          try { window.lenis.off('scroll', onScrollUpdate); } catch (_) {}
+          try { window.lenis.destroy(); } catch (_) {}
+          window.lenis = null;
+        }
+        document.body.classList.remove('has-cursor');
+        if (window.ScrollTrigger?.getAll) {
+          try { window.ScrollTrigger.getAll().forEach(t => t.kill()); } catch (_) {}
+        }
+      };
     }
 
     if (document.readyState === 'complete') ScrollTrigger.refresh(); else addEventListener('load', () => ScrollTrigger.refresh());

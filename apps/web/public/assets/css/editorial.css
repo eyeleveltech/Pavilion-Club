@@ -398,8 +398,8 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .cursor-ring{width:34px;height:34px;border:1.5px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
 .cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
 .cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold);color:var(--midnight)}
+@media (hover:none) and (pointer:coarse){body:not(.has-cursor) .cursor,body:not(.has-cursor) .cursor-ring{display:none}}
 @media (prefers-reduced-motion:reduce){
-  .cursor,.cursor-ring{display:none}
   .loader{display:none}
   .chapter:not(:first-of-type) .chapter__img{clip-path:none}
   .chapter:not(:first-of-type) .chapter__body{opacity:1}
