@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { createDb, validateCustomerSession, cancelBookingByCustomer } from '@pavilion/db';
 
 const TURFOS_API_URL = process.env.TURFOS_API_URL || 'http://localhost:3000';
-const TURFOS_API_KEY = process.env.TURFOS_API_KEY || 'tk_live_lfRJCbZ7byy4us4J8QaxeNH7sJaddAX0';
+const TURFOS_API_KEY = process.env.TURFOS_API_KEY ?? '';
 
 export async function POST(request: Request) {
   try {

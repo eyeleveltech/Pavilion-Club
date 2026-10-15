@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const TURFOS_API_URL = process.env.TURFOS_API_URL || 'http://localhost:3000';
-const TURFOS_API_KEY = process.env.TURFOS_API_KEY || 'tk_live_lfRJCbZ7byy4us4J8QaxeNH7sJaddAX0';
+const TURFOS_API_KEY = process.env.TURFOS_API_KEY ?? '';
 const TURFOS_VENUE_ID = process.env.TURFOS_VENUE_ID || '98944320-a082-427e-86d8-cbf811c83a1d';
 
 export async function POST(request: Request) {

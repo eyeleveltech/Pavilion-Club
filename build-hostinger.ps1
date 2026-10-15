@@ -1,4 +1,16 @@
-Write-Host ">>> 1. Building Next.js Static Export..." -ForegroundColor Cyan
+# The static site books through the TurfOS public API. The URL is baked in at
+# build time and is NOT a secret (there is no API key anywhere in this site).
+# Without it the build would silently point at localhost.
+if (-not $env:NEXT_PUBLIC_TURFOS_API_URL) {
+  Write-Host "Set NEXT_PUBLIC_TURFOS_API_URL first, e.g.  `$env:NEXT_PUBLIC_TURFOS_API_URL = 'https://turfos.example.com'" -ForegroundColor Red
+  exit 1
+}
+if ($env:NEXT_PUBLIC_TURFOS_API_URL -match 'localhost|127\.0\.0\.1') {
+  Write-Host "NEXT_PUBLIC_TURFOS_API_URL points at localhost - refusing to build a production zip." -ForegroundColor Red
+  exit 1
+}
+
+Write-Host ">>> 1. Building Next.js Static Export (TurfOS: $env:NEXT_PUBLIC_TURFOS_API_URL)..." -ForegroundColor Cyan
 pnpm --dir "$PSScriptRoot" --filter @pavilion/web build
 
 Write-Host ">>> 2. Installing Pristine Luxury Editorial Homepage to out/index.html..." -ForegroundColor Cyan
