@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
+  confirmAtVenue,
   createHold,
   fetchBooking,
   fetchDay,
@@ -145,6 +146,8 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
   const [stillWaiting, setStillWaiting] = useState(false);
 
   const timezone = day?.timezone ?? FALLBACK_TZ;
+  /** The venue takes payment at the front desk (a TurfOS setting), so no Razorpay step. */
+  const atVenue = day?.payment === 'at_venue';
 
   /* ---- load a day --------------------------------------------------- */
 
@@ -452,11 +455,33 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
     return true;
   };
 
+  /**
+   * Pay-at-venue venues: no gateway — ask TurfOS to confirm the hold as a
+   * desk-paid booking, then show the pass. TurfOS decides whether that is
+   * allowed (the venue's switch), not this page.
+   */
+  const confirmHere = async (current: Hold) => {
+    setBusy(true);
+    setNotice(null);
+    try {
+      await confirmAtVenue(current.bookingId);
+      router.push(`/book/pass?ref=${encodeURIComponent(current.bookingId)}`);
+    } catch (error) {
+      setBusy(false);
+      setNotice({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not confirm the booking.',
+      });
+    }
+  };
+
+  const settle = (current: Hold) => (atVenue ? confirmHere(current) : pay(current));
+
   const submitDetails = async (event: React.FormEvent) => {
     event.preventDefault();
     if (busy) return;
     if (hold) {
-      await pay(hold);
+      await settle(hold);
       return;
     }
     if (!best || !run.length || !validate()) return;
@@ -474,7 +499,7 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
       });
       setHold(created);
       setHoldCourt(best.court);
-      await pay(created);
+      await settle(created);
     } catch (error) {
       setBusy(false);
       if (error instanceof TurfApiError && ['slot_taken', 'slot_unavailable', 'not_consecutive'].includes(error.code)) {
@@ -563,8 +588,8 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
               ['Date', formatLongDate(from!, timezone)],
               ['Time', `${formatRange(from!, to!, timezone)} (${hrs(Math.round((new Date(to!).getTime() - new Date(from!).getTime()) / 3_600_000))})`],
               [unit === 'court' ? 'Court' : 'Space', court!.name],
-              ['Court hire', formatPaise(slotPaise)],
-              ['Booking fee', formatPaise(feePaise)],
+              [unit === 'court' ? 'Court hire' : 'Hire', formatPaise(slotPaise)],
+              ...(feePaise > 0 ? [['Booking fee', formatPaise(feePaise)]] : []),
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between gap-4 py-3">
                 <dt className="text-ink-faint">{label}</dt>
@@ -572,7 +597,7 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
               </div>
             ))}
             <div className="flex justify-between gap-4 py-3">
-              <dt className="font-semibold">Total</dt>
+              <dt className="font-semibold">{atVenue ? 'Pay at the venue' : 'Total'}</dt>
               <dd className="text-right text-lg font-bold tabular-nums">{formatPaise(total)}</dd>
             </div>
           </dl>
@@ -651,15 +676,16 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
             {message}
 
             <p className="text-[13px] leading-relaxed text-ink-faint">
-              Pay securely with UPI, card or netbanking (Razorpay). We hold the court for ten minutes while you
-              pay. Free cancellation up to 24 hours before.
+              {atVenue
+                ? 'No online payment — pay at the front desk when you arrive (cash or UPI). Free cancellation up to 24 hours before.'
+                : 'Pay securely with UPI, card or netbanking (Razorpay). We hold the court for ten minutes while you pay. Free cancellation up to 24 hours before.'}
             </p>
           </form>
         </Column>
 
         <ActionBar caption={`${caption} · ${court!.name}`} amount={formatPaise(total)}>
           <button type="submit" form="bk-details" disabled={busy} className={buttonClass('primary')}>
-            {busy ? 'Please wait…' : `Pay ${formatPaise(total)}`}
+            {busy ? 'Please wait…' : atVenue ? 'Confirm booking' : `Pay ${formatPaise(total)}`}
           </button>
         </ActionBar>
       </div>
@@ -680,6 +706,7 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
           {priceRange
             ? ` · ${formatPaise(priceRange.min)}${priceRange.max > priceRange.min ? `–${formatPaise(priceRange.max)}` : ''} per hour`
             : ''}
+          {atVenue ? ' · pay at the venue' : ''}
         </p>
 
         {message ? <div className="mt-6">{message}</div> : null}

@@ -78,10 +78,13 @@ export interface CourtDay {
 export interface VenueDay {
   timezone: string;
   courts: CourtDay[];
+  /** How this venue takes payment: online (Razorpay) or at the front desk. Set in TurfOS. */
+  payment: 'online' | 'at_venue';
 }
 
 interface WireAvailability {
   venue: { timezone: string };
+  payment?: 'online' | 'at_venue';
   courts: {
     court_id: string;
     label: string;
@@ -101,6 +104,7 @@ export async function fetchDay(date: string): Promise<VenueDay> {
   const wire = await call<WireAvailability>(`/availability?date=${encodeURIComponent(date)}`);
   return {
     timezone: wire.venue.timezone,
+    payment: wire.payment === 'at_venue' ? 'at_venue' : 'online',
     courts: wire.courts.map((court) => ({
       id: court.court_id,
       label: court.label,
@@ -167,6 +171,15 @@ export async function createHold(input: {
   };
 }
 
+/**
+ * Pay-at-venue venues only: confirm the hold as a booking paid at the desk.
+ * TurfOS refuses unless the VENUE is switched to pay-at-venue; the browser
+ * cannot choose this.
+ */
+export async function confirmAtVenue(bookingId: string): Promise<void> {
+  await call(`/bookings/${encodeURIComponent(bookingId)}/confirm-at-venue`, { method: 'POST' });
+}
+
 export interface PaymentOrder {
   orderId: string;
   keyId: string;
@@ -230,6 +243,8 @@ export interface BookingView {
   feePaise: number;
   paidPaise: number;
   totalPaise: number;
+  /** True when the booking is settled at the front desk rather than online. */
+  payAtVenue: boolean;
 }
 
 export async function fetchBooking(bookingId: string): Promise<BookingView> {
@@ -244,6 +259,7 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
     court: { display_name: string; sport_type: string };
     venue: { name: string; address: string | null; timezone: string };
     customer: { first_name: string | null; phone_last4: string | null };
+    payment?: 'online' | 'at_venue';
     amounts: {
       slot_paise: number;
       booking_fee_paise: number;
@@ -271,6 +287,7 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
     feePaise: wire.amounts.booking_fee_paise,
     paidPaise: wire.amounts.paid_paise,
     totalPaise: wire.amounts.total_paise,
+    payAtVenue: wire.payment === 'at_venue',
   };
 }
 
@@ -309,6 +326,8 @@ export interface MyBooking {
   venueName: string;
   timezone: string;
   paidPaise: number;
+  totalPaise: number;
+  payAtVenue: boolean;
   canCancel: boolean;
   refund: { totalPaise: number; percent: number; explanation: string } | null;
 }
@@ -328,6 +347,8 @@ export async function fetchMyBookings(
       venue_name: string;
       timezone: string;
       paid_paise: number;
+      total_paise?: number;
+      payment?: 'online' | 'at_venue';
       can_cancel: boolean;
       refund_if_cancelled: { total_paise: number; percent: number; explanation: string } | null;
     }[];
@@ -345,6 +366,8 @@ export async function fetchMyBookings(
       venueName: b.venue_name,
       timezone: b.timezone,
       paidPaise: b.paid_paise,
+      totalPaise: b.total_paise ?? b.paid_paise,
+      payAtVenue: b.payment === 'at_venue',
       canCancel: b.can_cancel,
       refund: b.refund_if_cancelled
         ? {

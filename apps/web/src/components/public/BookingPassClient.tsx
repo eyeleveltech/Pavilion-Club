@@ -143,6 +143,8 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
   const tz = booking.timezone;
   const confirmed = booking.status === 'confirmed' || booking.status === 'completed';
   const pending = booking.status === 'held';
+  /** Confirmed, to be paid at the front desk (venue in pay-at-venue mode). */
+  const dueAtVenue = confirmed && booking.payAtVenue && booking.paidPaise < booking.totalPaise;
 
   const copy = async () => {
     try {
@@ -163,7 +165,9 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
         </h1>
         <p className="text-[15px] text-ink-soft">
           {confirmed
-            ? `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed and paid. A confirmation is in your email.`
+            ? dueAtVenue
+              ? `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed. Please pay ${formatPaise(booking.totalPaise - booking.paidPaise)} at the front desk when you arrive.`
+              : `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed and paid. A confirmation is in your email.`
             : pending
               ? 'We’re waiting for your payment to be confirmed. This page updates by itself — please don’t pay again.'
               : booking.status === 'cancelled'
@@ -187,7 +191,9 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
             ['Date', formatLongDate(booking.startsAt, tz)],
             ['Time', formatRange(booking.startsAt, booking.endsAt, tz)],
             ['Booked', `${booking.sport} · ${booking.courtName}`],
-            [confirmed ? 'Paid' : 'Amount', formatPaise(confirmed ? booking.paidPaise || booking.totalPaise : booking.totalPaise)],
+            dueAtVenue
+              ? ['Pay at the venue', formatPaise(booking.totalPaise - booking.paidPaise)]
+              : [confirmed ? 'Paid' : 'Amount', formatPaise(confirmed ? booking.paidPaise || booking.totalPaise : booking.totalPaise)],
             ...(booking.venueAddress ? [['Where', booking.venueAddress]] : []),
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between gap-4 py-3">
@@ -201,7 +207,9 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
       {confirmed ? (
         <ul className="mt-6 grid gap-2 text-sm text-ink-soft">
           {[
-            'Arrive ten minutes early and show this reference at the front desk.',
+            dueAtVenue
+              ? 'Arrive ten minutes early, show this reference at the front desk and pay there (cash or UPI).'
+              : 'Arrive ten minutes early and show this reference at the front desk.',
             'Non-marking court shoes only.',
             'Free cancellation up to 24 hours before, from My bookings.',
           ].map((tip) => (

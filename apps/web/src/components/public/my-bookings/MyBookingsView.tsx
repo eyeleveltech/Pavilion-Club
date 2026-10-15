@@ -185,7 +185,9 @@ export function MyBookingsView() {
       setFlash(
         result.refundPaise > 0
           ? `Cancelled. ${formatPaise(result.refundPaise)} will be refunded to how you paid.`
-          : 'Cancelled. No refund applies under the cancellation policy.',
+          : booking.paidPaise === 0
+            ? 'Cancelled. The court is free for someone else.'
+            : 'Cancelled. No refund applies under the cancellation policy.',
       );
       await load(token);
     } catch (failure) {
@@ -365,7 +367,10 @@ export function MyBookingsView() {
                   <Pill tone={status.tone}>{status.label}</Pill>
                 </div>
                 <p className="mt-1.5 text-[13px] text-ink-faint">
-                  Ref <span className="font-mono text-ink-soft">{b.reference}</span> · Paid {formatPaise(b.paidPaise)}
+                  Ref <span className="font-mono text-ink-soft">{b.reference}</span> ·{' '}
+                  {b.payAtVenue && b.paidPaise < b.totalPaise && b.status === 'confirmed'
+                    ? `Pay at venue ${formatPaise(b.totalPaise - b.paidPaise)}`
+                    : `Paid ${formatPaise(b.paidPaise)}`}
                 </p>
 
                 {open ? (
@@ -374,7 +379,9 @@ export function MyBookingsView() {
                       <b className="font-semibold">Cancel this booking?</b>{' '}
                       {b.refund && b.refund.totalPaise > 0
                         ? `You’ll get ${formatPaise(b.refund.totalPaise)} back. ${b.refund.explanation}`
-                        : 'No refund applies at this point under the cancellation policy.'}
+                        : b.paidPaise === 0
+                          ? 'Nothing has been paid, so there is nothing to refund.'
+                          : 'No refund applies at this point under the cancellation policy.'}
                     </p>
                     <div className="flex flex-wrap items-center gap-4">
                       <button
