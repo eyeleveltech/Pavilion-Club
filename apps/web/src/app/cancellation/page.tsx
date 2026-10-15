@@ -1,7 +1,10 @@
-import CancellationPolicyPage from '../cancellation-policy/page';
+import { CancellationPolicyContent } from '@/components/public/CancellationPolicyContent';
 
 export const metadata = {
-  title: 'Cancellation & Refund Policy | The Pavilion Club',
+  title: 'Cancellation & Refund Policy | The Pavilion Club Adyar',
+  description: 'Official cancellation terms, refund procedures, and third-party partner booking policies for The Pavilion Club pickleball arena in Chennai.',
 };
 
-export default CancellationPolicyPage;
+export default function CancellationPolicyPage() {
+  return <CancellationPolicyContent />;
+}

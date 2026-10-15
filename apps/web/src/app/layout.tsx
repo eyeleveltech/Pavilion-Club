@@ -1,5 +1,6 @@
-﻿import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { PwaInstallPrompt } from '@/components/public/PwaInstallPrompt';
 
@@ -17,7 +18,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'The Pavilion Club — Pickleball Arena',
+  title: 'The Pavilion Club - Pickleball Arena',
   description: 'Premier indoor pickleball arena in Adyar, Chennai. 3 championship regulation pickleball courts, glare-free LED lighting.',
   manifest: '/manifest.json',
   appleWebApp: {
@@ -41,9 +42,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <head suppressHydrationWarning>
+      <body className="font-sans antialiased bg-bg text-ink min-h-screen">
         {/* Google Tag Manager */}
-        <script
+        <Script
+          id="gtm"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -52,9 +55,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-WHX25XHF');`,
           }}
         />
-        <link rel="stylesheet" href="/assets/fonts/fonts.css" />
-      </head>
-      <body className="font-sans antialiased bg-bg text-ink min-h-screen">
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

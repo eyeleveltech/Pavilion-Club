@@ -466,11 +466,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#club">The club</a>
     <a href="#day">Court-side</a>
     <a href="/membership">Membership</a>
-    <a href="#booking">Booking</a>
+    <a href="/book">Booking</a>
     <a href="#venue">Find us</a>
   </nav>
   <div class="nav__right">
-    <a class="btn magnetic" href="#booking">Book a court</a>
+    <a class="btn magnetic" href="/book">Book a court</a>
     <button class="nav__menu" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>
 </header>
@@ -479,7 +479,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#club">The club</a>
   <a href="#day">Court-side</a>
   <a href="/membership">Membership</a>
-  <a href="#booking">Booking</a>
+  <a href="/book">Booking</a>
   <a href="#venue">Find us</a>
   <div class="menu__foot">
     <span>Mon–Fri 06:00–23:00 · Sat–Sun 06:00–00:00</span>
@@ -508,7 +508,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="hero__aside">
       <p class="lede">Three tournament-grade pickleball courts under one pergola roof, lit until midnight. Book by the hour, pay online, walk in and play.</p>
       <div class="hero__cta">
-        <a class="btn magnetic" href="#booking">Book a court</a>
+        <a class="btn magnetic" href="/book">Book a court</a>
         <a class="link-arrow" href="#courts">See the courts <i></i></a>
       </div>
     </div>
@@ -598,7 +598,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="lede" data-fade>Everything you need before, during and after a session sits under one roof. Only the courts are booked online.</p>
   </div>
   <div class="rows">
-    <a class="row" href="#booking" data-img="0" data-cursor="Book">
+    <a class="row" href="/book" data-img="0" data-cursor="Book">
       <span class="row__n">01</span>
       <span class="row__name">Courts</span>
       <span class="row__desc">Three tournament-grade courts, bookable by the hour</span>
@@ -677,35 +677,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </section>
 
 <!-- booking -->
-<section class="section has-lines booking" id="booking">
-  <div class="booking__intro">
-    <p class="eyebrow">Booking</p>
-    <h2 class="display display--l" data-lines>
-      <span class="ln"><span>Book by</span></span>
-      <span class="ln"><span><em class="sc">the</em> hour.</span></span>
-    </h2>
-    <p class="lede" data-fade>Choose a day, pick a free hour on the court you want, pay online. Your court is confirmed the moment the payment clears, and not a second before.</p>
-    <p class="booking__fine" data-fade>Free cancellation up to 24 hours before your slot. Rates shown are per hour; the final price is confirmed at checkout.</p>
-  </div>
-  <div class="bw" data-fade>
-    <div class="bw__label"><span>Day</span><em id="bw-month"></em></div>
-    <div class="bw__days" id="bw-days" role="tablist" aria-label="Choose a day"></div>
-    <div class="bw__label"><span>Court</span></div>
-    <div class="bw__courts" id="bw-courts" role="tablist" aria-label="Choose a court"></div>
-    <div class="bw__label"><span>Hour</span><em>Tap to select, tap again to add the next hour</em></div>
-    <div class="bw__grid" id="bw-grid" aria-live="polite"></div>
-    <div class="bw__sum">
-      <div>
-        <small>Your booking</small>
-        <b id="bw-summary">Pick an hour to begin</b>
-      </div>
-      <div style="text-align:right">
-        <div class="price" id="bw-price">From ₹1,000</div>
-        <a class="btn magnetic" href="/book" id="bw-go" aria-disabled="true">Continue to pay</a>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- stats -->
 <section class="section on-light stats">
@@ -781,7 +753,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </h2>
     <p class="lede" data-fade>Three courts. Book the hour, pay online, play tonight.</p>
     <div class="cta__actions" data-fade>
-      <a class="btn magnetic" href="#booking">Book a court</a>
+      <a class="btn magnetic" href="/book">Book a court</a>
       <a class="link-arrow" href="tel:+919876543210">Or call +91 98765 43210 <i></i></a>
     </div>
   </div>
@@ -801,7 +773,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="#booking">Booking</a></li></ul>
+      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/book">Booking</a></li></ul>
     </div>
     <div>
       <h4>Your bookings</h4>
@@ -831,61 +803,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const fine   = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const isDesk = () => innerWidth > 900;
 
-  /* ---------- booking widget (design demo; real availability comes from the server) ---------- */
-  (function booking() {
-    const daysEl = $('#bw-days'), courtsEl = $('#bw-courts'), gridEl = $('#bw-grid');
-    const sumEl = $('#bw-summary'), priceEl = $('#bw-price'), goEl = $('#bw-go'), monthEl = $('#bw-month');
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
-    const courts = ['Court 1', 'Court 2', 'Court 3'];
-    const state = { day: 0, court: 1, hours: new Set() };
-    const fmtW = new Intl.DateTimeFormat('en-IN', { weekday: 'short' });
-    const fmtM = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' });
-    const fmtD = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-    const pad = n => String(n).padStart(2, '0');
-    const weekend = d => d.getDay() === 0 || d.getDay() === 6;
-    const rate = (d, h) => weekend(d) || h >= 17 ? 120000 : 100000;            // paise, illustrative
-    const rupees = p => '₹' + (p / 100).toLocaleString('en-IN');
-    const taken = (di, ci, h) => ((di * 31 + ci * 7 + h * 13) % 5) === 0;        // deterministic demo pattern
-    monthEl.textContent = fmtM.format(days[0]);
-
-    daysEl.innerHTML = days.map((d, i) => `<button class="bw__day${i === state.day ? ' is-on' : ''}" role="tab" aria-selected="${i === state.day}" data-i="${i}"><small>${i === 0 ? 'Today' : fmtW.format(d)}</small><b>${pad(d.getDate())}</b></button>`).join('');
-    courtsEl.innerHTML = courts.map((c, i) => `<button class="bw__court${i === state.court ? ' is-on' : ''}" role="tab" aria-selected="${i === state.court}" data-i="${i}">${c}</button>`).join('');
-
-    function grid() {
-      const d = days[state.day]; const last = weekend(d) ? 23 : 22; const now = new Date();
-      const cells = [];
-      for (let h = 6; h <= last; h++) {
-        const past = state.day === 0 && h <= now.getHours();
-        const isTaken = past || taken(state.day, state.court, h);
-        const on = state.hours.has(h);
-        cells.push(`<button class="slot${isTaken ? ' is-taken' : ''}${on ? ' is-on' : ''}" data-h="${h}" ${isTaken ? 'disabled aria-disabled="true"' : ''} aria-pressed="${on}"><b>${pad(h)}:00</b><span>${isTaken ? (past ? 'Past' : 'Booked') : rupees(rate(d, h))}</span></button>`);
-      }
-      gridEl.innerHTML = cells.join('');
-      fill(); summary();
-    }
-    function fill() {                                                        // blank cells so the hairline grid stays closed
-      $$('.slot--empty', gridEl).forEach(e => e.remove());
-      const cols = getComputedStyle(gridEl).gridTemplateColumns.split(' ').length;
-      const n = (cols - gridEl.children.length % cols) % cols;
-      for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'slot slot--empty'; gridEl.appendChild(d); }
-    }
-    addEventListener('resize', fill);
-    function summary() {
-      const d = days[state.day];
-      if (!state.hours.size) { sumEl.textContent = 'Pick an hour to begin'; priceEl.textContent = 'From ₹1,000'; goEl.setAttribute('aria-disabled', 'true'); return; }
-      const hs = [...state.hours].sort((a, b) => a - b);
-      const total = hs.reduce((s, h) => s + rate(d, h), 0);
-      sumEl.textContent = `${courts[state.court]} · ${fmtD.format(d)} · ${pad(hs[0])}:00–${pad((hs[hs.length - 1] + 1) % 24)}:00`; const ymd = d.toISOString().split('T')[0]; goEl.href = '/book?date=' + ymd;
-      priceEl.textContent = rupees(total); goEl.removeAttribute('aria-disabled');
-    }
-    daysEl.addEventListener('click', e => { const b = e.target.closest('.bw__day'); if (!b) return; state.day = +b.dataset.i; state.hours.clear(); $$('.bw__day', daysEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
-    courtsEl.addEventListener('click', e => { const b = e.target.closest('.bw__court'); if (!b) return; state.court = +b.dataset.i; state.hours.clear(); $$('.bw__court', courtsEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
-    gridEl.addEventListener('click', e => { const b = e.target.closest('.slot'); if (!b || b.disabled) return; const h = +b.dataset.h; state.hours.has(h) ? state.hours.delete(h) : state.hours.add(h); b.classList.toggle('is-on'); b.setAttribute('aria-pressed', b.classList.contains('is-on')); summary(); });
-    goEl.addEventListener('click', e => { if (goEl.getAttribute('aria-disabled') === 'true') e.preventDefault(); });
-    grid();
-  })();
-
   /* ---------- mobile menu ---------- */
   (function menu() {
     const menu = $('#menu'), btn = $('.nav__menu'); let open = false;
@@ -897,7 +814,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     };
     btn.addEventListener('click', () => toggle());
     $$('a', menu).forEach(a => a.addEventListener('click', () => toggle(false)));
-  })();
+  
+  window.__pavilionDestroy = () => {
+    try {
+      if (window.lenis?.destroy) { window.lenis.destroy(); window.lenis = null; }
+      if (window.ScrollTrigger) {
+        window.ScrollTrigger.getAll().forEach(t => {
+          try { if (t && typeof t.kill === 'function') t.kill(true); } catch (_) {}
+        });
+        if (typeof window.ScrollTrigger.clearMatchMedia === 'function') {
+          window.ScrollTrigger.clearMatchMedia();
+        }
+      }
+      document.body.classList.remove('has-cursor');
+    } catch (_) {}
+  };
+
+})();
 
   if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -991,7 +924,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const mm = gsap.matchMedia();
     mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
       // chapters — pinned, curtain reveals
-      const chapters = $$('.chapter'), ghost = $('.chapters__ghost'), bars = $$('.chapters__progress i');
+      const chapters = $('.chapter'), ghost = $('.chapters__ghost'), bars = $('.chapters__progress i'), chaptersEl = $('.chapters');
+      if (!chapters.length || !chaptersEl) return;
       chapters.slice(1).forEach(c => { gsap.set($('.chapter__img', c), { clipPath: 'inset(100% 0% 0% 0%)' }); gsap.set($('.chapter__body', c), { autoAlpha: 0 }); });
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -1015,7 +949,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       });
 
       // a day, court-side — horizontal
-      const track = $('.day__track'), bar = $('.day__bar i');
+      const track = $('.day__track'), bar = $('.day__bar i'), dayEl = $('.day');
+      if (!track || !dayEl) return;
       const dist = () => track.scrollWidth - innerWidth;
       const hTween = gsap.to(track, {
         x: () => -dist(), ease: 'none',

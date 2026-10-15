@@ -6,59 +6,17 @@
   const fine   = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const isDesk = () => innerWidth > 900;
 
-  /* ---------- booking widget (design demo; real availability comes from the server) ---------- */
-  (function booking() {
-    const daysEl = $('#bw-days'), courtsEl = $('#bw-courts'), gridEl = $('#bw-grid');
-    const sumEl = $('#bw-summary'), priceEl = $('#bw-price'), goEl = $('#bw-go'), monthEl = $('#bw-month');
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
-    const courts = ['Court 1', 'Court 2', 'Court 3'];
-    const state = { day: 0, court: 1, hours: new Set() };
-    const fmtW = new Intl.DateTimeFormat('en-IN', { weekday: 'short' });
-    const fmtM = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' });
-    const fmtD = new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-    const pad = n => String(n).padStart(2, '0');
-    const weekend = d => d.getDay() === 0 || d.getDay() === 6;
-    const rate = (d, h) => weekend(d) || h >= 17 ? 120000 : 100000;            // paise, illustrative
-    const rupees = p => '₹' + (p / 100).toLocaleString('en-IN');
-    const taken = (di, ci, h) => ((di * 31 + ci * 7 + h * 13) % 5) === 0;        // deterministic demo pattern
-    monthEl.textContent = fmtM.format(days[0]);
-
-    daysEl.innerHTML = days.map((d, i) => `<button class="bw__day${i === state.day ? ' is-on' : ''}" role="tab" aria-selected="${i === state.day}" data-i="${i}"><small>${i === 0 ? 'Today' : fmtW.format(d)}</small><b>${pad(d.getDate())}</b></button>`).join('');
-    courtsEl.innerHTML = courts.map((c, i) => `<button class="bw__court${i === state.court ? ' is-on' : ''}" role="tab" aria-selected="${i === state.court}" data-i="${i}">${c}</button>`).join('');
-
-    function grid() {
-      const d = days[state.day]; const last = weekend(d) ? 23 : 22; const now = new Date();
-      const cells = [];
-      for (let h = 6; h <= last; h++) {
-        const past = state.day === 0 && h <= now.getHours();
-        const isTaken = past || taken(state.day, state.court, h);
-        const on = state.hours.has(h);
-        cells.push(`<button class="slot${isTaken ? ' is-taken' : ''}${on ? ' is-on' : ''}" data-h="${h}" ${isTaken ? 'disabled aria-disabled="true"' : ''} aria-pressed="${on}"><b>${pad(h)}:00</b><span>${isTaken ? (past ? 'Past' : 'Booked') : rupees(rate(d, h))}</span></button>`);
-      }
-      gridEl.innerHTML = cells.join('');
-      fill(); summary();
-    }
-    function fill() {                                                        // blank cells so the hairline grid stays closed
-      $$('.slot--empty', gridEl).forEach(e => e.remove());
-      const cols = getComputedStyle(gridEl).gridTemplateColumns.split(' ').length;
-      const n = (cols - gridEl.children.length % cols) % cols;
-      for (let i = 0; i < n; i++) { const d = document.createElement('div'); d.className = 'slot slot--empty'; gridEl.appendChild(d); }
-    }
-    addEventListener('resize', fill);
-    function summary() {
-      const d = days[state.day];
-      if (!state.hours.size) { sumEl.textContent = 'Pick an hour to begin'; priceEl.textContent = 'From ₹1,000'; goEl.setAttribute('aria-disabled', 'true'); return; }
-      const hs = [...state.hours].sort((a, b) => a - b);
-      const total = hs.reduce((s, h) => s + rate(d, h), 0);
-      sumEl.textContent = `${courts[state.court]} · ${fmtD.format(d)} · ${pad(hs[0])}:00–${pad((hs[hs.length - 1] + 1) % 24)}:00`; const ymd = d.toISOString().split('T')[0]; if (goEl) goEl.href = '/book?date=' + ymd;
-      priceEl.textContent = rupees(total); goEl.removeAttribute('aria-disabled');
-    }
-    daysEl.addEventListener('click', e => { const b = e.target.closest('.bw__day'); if (!b) return; state.day = +b.dataset.i; state.hours.clear(); $$('.bw__day', daysEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
-    courtsEl.addEventListener('click', e => { const b = e.target.closest('.bw__court'); if (!b) return; state.court = +b.dataset.i; state.hours.clear(); $$('.bw__court', courtsEl).forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); }); grid(); });
-    gridEl.addEventListener('click', e => { const b = e.target.closest('.slot'); if (!b || b.disabled) return; const h = +b.dataset.h; state.hours.has(h) ? state.hours.delete(h) : state.hours.add(h); b.classList.toggle('is-on'); b.setAttribute('aria-pressed', b.classList.contains('is-on')); summary(); });
-    goEl.addEventListener('click', e => { if (goEl.getAttribute('aria-disabled') === 'true') e.preventDefault(); });
-    grid();
+  /* ---------- mobile menu ---------- */
+  (function menu() {
+    const menu = $('#menu'), btn = $('.nav__menu'); let open = false;
+    const toggle = force => {
+      open = typeof force === 'boolean' ? force : !open;
+      btn.textContent = open ? 'Close' : 'Menu'; btn.setAttribute('aria-expanded', open);
+      if (open) { gsap.set(menu, { visibility: 'visible' }); gsap.to(menu, { clipPath: 'inset(0% 0% 0% 0%)', duration: .9, ease: 'power4.inOut' }); gsap.fromTo($$('a', menu), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .06, duration: .8, ease: 'power3.out', delay: .3 }); window.lenis && lenis.stop(); }
+      else { gsap.to(menu, { clipPath: 'inset(0% 0% 100% 0%)', duration: .7, ease: 'power4.inOut', onComplete: () => gsap.set(menu, { visibility: 'hidden' }) }); window.lenis && lenis.start(); }
+    };
+    btn.addEventListener('click', () => toggle());
+    $$('a', menu).forEach(a => a.addEventListener('click', () => toggle(false)));
   
   window.__pavilionDestroy = () => {
     try {
@@ -76,19 +34,6 @@
   };
 
 })();
-
-  /* ---------- mobile menu ---------- */
-  (function menu() {
-    const menu = $('#menu'), btn = $('.nav__menu'); let open = false;
-    const toggle = force => {
-      open = typeof force === 'boolean' ? force : !open;
-      btn.textContent = open ? 'Close' : 'Menu'; btn.setAttribute('aria-expanded', open);
-      if (open) { gsap.set(menu, { visibility: 'visible' }); gsap.to(menu, { clipPath: 'inset(0% 0% 0% 0%)', duration: .9, ease: 'power4.inOut' }); gsap.fromTo($$('a', menu), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .06, duration: .8, ease: 'power3.out', delay: .3 }); window.lenis && lenis.stop(); }
-      else { gsap.to(menu, { clipPath: 'inset(0% 0% 100% 0%)', duration: .7, ease: 'power4.inOut', onComplete: () => gsap.set(menu, { visibility: 'hidden' }) }); window.lenis && lenis.start(); }
-    };
-    btn.addEventListener('click', () => toggle());
-    $$('a', menu).forEach(a => a.addEventListener('click', () => toggle(false)));
-  })();
 
   if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger, SplitText);
