@@ -288,6 +288,8 @@ export interface TrackCell {
   state: CellState;
   /** Spoken label, e.g. "6 pm to 7 pm, ₹1,000". */
   label: string;
+  /** Short text shown inside the cell, e.g. "2 left" when some courts are taken. */
+  note?: string | undefined;
   onTap?: () => void;
 }
 
@@ -331,14 +333,26 @@ function Track({ cells }: { cells: TrackCell[] }) {
               title={cell.label}
               onClick={cell.onTap}
               className={cx(
-                'h-full transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy',
+                'grid h-full place-items-center transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy',
                 cell.state === 'open' && 'hover:bg-accent-soft',
                 cell.state === 'selected' && 'bg-navy',
                 cell.state === 'booked' &&
                   'cursor-not-allowed bg-surface-2 bg-[image:repeating-linear-gradient(135deg,transparent_0_6px,rgba(15,30,46,.07)_6px_8px)]',
                 (cell.state === 'past' || cell.state === 'closed') && 'cursor-not-allowed bg-[#f3f0e8]',
               )}
-            />
+            >
+              {cell.note ? (
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'text-[11px] font-semibold leading-none',
+                    cell.state === 'selected' ? 'text-gold' : 'text-gold-text',
+                  )}
+                >
+                  {cell.note}
+                </span>
+              ) : null}
+            </button>
           );
         })}
       </div>

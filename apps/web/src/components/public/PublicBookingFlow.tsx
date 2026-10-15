@@ -306,16 +306,28 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
       const cell = byHour.get(hour);
       const span = `${hourLabel(hour)} to ${hourLabel(hour + 1)}`;
       if (!cell) return { hour, state: 'closed' as CellState, label: `${span}, closed` };
+      // In the "Any" view an hour stays bookable while one court is free, so
+      // say when others are already taken — otherwise a booked court is
+      // invisible until someone picks that court.
+      const open = visibleCourts.filter((c) => cell.perCourt.has(c.id)).length;
+      const freeNow = freeCourts([cell]).length;
+      const note = open > 1 && freeNow > 0 && freeNow < open ? `${freeNow} left` : undefined;
       if (selected.includes(cell.startsAt)) {
-        return { hour, state: 'selected' as CellState, label: `${span}, selected`, onTap: () => tap(cell) };
+        return { hour, state: 'selected' as CellState, label: `${span}, selected`, note, onTap: () => tap(cell) };
       }
       if (isPast(cell)) return { hour, state: 'past' as CellState, label: `${span}, already passed` };
       if (!isFree(cell)) return { hour, state: 'booked' as CellState, label: `${span}, booked` };
       const price = Math.min(...freeCourts([cell]).map((c) => cell.perCourt.get(c.id)!.pricePaise));
-      return { hour, state: 'open' as CellState, label: `${span}, ${formatPaise(price)}`, onTap: () => tap(cell) };
+      return {
+        hour,
+        state: 'open' as CellState,
+        label: `${span}, ${formatPaise(price)}${note ? `, ${freeNow} of ${open} courts free` : ''}`,
+        note,
+        onTap: () => tap(cell),
+      };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period, byHour, selected, isFree, freeCourts]);
+  }, [period, byHour, selected, isFree, freeCourts, visibleCourts]);
 
   const periodIndex = PERIODS.findIndex((p) => p.key === period);
 
@@ -781,7 +793,11 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
                 {run.length
                   ? `${formatRange(run[0]!.startsAt, run[run.length - 1]!.endsAt, timezone)} · ${hrs(run.length)} · ${best!.court.name}. Tap another hour to change.`
                   : openPeriods[period]
-                    ? 'Tap a start hour. Tap a later hour to book longer.'
+                    ? `Tap a start hour. Tap a later hour to book longer.${
+                        trackCells.some((c) => c.note)
+                          ? ' “2 left” means the other courts at that hour are already booked.'
+                          : ''
+                      }`
                     : 'Nothing free in this part of the day — try another.'}
               </p>
               <TrackLegend />
