@@ -1,4 +1,4 @@
-# The static site books through the TurfOS public API. The URL is baked in at
+﻿# The static site books through the TurfOS public API. The URL is baked in at
 # build time and is NOT a secret (there is no API key anywhere in this site).
 # Without it the build would silently point at localhost.
 if (-not $env:NEXT_PUBLIC_TURFOS_API_URL) {
@@ -41,8 +41,24 @@ $htaccess = @"
 "@
 [System.IO.File]::WriteAllText("$PSScriptRoot\apps\web\out\.htaccess", $htaccess, [System.Text.UTF8Encoding]::new($false))
 
-Write-Host ">>> 4. Creating Hostinger ZIP package..." -ForegroundColor Cyan
+Write-Host ">>> 4. Creating Linux-compatible Hostinger ZIP package (forward slashes)..." -ForegroundColor Cyan
 $zipPath = "$env:USERPROFILE\Desktop\thepavilionclub-hostinger.zip"
-Compress-Archive -Path "$PSScriptRoot\apps\web\out\*" -DestinationPath $zipPath -Force
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 
-Write-Host ">>> SUCCESS! Pristine static zip ready on Desktop: $zipPath" -ForegroundColor Green
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$outDir = Resolve-Path "$PSScriptRoot\apps\web\out"
+$zip = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)
+
+$count = 0
+Get-ChildItem -Path $outDir -Recurse | ForEach-Object {
+    if (-not $_.PSIsContainer) {
+        $relPath = $_.FullName.Substring($outDir.Path.Length + 1).Replace('\', '/')
+        [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $relPath, [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
+        $count++
+    }
+}
+$zip.Dispose()
+
+Write-Host ">>> SUCCESS! Packaged $count files with Linux forward-slashes: $zipPath" -ForegroundColor Green

@@ -19,7 +19,7 @@ export function PublicHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-[#283543] text-white border-b border-white/10 shadow-sm">
+    <header className="sticky top-0 z-50 bg-[#0f1e2e] text-white border-b border-white/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
         {/* Logo Lockup matching editorial header */}
         <Link
@@ -29,19 +29,19 @@ export function PublicHeader() {
         >
           <span
             style={{ fontFamily: "'Pinyon Script', cursive" }}
-            className="text-[1.5rem] sm:text-[1.65rem] leading-[0.8] text-[#F9F6ED] translate-x-[14%] group-hover:text-[#C7A26A] transition-colors"
+            className="text-[1.25rem] sm:text-[1.35rem] leading-[0.75] text-[#F9F6ED] translate-x-[14%] mb-[-0.05em] group-hover:text-[#C7A26A] transition-colors"
           >
             The
           </span>
           <span
             style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-            className="text-[0.82rem] sm:text-[0.92rem] font-semibold tracking-[0.42em] indent-[0.42em] uppercase text-white group-hover:text-[#C7A26A] transition-colors"
+            className="text-[0.78rem] sm:text-[0.85rem] font-semibold tracking-[0.42em] indent-[0.42em] uppercase text-white group-hover:text-[#C7A26A] transition-colors"
           >
             Pavilion
           </span>
           <span
             style={{ fontFamily: "'Pinyon Script', cursive" }}
-            className="text-[1.5rem] sm:text-[1.65rem] leading-[0.8] text-[#F9F6ED] translate-x-[12%] -mt-1 group-hover:text-[#C7A26A] transition-colors"
+            className="text-[1.25rem] sm:text-[1.35rem] leading-[0.75] text-[#F9F6ED] translate-x-[12%] -mt-0.5 group-hover:text-[#C7A26A] transition-colors"
           >
             Club
           </span>
@@ -61,7 +61,7 @@ export function PublicHeader() {
             >
               {link.label}
               {link.active ? (
-                <span className="absolute left-0 bottom-0 w-full h-[1.5px] bg-[#C7A26A]" />
+                <span className="absolute left-0 -bottom-1 w-full h-[1.5px] bg-[#C7A26A]" />
               ) : null}
             </Link>
           ))}
