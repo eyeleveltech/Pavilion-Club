@@ -34,9 +34,9 @@ export function DigitalMatchPassActions({
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const venueName = 'The Pavilion Club, Adyar';
-  const venueAddress = 'The Pavilion Club, 3rd Floor, Lattice Bridge Road, Adyar, Chennai - 600020';
-  const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=The+Pavilion+Club+Adyar+Chennai';
+  const venueName = 'The Pavilion Club, Mogappair East';
+  const venueAddress = 'Plot No. 1 & 2, Door No. 191/2A2, 191/2A3, 191/2A4, Velammal School Road, JJ Nagar, TS Krishna Nagar, Mogappair East, Chennai - 600037';
+  const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=The+Pavilion+Club+Velammal+School+Road+Mogappair+East+Chennai+-+600037';
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -237,7 +237,7 @@ export function DigitalMatchPassActions({
         className="w-full py-2.5 px-4 rounded-xl bg-surface-2/60 hover:bg-surface-2 border border-border text-ink-soft hover:text-navy text-[11px] font-semibold transition flex items-center justify-center gap-1.5 outline-none select-none"
       >
         <MapPin className="w-3.5 h-3.5 text-gold flex-shrink-0" />
-        <span>Navigate to Venue: Adyar (3rd Floor)</span>
+        <span>Navigate to Venue: Mogappair East</span>
         <ExternalLink className="w-3 h-3 ml-0.5 opacity-60" />
       </a>
     </div>

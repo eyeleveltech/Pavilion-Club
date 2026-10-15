@@ -39,11 +39,11 @@ export function PublicFooter({ className = "mt-16" }: { className?: string }) {
           <div className="space-y-1 text-ink-on-dark/80 text-xs">
             <p className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-gold shrink-0" />
-              <span>4th Main Rd, Gandhi Nagar, Adyar, Chennai 600020</span>
+              <span>Velammal School Rd, JJ Nagar, Mogappair East, Chennai 600037</span>
             </p>
             <p className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-gold shrink-0" />
-              <a href="tel:+919840012345" className="hover:text-gold transition">+91 98400 12345</a>
+              <a href="tel:+919600055623" className="hover:text-gold transition">+91 96000 55623</a>
             </p>
             <p className="flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-gold shrink-0" />

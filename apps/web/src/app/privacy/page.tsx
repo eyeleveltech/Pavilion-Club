@@ -1,4 +1,4 @@
-﻿import { PublicHeader } from '@/components/public/PublicHeader';
+import { PublicHeader } from '@/components/public/PublicHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
 
 export default function PrivacyPolicyPage() {
@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
         <section className="space-y-2">
           <h2 className="text-sm font-bold text-navy">1. Who We Are</h2>
           <p>
-            The Pavilion Club (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the sports arena located at 42 Club Road, Adyar, Chennai 600020, India.
+            The Pavilion Club (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates the sports arena located at Velammal School Road, JJ Nagar, Mogappair East, Chennai 600037, India.
           </p>
         </section>
 
@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
           <div className="p-3 bg-surface-2 rounded border border-border space-y-1 font-mono text-[11px]">
             <p><strong>Name:</strong> Jayaraman R., Managing Director</p>
             <p><strong>Email:</strong> grievance@pavilion.club</p>
-            <p><strong>Address:</strong> The Pavilion Club, 42 Club Road, Adyar, Chennai 600020</p>
+            <p><strong>Address:</strong> The Pavilion Club, Velammal School Road, JJ Nagar, Mogappair East, Chennai 600037</p>
           </div>
         </section>
       </main>

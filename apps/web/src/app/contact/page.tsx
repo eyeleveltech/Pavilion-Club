@@ -4,8 +4,8 @@ import { MapPin, Phone, Mail, Clock, ShieldCheck, Navigation, Car, Sparkles } fr
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Contact & Directions | The Pavilion Club Adyar',
-  description: 'Find The Pavilion Club pickleball arena in Gandhi Nagar, Adyar, Chennai. Operating hours, location map, front desk phone, and amenities.',
+  title: 'Contact & Directions | The Pavilion Club Mogappair East',
+  description: 'Find The Pavilion Club pickleball arena in Mogappair East, Chennai. Operating hours, location map, front desk phone, and amenities.',
 };
 
 export default function ContactPage() {
@@ -18,14 +18,14 @@ export default function ContactPage() {
         <div className="space-y-3 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy/5 border border-navy/15 text-navy text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-gold" />
-            <span>Gandhi Nagar, Adyar &bull; Chennai</span>
+            <span>Mogappair East &bull; Chennai</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-navy">
             Contact & Directions
           </h1>
           <p className="text-ink-soft text-base max-w-2xl">
             Have questions about court availability, membership coaching, or corporate leagues? 
-            Reach our Adyar reception desk directly or visit us on court.
+            Reach our Mogappair East reception desk directly or visit us on court.
           </p>
         </div>
 
@@ -44,15 +44,16 @@ export default function ContactPage() {
                   <h2 className="font-bold text-navy text-base">Arena Address</h2>
                   <p className="text-xs text-ink-soft leading-relaxed">
                     <strong className="text-ink">The Pavilion Club</strong><br />
-                    4th Main Road, Gandhi Nagar, Adyar,<br />
-                    Chennai, Tamil Nadu 600020<br />
-                    <span className="text-[11px] text-ink-faint">Landmark: Near Adyar River &amp; Besant Avenue</span>
+                    Plot No. 1 &amp; 2, Door No. 191/2A2, 191/2A3, 191/2A4,<br />
+                    Velammal School Road, JJ Nagar, TS Krishna Nagar,<br />
+                    Mogappair East, Chennai - 600037<br />
+                    <span className="text-[11px] text-ink-faint">Landmark: Near Velammal School</span>
                   </p>
                 </div>
               </div>
               <div className="pt-2 border-t border-border flex items-center justify-between">
                 <a
-                  href="https://maps.google.com/?q=Adyar+Chennai"
+                  href="https://maps.google.com/?q=The+Pavilion+Club,+Velammal+School+Road,+Mogappair+East,+Chennai+-+600037"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-gold transition"
@@ -73,8 +74,8 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h2 className="font-bold text-navy text-base">Front Desk &amp; WhatsApp</h2>
                   <p className="text-xs text-ink-soft leading-relaxed">
-                    Direct Reception: <a href="tel:+919840012345" className="font-semibold text-navy hover:underline">+91 98400 12345</a><br />
-                    WhatsApp Inquiries: <a href="https://wa.me/919840012346" target="_blank" rel="noopener noreferrer" className="font-semibold text-navy hover:underline">+91 98400 12346</a>
+                    Direct Reception: <a href="tel:+919600055623" className="font-semibold text-navy hover:underline">+91 96000 55623</a><br />
+                    WhatsApp Inquiries: <a href="https://wa.me/919600055623" target="_blank" rel="noopener noreferrer" className="font-semibold text-navy hover:underline">+91 96000 55623</a>
                   </p>
                   <p className="text-[11px] text-ink-faint">Desk active daily 06:00 AM &ndash; 11:00 PM IST</p>
                 </div>

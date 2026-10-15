@@ -24,7 +24,7 @@ export function CancellationPolicyContent() {
             Cancellation &amp; Refund Policy
           </h1>
           <p className="text-ink-soft text-sm">
-            Last updated: September 2026 &bull; The Pavilion Club, Gandhi Nagar, Adyar, Chennai
+            Last updated: September 2026 &bull; The Pavilion Club, Mogappair East, Chennai
           </p>
         </div>
 
