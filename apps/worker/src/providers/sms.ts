@@ -21,7 +21,7 @@ export class SMSFallbackProvider {
       case 'otp':
         return `[The Pavilion Club] Your verification OTP code is ${p.code || '******'}. Valid for 5 mins. Do not share with anyone.`;
       case 'booking_confirmed':
-        return `[The Pavilion Club] Booking Confirmed! Ref: ${p.reference || 'PVL'}. Court: ${p.courtName || 'Court'}, Date: ${p.date || 'Today'} at ${p.time || ''}. Venue: Mugappair East, Chennai.`;
+        return `[The Pavilion Club] Booking Confirmed! Ref: ${p.reference || 'PVL'}. Court: ${p.courtName || 'Court'}, Date: ${p.date || 'Today'} at ${p.time || ''}. Venue: Mogappair East, Chennai.`;
       case 'booking_reminder':
         return `[The Pavilion Club] Match Reminder: You have a match reserved today at ${p.time || ''} on ${p.courtName || 'Court'}. Report 10 mins early with non-marking shoes!`;
       case 'booking_cancelled':

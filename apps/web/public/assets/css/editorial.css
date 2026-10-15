@@ -434,8 +434,6 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .editorial-root .facilities h2 span,
 .editorial-root .booking h2,
 .editorial-root .booking h2 span,
-.editorial-root .venue h2,
-.editorial-root .venue h2 span,
 .editorial-root .cta h2,
 .editorial-root .cta h2 span,
 .editorial-root .footer h4 {
@@ -462,8 +460,7 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 /* Specific text elements on dark backgrounds */
 .editorial-root .section:not(.on-light):not(.day) .lede,
 .editorial-root .chapter p,
-.editorial-root .hero__meta,
-.editorial-root .venue__addr {
+.editorial-root .hero__meta {
   color: var(--ivory-70);
 }
 
@@ -487,3 +484,28 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
   color: var(--gold) !important;
 }
 
+
+
+/* Light section: Venue */
+.editorial-root .venue,
+.editorial-root .venue h2,
+.editorial-root .venue h2 span,
+.editorial-root .venue .display,
+.editorial-root .venue .display span {
+  color: var(--midnight) !important;
+}
+.editorial-root .venue__addr {
+  color: var(--mid-70) !important;
+}
+.editorial-root .venue__addr b {
+  color: var(--midnight) !important;
+}
+.editorial-root .venue .hours div {
+  color: var(--mid-70) !important;
+}
+.editorial-root .venue .hours b {
+  color: var(--midnight) !important;
+}
+.editorial-root .venue .eyebrow {
+  color: var(--mid-55) !important;
+}
