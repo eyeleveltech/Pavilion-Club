@@ -127,7 +127,7 @@
     const mm = gsap.matchMedia();
     mm.add('(min-width: 901px) and (prefers-reduced-motion: no-preference)', () => {
       // chapters — pinned, curtain reveals
-      const chapters = $('.chapter'), ghost = $('.chapters__ghost'), bars = $('.chapters__progress i'), chaptersEl = $('.chapters');
+      const chapters = $$('.chapter'), ghost = $('.chapters__ghost'), bars = $$('.chapters__progress i'), chaptersEl = $('.chapters');
       if (!chapters.length || !chaptersEl) return;
       chapters.slice(1).forEach(c => { gsap.set($('.chapter__img', c), { clipPath: 'inset(100% 0% 0% 0%)' }); gsap.set($('.chapter__body', c), { autoAlpha: 0 }); });
       const tl = gsap.timeline({

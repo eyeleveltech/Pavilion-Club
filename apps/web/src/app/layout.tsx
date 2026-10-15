@@ -42,7 +42,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <body className="font-sans antialiased bg-bg text-ink min-h-screen">
+      <body className="font-sans antialiased bg-bg text-ink min-h-screen" suppressHydrationWarning>
         {/* Google Tag Manager */}
         <Script
           id="gtm"
@@ -55,15 +55,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-WHX25XHF');`,
           }}
         />
-        {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-WHX25XHF"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
         {children}
         <PwaInstallPrompt />
       </body>

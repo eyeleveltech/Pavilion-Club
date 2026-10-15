@@ -62,6 +62,7 @@ export function EditorialLandingView() {
       <link rel="stylesheet" href="/assets/css/editorial.css" />
       <div
         className="editorial-root"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: EDITORIAL_MARKUP }}
       />
     </>

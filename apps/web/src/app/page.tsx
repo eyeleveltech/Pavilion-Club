@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { EditorialLandingView } from '@/components/public/editorial/EditorialLandingView';
+import { EditorialLandingClient } from '@/components/public/editorial/EditorialLandingClient';
 
 export const metadata: Metadata = {
   title: 'The Pavilion Club - Pickleball, Anna Nagar West, Chennai',
@@ -14,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function PublicLandingPage() {
-  return <EditorialLandingView />;
+  return <EditorialLandingClient />;
 }
