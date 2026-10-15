@@ -91,8 +91,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h2 className="font-bold text-navy text-base">Email Contact</h2>
                   <p className="text-xs text-ink-soft leading-relaxed">
-                    Reservations: <a href="mailto:bookings@pavilionclub.in" className="text-navy hover:underline font-medium">bookings@pavilionclub.in</a><br />
-                    Corporate &amp; Leagues: <a href="mailto:events@pavilionclub.in" className="text-navy hover:underline font-medium">events@pavilionclub.in</a>
+                    General Inquiries &amp; Bookings: <a href="mailto:hello@thepavilionclub.com" className="text-navy hover:underline font-medium">hello@thepavilionclub.com</a>
                   </p>
                 </div>
               </div>
