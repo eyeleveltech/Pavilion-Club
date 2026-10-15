@@ -44,6 +44,10 @@ export default {
       },
       fontFamily: {
         sans: ['var(--font-montserrat)', 'Montserrat', 'system-ui', 'sans-serif'],
+        // The wordmark's faces. Loaded by /assets/fonts/fonts.css; used for the
+        // logo lockup and page headings only, never for body text.
+        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        script: ['"Pinyon Script"', 'cursive'],
       },
       borderRadius: {
         DEFAULT: 'var(--radius)',

@@ -1,1749 +1,781 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
 import {
-  Calendar as CalendarIcon,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
-  Sun,
-  Sunrise,
-  Moon,
-  ArrowRight,
-  Loader2,
-  X,
-  Phone,
-  ShieldCheck,
-  Mail,
-  Edit3,
-  User,
-  Check,
-  Sparkles,
-  Zap,
-  Award,
-} from 'lucide-react';
-import {
-  type PublicDaySlotItem,
-  type PublicMonthDayAvailability,
-  fetchLiveSlots,
-  createHoldLock,
-  confirmBooking,
+  createHold,
+  fetchBooking,
+  fetchDay,
+  formatLongDate,
+  formatPaise,
+  formatRange,
+  formatShortDate,
+  hourIn,
+  startPayment,
+  TurfApiError,
+  type CourtDay,
+  type DaySlot,
+  type Hold,
+  type VenueDay,
 } from '@/lib/turfos-client';
+import { openCheckout } from '@/lib/razorpay';
 
-interface PublicBookingFlowProps {
-  initialDate: string;
-}
+import { ActionBar, ArrowLeft, buttonClass, Column, cx, Mark, Pill, SectionLabel, Spinner, textButtonClass } from './book/ui';
+import {
+  ActivityTabs,
+  CourtPills,
+  DateStrip,
+  HourTracks,
+  hourLabel,
+  PeriodTabs,
+  PERIODS,
+  shortNames,
+  TrackLegend,
+  type CellState,
+  type DayOption,
+  type PeriodKey,
+  type TrackCell,
+} from './book/pickers';
 
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
+/**
+ * The booking flow. Two screens and a wait:
+ *
+ *   Choose   court -> date -> time of day -> tap a start hour, tap an end hour
+ *   Details  name, mobile, email -> hold -> Razorpay
+ *   Wait     until the SERVER says "confirmed", then the pass
+ *
+ * There is no separate "how long" question: the length is the range you tap
+ * on the hour track. A range is only accepted if one court is free for every
+ * hour of it, so what you select is always something that can be held.
+ *
+ * It never confirms anything itself. The browser's "payment succeeded"
+ * callback only starts the wait; the booking is confirmed when Razorpay's
+ * webhook reaches TurfOS. Prices before the hold are indicative; the hold's
+ * figures are the ones charged.
+ */
 
-function formatLocalDate(d: Date): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+/** The engine holds at most six consecutive hours. */
+const MAX_HOURS = 6;
+const DAYS_AHEAD = 14;
+const POLL_MS = 2000;
+const POLL_GIVE_UP_MS = 120_000;
+const FALLBACK_TZ = 'Asia/Kolkata';
 
-export function formatTo12Hour(timeStr: string): string {
-  if (!timeStr) return '';
-  return timeStr.replace(/(\d{1,2}):(\d{2})/g, (_, hStr, mStr) => {
-    let hour = parseInt(hStr, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12;
-    if (hour === 0) hour = 12;
-    return `${String(hour).padStart(2, '0')}:${mStr} ${ampm}`;
+type Step = 'pick' | 'details' | 'waiting';
+
+/* ------------------------------------------------------------------ */
+
+function buildDays(): DayOption[] {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: FALLBACK_TZ });
+  const [y, m, d] = today.split('-').map(Number) as [number, number, number];
+  return Array.from({ length: DAYS_AHEAD }, (_, offset) => {
+    const date = new Date(Date.UTC(y, m - 1, d + offset));
+    return {
+      ymd: date.toISOString().slice(0, 10),
+      weekday: offset === 0 ? 'Today' : date.toLocaleDateString('en-IN', { weekday: 'short', timeZone: 'UTC' }),
+      date: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }),
+    };
   });
 }
 
-export function PublicBookingFlow({ initialDate }: PublicBookingFlowProps) {
-  const router = useRouter();
-
-  // Date selection state
-  const [selectedDate, setSelectedDate] = useState(initialDate);
-  const [currentYear, setCurrentYear] = useState(() => parseInt(initialDate.split('-')[0]!, 10));
-  const [currentMonth, setCurrentMonth] = useState(() => parseInt(initialDate.split('-')[1]!, 10));
-
-  // Quick select helper dates
-  const todayObj = new Date();
-  const todayStr = formatLocalDate(todayObj);
-
-  const tomorrowObj = new Date();
-  tomorrowObj.setDate(tomorrowObj.getDate() + 1);
-  const tomorrowStr = formatLocalDate(tomorrowObj);
-
-  const weekendObj = new Date();
-  const currentDayOfWeek = weekendObj.getDay(); // 0 = Sun, 6 = Sat
-  if (currentDayOfWeek !== 0 && currentDayOfWeek !== 6) {
-    weekendObj.setDate(weekendObj.getDate() + (6 - currentDayOfWeek)); // Next Saturday
-  }
-  const weekendStr = formatLocalDate(weekendObj);
-
-  // Data states
-  const [monthDays, setMonthDays] = useState<PublicMonthDayAvailability[]>([]);
-  const [daySlots, setDaySlots] = useState<PublicDaySlotItem[]>([]);
-  const [allCourts, setAllCourts] = useState<{ id: string; name: string }[]>([]);
-  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
-  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
-
-  // Selected Slots State
-  const [selectedActivity, setSelectedActivity] = useState<'Pickleball' | 'Studio' | 'Gym' | 'Indoor Games'>('Pickleball');
-  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
-
-  const [selectedSlotTimes, setSelectedSlotTimes] = useState<string[]>([]); // startsAt ISOs
-  const [overrideCourtId, setOverrideCourtId] = useState<string | null>(null);
-
-  // Segmented Control State & 120fps Zero-Lag GPU Drag Ref Handling
-  const [selectedPeriod, setSelectedPeriod] = useState<'morning' | 'afternoon' | 'evening'>('afternoon');
-  const segContainerRef = useRef<HTMLDivElement>(null);
-  const thumbRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    startX: number;
-    startY: number;
-    startTime: number;
-    startPercent: number;
-    currentPercent: number;
-    segWidth: number;
-    hasMoved: boolean;
-    lockedHorizontal: boolean;
-    lastX: number;
-    lastTime: number;
-    velocity: number;
-  } | null>(null);
-
-  const getPeriodIndex = (p: 'morning' | 'afternoon' | 'evening') => (p === 'morning' ? 0 : p === 'afternoon' ? 1 : 2);
-  const indexToPeriod = (idx: number): 'morning' | 'afternoon' | 'evening' => (idx === 0 ? 'morning' : idx === 1 ? 'afternoon' : 'evening');
-
-  // Keep thumb in sync when selectedPeriod changes (e.g. tap, date change)
-  useEffect(() => {
-    if (thumbRef.current && (!dragRef.current || !dragRef.current.hasMoved)) {
-      const idx = getPeriodIndex(selectedPeriod);
-      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
-      thumbRef.current.style.transform = `translate3d(${idx * 100}%, 0, 0)`;
-    }
-  }, [selectedPeriod]);
-
-  // Auto-focus optimal period when slots load or date changes
-  useEffect(() => {
-    if (daySlots.length === 0) return;
-    if (selectedSlots.length > 0 && selectedSlots[0]?.period) {
-      setSelectedPeriod(selectedSlots[0].period);
-      return;
-    }
-    const nowMs = Date.now();
-    const hasMorning = daySlots.some(
-      (s) => s.period === 'morning' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
-    );
-    const hasAfternoon = daySlots.some(
-      (s) => s.period === 'afternoon' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
-    );
-    const hasEvening = daySlots.some(
-      (s) => s.period === 'evening' && s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > nowMs
-    );
-
-    if (hasMorning) {
-      setSelectedPeriod('morning');
-    } else if (hasAfternoon) {
-      setSelectedPeriod('afternoon');
-    } else if (hasEvening) {
-      setSelectedPeriod('evening');
-    }
-  }, [selectedDate, daySlots]);
-
-  const handleSelectPeriod = (period: 'morning' | 'afternoon' | 'evening') => {
-    if (dragRef.current?.hasMoved) return;
-    const idx = getPeriodIndex(period);
-    if (thumbRef.current) {
-      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
-      thumbRef.current.style.transform = `translate3d(${idx * 100}%, 0, 0)`;
-    }
-    setSelectedPeriod(period);
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(6);
-  };
-
-  const onPointerDownSeg = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!segContainerRef.current) return;
-    if (e.isPrimary === false) return;
-
-    const rect = segContainerRef.current.getBoundingClientRect();
-    const segWidth = (rect.width - 8) / 3;
-    const startIdx = getPeriodIndex(selectedPeriod);
-    const startPercent = startIdx * 100;
-
-    const drag = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startTime: performance.now(),
-      startPercent,
-      currentPercent: startPercent,
-      segWidth,
-      hasMoved: false,
-      lockedHorizontal: false,
-      lastX: e.clientX,
-      lastTime: performance.now(),
-      velocity: 0,
-    };
-    dragRef.current = drag;
-
-    const onWindowMove = (ev: PointerEvent) => {
-      if (!dragRef.current || !thumbRef.current) return;
-      const dx = ev.clientX - drag.startX;
-      const dy = ev.clientY - drag.startY;
-
-      if (!drag.lockedHorizontal) {
-        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-          if (Math.abs(dx) >= Math.abs(dy)) {
-            drag.lockedHorizontal = true;
-          } else {
-            // Vertical scroll detected: let page scroll naturally
-            cleanup();
-            dragRef.current = null;
-            return;
-          }
-        } else {
-          return;
-        }
-      }
-
-      drag.hasMoved = true;
-      const now = performance.now();
-      const dt = now - drag.lastTime;
-      if (dt > 8) {
-        drag.velocity = (ev.clientX - drag.lastX) / dt;
-        drag.lastX = ev.clientX;
-        drag.lastTime = now;
-      }
-
-      const percentDelta = (dx / drag.segWidth) * 100;
-      let newPercent = drag.startPercent + percentDelta;
-
-      // Elastic rubber-band spring damping at edges
-      if (newPercent < 0) {
-        newPercent = newPercent * 0.25;
-      } else if (newPercent > 200) {
-        newPercent = 200 + (newPercent - 200) * 0.25;
-      }
-
-      drag.currentPercent = newPercent;
-
-      // 100% Direct GPU compositor transform in PERCENTAGE (Never aborts or mismatches!)
-      thumbRef.current.style.transition = 'none';
-      thumbRef.current.style.transform = `translate3d(${newPercent}%, 0, 0)`;
-    };
-
-    const onWindowUp = () => {
-      cleanup();
-      if (!thumbRef.current) {
-        dragRef.current = null;
-        return;
-      }
-
-      const currentIdx = getPeriodIndex(selectedPeriod);
-      let targetIdx = currentIdx;
-
-      if (drag.hasMoved && drag.lockedHorizontal) {
-        const percentDelta = drag.currentPercent - drag.startPercent;
-
-        // Intentional swipe / flick: if dragged > 15% of segment or swiped with speed
-        if (drag.velocity > 0.25 || percentDelta > 15) {
-          // Swiped RIGHT -> next segment!
-          targetIdx = Math.min(2, currentIdx + 1);
-        } else if (drag.velocity < -0.25 || percentDelta < -15) {
-          // Swiped LEFT -> previous segment!
-          targetIdx = Math.max(0, currentIdx - 1);
-        } else {
-          // Position-based snap to nearest slot (0, 1, or 2)
-          targetIdx = Math.round(drag.currentPercent / 100);
-          targetIdx = Math.max(0, Math.min(2, targetIdx));
-        }
-      }
-
-      // Smooth animated snap to exact target slot in percentage (0%, 100%, 200%)
-      thumbRef.current.style.transition = 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)';
-      thumbRef.current.style.transform = `translate3d(${targetIdx * 100}%, 0, 0)`;
-
-      const targetPeriod = indexToPeriod(targetIdx);
-      setSelectedPeriod(targetPeriod);
-      if (targetPeriod !== selectedPeriod && typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(8);
-      }
-
-      setTimeout(() => {
-        dragRef.current = null;
-      }, 50);
-    };
-
-    const cleanup = () => {
-      window.removeEventListener('pointermove', onWindowMove);
-      window.removeEventListener('pointerup', onWindowUp);
-      window.removeEventListener('pointercancel', onWindowUp);
-    };
-
-    window.addEventListener('pointermove', onWindowMove);
-    window.addEventListener('pointerup', onWindowUp);
-    window.addEventListener('pointercancel', onWindowUp);
-  };
-
-  // Hold State (10-minute timer)
-  const [holdReference, setHoldReference] = useState<string | null>(null);
-  const [holdExpiresAt, setHoldExpiresAt] = useState<Date | null>(null);
-  const [secondsRemaining, setSecondsRemaining] = useState<number | null>(null);
-  const [isCreatingHold, setIsCreatingHold] = useState(false);
-
-  // Player Verification & OTP Modal State (2-Step Flow)
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [modalStep, setModalStep] = useState<'details' | 'otp'>('details');
-  const [otpChannel, setOtpChannel] = useState<'phone' | 'email'>('phone');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [devOtp, setDevOtp] = useState<string | null>(null);
-  const [otpSent, setOtpSent] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [bookingError, setBookingError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [resendCooldown, setResendCooldown] = useState(0);
-
-  // Active Customer Pack & Redemption State
-  const [activeCustomerPack, setActiveCustomerPack] = useState<{
-    id: string;
-    reference: string;
-    name: string;
-    creditsRemaining: number;
-    sport: string;
-  } | null>(null);
-  const [isCheckingPack, setIsCheckingPack] = useState(false);
-  const [isRedeemingPack, setIsRedeemingPack] = useState(false);
-
-  const checkCustomerPack = async (rawPhone: string) => {
-    const digits = rawPhone.replace(/\D/g, '').slice(-10);
-    if (digits.length !== 10) {
-      setActiveCustomerPack(null);
-      return;
-    }
-    setIsCheckingPack(true);
-    try {
-      const res = await fetch('/api/public/packs/customer?phone=' + digits);
-      const data = await res.json();
-      if (data.found && data.packs && data.packs.length > 0) {
-        const match = data.packs.find((p: any) => p.creditsRemaining > 0);
-        if (match) {
-          setActiveCustomerPack(match);
-        } else {
-          setActiveCustomerPack(null);
-        }
-      } else {
-        setActiveCustomerPack(null);
-      }
-    } catch {
-      setActiveCustomerPack(null);
-    } finally {
-      setIsCheckingPack(false);
-    }
-  };
-
-  const handleRedeemPackBooking = async () => {
-    if (!activeCustomerPack || selectedSlots.length === 0 || !assignedCourt) return;
-    setIsRedeemingPack(true);
-    setBookingError(null);
-
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
-
-    try {
-      const res = await fetch('/api/public/book/redeem-pack', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          court_id: assignedCourt.id,
-          starts_at: selectedSlots[0]!.startsAt,
-          ends_at: selectedSlots[selectedSlots.length - 1]!.endsAt,
-          customer_name: name.trim() || 'Club Member',
-          customer_phone: cleanPhone,
-          customer_email: email.trim() || undefined,
-          pack_id: activeCustomerPack.id,
-        }),
-      });
-
-      const json = await res.json();
-      if (res.ok && json.ok && json.booking) {
-        setShowOtpModal(false);
-        router.push('/book/' + json.booking.reference);
-      } else {
-        setBookingError(json.error?.message || json.error || 'Failed to redeem pack credit.');
-      }
-    } catch (err) {
-      console.error('Redeem error:', err);
-      setBookingError('Network error redeeming pack.');
-    } finally {
-      setIsRedeemingPack(false);
-    }
-  };
-
-  // Resend OTP countdown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-  return () => clearInterval(timer);
-  }, [resendCooldown]);
-
-  // 1. Fetch Month Availability
-  useEffect(() => {
-    async function loadMonth() {
-      setIsLoadingMonth(true);
-      try {
-        const res = await fetch(`/api/public/month?year=${currentYear}&month=${currentMonth}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.ok) setMonthDays(json.days);
-        }
-      } catch (err) {
-        console.error('Failed to load month:', err);
-      } finally {
-        setIsLoadingMonth(false);
-      }
-    }
-    loadMonth();
-  }, [currentYear, currentMonth]);
-
-  // 2. Fetch Day Slots when selectedDate, selectedActivity, or selectedCourtId changes
-  useEffect(() => {
-    async function loadSlots() {
-      setIsLoadingSlots(true);
-      setSelectedSlotTimes([]);
-      setOverrideCourtId(null);
-      try {
-        const json = await fetchLiveSlots(selectedDate);
-        if (json.ok) {
-          let slots = json.slots;
-          if (selectedCourtId) {
-            slots = slots.filter((s: PublicDaySlotItem) =>
-              s.availableCourts.some((c) => c.id === selectedCourtId)
-            );
-          }
-          setDaySlots(slots);
-          setAllCourts(json.allCourts);
-        }
-      } catch (err) {
-        console.error('Failed to load slots:', err);
-      } finally {
-        setIsLoadingSlots(false);
-      }
-    }
-    loadSlots();
-  }, [selectedDate, selectedActivity, selectedCourtId]);
-
-  // 3. Countdown timer effect
-  useEffect(() => {
-    if (!holdExpiresAt) return;
-    const interval = setInterval(() => {
-      const diffSec = Math.max(0, Math.floor((holdExpiresAt.getTime() - Date.now()) / 1000));
-      setSecondsRemaining(diffSec);
-      if (diffSec <= 0) {
-        setHoldReference(null);
-        setHoldExpiresAt(null);
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [holdExpiresAt]);
-
-  // Quick date selector
-  const handleQuickDateSelect = (dateStr: string) => {
-    setSelectedDate(dateStr);
-    const [y, m] = dateStr.split('-').map(Number);
-    if (y && m) {
-      setCurrentYear(y);
-      setCurrentMonth(m);
-    }
-  };
-
-  // Slot toggle (single or consecutive)
-  const handleSlotToggle = (slot: PublicDaySlotItem) => {
-    const isSlotPast = Boolean(slot.isPast || new Date(slot.startsAt).getTime() <= Date.now());
-    if (!slot.isAvailable || isSlotPast) return;
-
-    if (selectedSlotTimes.includes(slot.startsAt)) {
-      setSelectedSlotTimes(selectedSlotTimes.filter((t) => t !== slot.startsAt));
-    } else {
-      setSelectedSlotTimes([slot.startsAt]);
-    }
-  };
-
-  const selectedSlots = daySlots.filter((s) => selectedSlotTimes.includes(s.startsAt));
-  const totalAmountRupees = selectedSlots.reduce((acc, s) => acc + s.priceRupees, 0);
-  const totalAmountPaise = totalAmountRupees * 100;
-
-  // Selected Court determination
-  const defaultCourt = selectedSlots[0]
-    ? selectedSlots[0].availableCourts[0]
-    : allCourts[0];
-  const assignedCourt = overrideCourtId
-    ? allCourts.find((c) => c.id === overrideCourtId) || defaultCourt
-    : defaultCourt;
-
-  // Start Hold Reservation
-  const handleProceedToHold = async () => {
-    if (selectedSlots.length === 0 || !assignedCourt) return;
-    setIsCreatingHold(true);
-    setBookingError(null);
-
-    const firstSlot = selectedSlots[0]!;
-    const lastSlot = selectedSlots[selectedSlots.length - 1]!;
-
-    try {
-      const json = await createHoldLock({
-        courtId: assignedCourt.id,
-        startsAt: firstSlot.startsAt,
-        endsAt: lastSlot.endsAt,
-      });
-
-      if (json.ok && json.reference) {
-        setHoldReference(json.reference);
-        const exp = new Date(json.expiresAt);
-        setHoldExpiresAt(exp);
-        setSecondsRemaining(Math.floor((exp.getTime() - Date.now()) / 1000));
-        setModalStep('details');
-        setFormError(null);
-        setBookingError(null);
-        setShowOtpModal(true);
-      } else {
-        setBookingError(json.error || 'Failed to hold slot. Please try another slot.');
-      }
-    } catch (err) {
-      console.error('Hold error:', err);
-      setBookingError('Network error. Please try again.');
-    } finally {
-      setIsCreatingHold(false);
-    }
-  };
-
-  // Step 1 -> Step 2: Validate details ONLY (NO OTP sent yet!)
-  const handleProceedToStep2 = () => {
-    setFormError(null);
-    setBookingError(null);
-
-    // 1. Validate Phone (10 digits)
-    const digitsOnly = phone.replace(/\D/g, '');
-    const cleanPhone = digitsOnly.length === 12 && digitsOnly.startsWith('91')
-      ? digitsOnly.slice(2)
-      : digitsOnly.slice(-10);
-
-    if (cleanPhone.length !== 10) {
-      setFormError('Please enter a valid 10-digit mobile number.');
-      return;
-    }
-
-    // 2. Validate Email (Compulsory)
-    const emailTrimmed = email.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailTrimmed || !emailRegex.test(emailTrimmed)) {
-      setFormError('Please enter a valid email address (compulsory for booking confirmation pass).');
-      return;
-    }
-
-    // Move to Step 2 without sending OTP yet
-    setOtpSent(false);
-    setOtpCode('');
-    setModalStep('otp');
-  };
-
-  // Step 2: User explicitly chooses channel (phone or email) -> OTP is sent and channel is locked!
-  const handleSelectChannelAndSendOtp = async (channel: 'phone' | 'email') => {
-    setBookingError(null);
-    setOtpChannel(channel);
-    setIsSendingOtp(true);
-
-    const digitsOnly = phone.replace(/\D/g, '');
-    const cleanPhone = digitsOnly.slice(-10);
-
-    setOtpSent(true);
-    setDevOtp('123456');
-    setOtpCode('123456');
-    setResendCooldown(30);
-    setIsSendingOtp(false);
-  };
-
-  // Step 2: Resend OTP (only to the ALREADY chosen channel)
-  const handleResendOtp = async () => {
-    if (resendCooldown > 0 || isSendingOtp) return;
-    await handleSelectChannelAndSendOtp(otpChannel);
-  };
-
-  // Step 2: Reset channel choice if user wants to switch cleanly
-  const handleChangeChannel = () => {
-    setOtpSent(false);
-    setOtpCode('');
-    setDevOtp(null);
-    setBookingError(null);
-  };
-
-  // Step 2: Verify OTP and Confirm Pay At Venue
-  const handleVerifyAndConfirm = async () => {
-    if (!otpCode || !holdReference) return;
-    setIsVerifyingOtp(true);
-    setBookingError(null);
-
-    const digitsOnly = phone.replace(/\D/g, '');
-    const cleanPhone = digitsOnly.length === 12 && digitsOnly.startsWith('91')
-      ? digitsOnly.slice(2)
-      : digitsOnly.slice(-10);
-
-    try {
-      const confirmJson = await confirmBooking({
-        bookingId: holdReference,
-        name: name.trim(),
-        phone: cleanPhone,
-        email: email.trim().toLowerCase(),
-      });
-
-      if (confirmJson.ok) {
-        router.push('/book/pass?ref=' + holdReference);
-      } else {
-        setBookingError(confirmJson.error || 'Failed to confirm booking.');
-      }
-    } catch (err) {
-      console.error('Confirmation error:', err);
-      setBookingError('Network error confirming booking.');
-    } finally {
-      setIsVerifyingOtp(false);
-    }
-  };
-
-  // Month navigation
-  const handlePrevMonth = () => {
-    if (currentMonth === 1) {
-      setCurrentMonth(12);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (currentMonth === 12) {
-      setCurrentMonth(1);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
-  };
-
-  // Render individual slot card (Only available active bookable slots)
-  const renderSlotCard = (slot: PublicDaySlotItem) => {
-    const isSelected = selectedSlotTimes.includes(slot.startsAt);
-
-    return (
-      <button
-        key={slot.startsAt}
-        onClick={() => handleSlotToggle(slot)}
-        className={`relative p-3.5 rounded-2xl border text-left transition-all duration-300 ease-out active:scale-95 flex flex-col justify-between group cursor-pointer ${
-          isSelected
-            ? 'bg-navy text-white border-navy shadow-lg scale-[1.02]'
-            : 'bg-surface border-border hover:border-gold hover:shadow-md hover:bg-surface-2/30 text-ink'
-        }`}
-      >
-        <div className="flex items-center justify-between gap-1 w-full">
-          <span
-            className={`font-mono font-bold text-xs sm:text-sm tracking-tight ${
-              isSelected ? 'text-white' : 'text-navy'
-            }`}
-          >
-            {formatTo12Hour(slot.timeLabel)}
-          </span>
-          {isSelected ? (
-            <span className="w-5 h-5 rounded-full bg-gold text-navy flex items-center justify-center shrink-0 shadow-xs">
-              <Check className="w-3 h-3 stroke-[3]" />
-            </span>
-          ) : slot.availableCourts.length === 1 ? (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-              1 Left
-            </span>
-          ) : null}
-        </div>
-
-        <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-          <span
-            className={`font-extrabold text-sm sm:text-base font-mono ${
-              isSelected ? 'text-gold' : 'text-navy'
-            }`}
-          >
-            ₹{slot.priceRupees}
-          </span>
-          <span
-            className={`text-[10px] uppercase font-medium tracking-wider ${
-              isSelected ? 'text-white/80' : 'text-ink-soft'
-            }`}
-          >
-            60 mins
-          </span>
-        </div>
-      </button>
-    );
-  };
-
-  // Filter strictly available upcoming future slots (Zero closed clutter)
-  const availableSlots = daySlots.filter(
-    (s) => s.isAvailable && !s.isPast && new Date(s.startsAt).getTime() > Date.now()
-  );
-  const morningAvailable = availableSlots.filter((s) => s.period === 'morning');
-  const afternoonAvailable = availableSlots.filter((s) => s.period === 'afternoon');
-  const eveningAvailable = availableSlots.filter((s) => s.period === 'evening');
-
-  const allMorning = daySlots.filter((s) => s.period === 'morning');
-  const allAfternoon = daySlots.filter((s) => s.period === 'afternoon');
-  const allEvening = daySlots.filter((s) => s.period === 'evening');
-
-  const nowMs = Date.now();
-  const isMorningPassed = allMorning.length > 0 && allMorning.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
-  const isAfternoonPassed = allAfternoon.length > 0 && allAfternoon.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
-  const isEveningPassed = allEvening.length > 0 && allEvening.every((s) => s.isPast || new Date(s.startsAt).getTime() <= nowMs);
-
-  const getPeriodSubtitle = (period: 'morning' | 'afternoon' | 'evening') => {
-    if (period === 'morning') {
-      if (isMorningPassed) return 'Passed';
-      if (morningAvailable.length === 0) return 'Full';
-      return `${morningAvailable.length} free`;
-    }
-    if (period === 'afternoon') {
-      if (isAfternoonPassed) return 'Passed';
-      if (afternoonAvailable.length === 0) return 'Full';
-      return `${afternoonAvailable.length} free`;
-    }
-    if (period === 'evening') {
-      if (isEveningPassed) return 'Passed';
-      if (eveningAvailable.length === 0) return 'Full';
-      return `${eveningAvailable.length} free`;
-    }
-    return '';
-  };
-
-  const activePeriodSlots =
-    selectedPeriod === 'morning'
-      ? morningAvailable
-      : selectedPeriod === 'afternoon'
-      ? afternoonAvailable
-      : eveningAvailable;
-
-  return (
-    <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-8 pb-10 sm:pb-12">
-      {/* 1. Page Header & Hero */}
-      <div className="border-b border-border pb-3 sm:pb-5 space-y-2.5 sm:space-y-3">
-        {/* 3 Badges - Equal 3-column grid on mobile (No swipe), flex on desktop */}
-        <div className="grid grid-cols-3 sm:flex items-center gap-1 sm:gap-2 text-[9.5px] sm:text-[11px] whitespace-nowrap">
-          <span className="inline-flex items-center justify-center sm:justify-start gap-1 sm:gap-1.5 px-1 sm:px-3 py-1 rounded-full font-bold uppercase bg-gold/15 text-navy border border-gold/40 shadow-xs truncate">
-            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gold shrink-0" />
-            <span className="truncate">Pavilion<span className="hidden sm:inline"> Club · Court Reservation</span></span>
-          </span>
-          <span className="inline-flex items-center justify-center sm:justify-start gap-1 px-1 sm:px-2.5 py-1 rounded-full font-medium bg-surface-2 text-ink-soft border border-border truncate">
-            <span className="truncate">3 Pro <span className="hidden sm:inline">Regulation </span>Courts</span>
-          </span>
-          <span className="inline-flex items-center justify-center sm:justify-start gap-1 px-1 sm:px-2.5 py-1 rounded-full font-semibold text-ok bg-ok/10 border border-ok/30 truncate">
-            <CheckCircle2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 shrink-0" />
-            <span className="truncate">10-Min Hold<span className="hidden sm:inline"> Lock</span></span>
-          </span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-3">
-          <div>
-            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-navy">
-              Select Date & Match Time
-            </h1>
-            <p className="text-[11px] sm:text-sm text-ink-soft mt-0.5 sm:mt-1">
-              Real-time court availability · Pay at Venue with zero advance fee
-            </p>
-          </div>
-
-          <div className="hidden sm:flex items-center gap-3 text-[11px] font-semibold text-ink-soft shrink-0">
-            <span className="flex items-center gap-1 text-navy">
-              <CheckCircle2 className="w-3.5 h-3.5 text-gold" /> Instant WhatsApp Pass
-            </span>
-          </div>
-        </div>
-
-        {/* Activity Switcher Tabs */}
-        <div className="pt-1">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {[
-              { id: 'Pickleball', label: '🎾 Pickleball', desc: '3 Courts' },
-              { id: 'Studio', label: '🧘 Yoga & Aerobics', desc: 'Studio' },
-              { id: 'Gym', label: '🏋️ Fitness Gym', desc: 'Day Pass' },
-              { id: 'Indoor Games', label: '🎮 Indoor Games', desc: 'PS5 & TT' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setSelectedActivity(tab.id as any);
-                  setSelectedCourtId(null);
-                  setSelectedSlotTimes([]);
-                }}
-                className={`px-3.5 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition-all duration-200 flex items-center gap-2 border ${
-                  selectedActivity === tab.id
-                    ? 'bg-navy text-gold border-gold/40 shadow-sm'
-                    : 'bg-surface text-ink-soft hover:text-navy border-border hover:bg-surface-2'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`text-[9.5px] px-1.5 py-0.5 rounded-full font-semibold ${
-                    selectedActivity === tab.id
-                      ? 'bg-gold/20 text-gold'
-                      : 'bg-surface-2 text-ink-soft'
-                  }`}
-                >
-                  {tab.desc}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Visual Court Selector for Pickleball */}
-        {selectedActivity === 'Pickleball' && (
-          <div className="p-2 sm:p-2.5 bg-surface-2/40 rounded-xl border border-border/80 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
-            <span className="font-bold text-navy text-[11px] uppercase tracking-wider px-1">
-              Court Preference:
-            </span>
-            {[
-              { id: 'all', label: 'Any Court' },
-              { id: '6c2a1c6e-4455-4174-a2cd-5792cde1f0de', label: 'Court 1 (Corner)' },
-              { id: '15e9e5d7-798d-4e5c-b051-67fe80de326f', label: 'Court 2 (Middle)' },
-              { id: 'aaca34ba-978c-481d-9ec0-157049f96742', label: 'Court 3 (Center)' },
-            ].map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setSelectedCourtId(c.id === 'all' ? null : c.id);
-                  setSelectedSlotTimes([]);
-                }}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
-                  (selectedCourtId === null && c.id === 'all') || selectedCourtId === c.id
-                    ? 'bg-gold text-navy font-bold shadow-xs'
-                    : 'bg-surface text-ink-soft hover:text-navy border border-border/60 hover:bg-surface-2'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Quick Date Shortcuts - 3-column equal grid, perfectly fitted without swipe */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-1">
-          <button
-            type="button"
-            onClick={() => handleQuickDateSelect(todayStr)}
-            className={`py-1.5 sm:py-2 px-1 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-95 flex items-center justify-center gap-1 text-[11px] sm:text-xs ${
-              selectedDate === todayStr
-                ? 'bg-navy text-white shadow-sm '
-                : 'bg-surface border border-border text-ink hover:border-gold/60 hover:bg-surface-2'
-            }`}
-          >
-            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gold shrink-0" />
-            <span className="truncate">Today</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickDateSelect(tomorrowStr)}
-            className={`py-1.5 sm:py-2 px-1 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-95 flex items-center justify-center gap-1 text-[11px] sm:text-xs ${
-              selectedDate === tomorrowStr
-                ? 'bg-navy text-white shadow-sm '
-                : 'bg-surface border border-border text-ink hover:border-gold/60 hover:bg-surface-2'
-            }`}
-          >
-            <CalendarIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gold shrink-0" />
-            <span className="truncate">Tomorrow</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickDateSelect(weekendStr)}
-            className={`py-1.5 sm:py-2 px-1 rounded-xl font-semibold transition-all duration-300 ease-out active:scale-95 flex items-center justify-center gap-1 text-[11px] sm:text-xs ${
-              selectedDate === weekendStr
-                ? 'bg-navy text-white shadow-sm '
-                : 'bg-surface border border-border text-ink hover:border-gold/60 hover:bg-surface-2'
-            }`}
-          >
-            <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gold shrink-0" />
-            <span className="truncate"><span className="hidden sm:inline">This </span>Weekend</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Active Hold Banner if in progress */}
-      {holdReference && secondsRemaining !== null && secondsRemaining > 0 && (
-        <div className="p-4 rounded-2xl bg-navy text-white border border-gold/40 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gold/20 flex items-center justify-center shrink-0 border border-gold/30">
-              <Clock className="w-5 h-5 text-gold animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-gold uppercase tracking-wider">Slot Reserved For You</span>
-                <span className="w-2 h-2 rounded-full bg-ok animate-ping" />
-              </div>
-              <p className="text-xs text-white/90 font-medium mt-0.5">
-                {assignedCourt?.name} · {selectedDate} ({formatTo12Hour(selectedSlots[0]?.timeLabel || "")})
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 self-end sm:self-auto bg-white/10 px-3 py-1.5 rounded-xl border border-white/15">
-            <span className="text-[11px] text-white/70 uppercase font-semibold">Hold Expires:</span>
-            <span className="font-mono font-bold text-gold text-base tabular-nums">
-              ⏱️ {Math.floor(secondsRemaining / 60)}:{String(secondsRemaining % 60).padStart(2, '0')}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {bookingError && (
-        <div className="p-4 rounded-xl bg-danger-soft text-danger border border-danger/30 text-xs font-semibold flex items-center gap-2 shadow-xs">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          <span>{bookingError}</span>
-        </div>
-      )}
-
-      {/* 2. Step 1: Month Calendar with Availability Dots */}
-      <section className="p-3.5 sm:p-6 rounded-2xl bg-surface border border-border shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-gold" />
-            <h2 className="text-sm sm:text-base font-bold tracking-tight text-navy">
-              {MONTH_NAMES[currentMonth - 1]} {currentYear}
-            </h2>
-          </div>
-
-          {/* Month Steppers */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={handlePrevMonth}
-              className="p-1.5 sm:p-2 rounded-lg border border-border hover:bg-surface-2 text-ink-soft hover:text-navy transition"
-              title="Previous Month"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleNextMonth}
-              className="p-1.5 sm:p-2 rounded-lg border border-border hover:bg-surface-2 text-ink-soft hover:text-navy transition"
-              title="Next Month"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-[11px] text-ink-soft pt-1">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-ok shadow-xs" />
-            <span className="font-medium">Available</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-warn shadow-xs" />
-            <span className="font-medium">Filling fast</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-border shadow-xs" />
-            <span className="font-medium">Sold out / Past</span>
-          </span>
-        </div>
-
-        {/* Days Grid */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2 pt-2 text-center">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-            <div key={d} className="text-[11px] font-bold text-ink-faint py-1 uppercase tracking-wider">
-              {d}
-            </div>
-          ))}
-
-          {/* Padding for first day of week */}
-          {monthDays.length > 0 &&
-            Array.from({ length: monthDays[0]!.weekday }).map((_, i) => (
-              <div key={`empty-${i}`} className="h-12 sm:h-14" />
-            ))}
-
-          {monthDays.map((d) => {
-            const isSelected = d.date === selectedDate;
-            const isPast = d.status === 'past';
-            const isSoldOut = d.status === 'sold_out';
-
-            return (
-              <button
-                key={d.date}
-                disabled={isPast || isSoldOut}
-                onClick={() => setSelectedDate(d.date)}
-                className={`h-12 sm:h-14 rounded-xl flex flex-col items-center justify-center relative transition-all duration-300 ease-out active:scale-95 ${
-                  isSelected
-                    ? 'bg-navy text-white font-bold shadow-md scale-[1.02] border border-navy'
-                    : isPast || isSoldOut
-                    ? 'opacity-30 cursor-not-allowed bg-surface-2/40 text-ink-faint border border-transparent'
-                    : 'hover:bg-surface-2 bg-surface text-ink border border-border/70 hover:border-gold/60'
-                }`}
-              >
-                <span className="text-xs sm:text-sm font-semibold transition-colors duration-300">{d.dayOfMonth}</span>
-
-                {/* Dot */}
-                {!isPast && (
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full mt-1 transition-colors duration-300 ${
-                      isSelected
-                        ? 'bg-gold'
-                        : d.status === 'free'
-                        ? 'bg-ok'
-                        : d.status === 'filling'
-                        ? 'bg-warn'
-                        : 'bg-border'
-                    }`}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 3. Step 2: Slot Grid with Court Pills */}
-      <section className="space-y-6">
-        <div className="space-y-3 border-b border-border pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-navy flex items-center gap-2">
-                Available Slots for {selectedDate}
-              </h2>
-              <p className="text-xs text-ink-soft">
-                Pick your preferred time · 60-minute standard match pass
-              </p>
-            </div>
-
-
-          </div>
-
-          {/* Interactive Court Segmented Pills - Equal 3-column grid without swipe */}
-          {allCourts.length > 0 && (
-            <div className="pt-1">
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                {allCourts.map((court) => {
-                  const isCourtSelected = (overrideCourtId || assignedCourt?.id) === court.id;
-                  return (
-                    <button
-                      key={court.id}
-                      type="button"
-                      onClick={() => setOverrideCourtId(court.id)}
-                      className={`py-1.5 sm:py-2 px-1 rounded-xl text-[11px] sm:text-xs font-semibold transition-all duration-300 ease-out active:scale-95 flex items-center justify-center gap-1.5 ${
-                        isCourtSelected
-                          ? 'bg-navy text-white shadow-sm '
-                          : 'bg-surface border border-border text-ink hover:border-navy/40 hover:bg-surface-2'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 transition-colors duration-300 ${isCourtSelected ? 'bg-gold' : 'bg-ok'}`} />
-                      <span className="truncate">{court.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {isLoadingSlots ? (
-          <SlotGridSkeleton />
-        ) : (
-          availableSlots.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center rounded-2xl bg-surface border border-border space-y-3">
-            <div className="w-12 h-12 rounded-full bg-surface-2 text-ink-soft flex items-center justify-center mx-auto">
-              <Clock className="w-6 h-6 text-gold" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm sm:text-base font-bold text-navy">
-                No Available Slots Remaining
-              </h3>
-              <p className="text-xs text-ink-soft max-w-sm mx-auto">
-                All slots for {selectedDate} are either completed or fully booked. Please select a future date to book your match.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Interactive Segmented Control (Morning / Afternoon / Evening) with 120fps Zero-Lag GPU Drag & Swipe */}
-            <div className="pt-2">
-            <div
-              ref={segContainerRef}
-              onPointerDown={onPointerDownSeg}
-              className="relative grid grid-cols-3 bg-[#EFE9DB] p-1 rounded-2xl border border-[#E0D8C6] select-none shadow-xs cursor-grab active:cursor-grabbing"
-              style={{ touchAction: 'none' }}
-            >
-              {/* Sliding Active Pill with Zero-Lag Direct GPU Transform */}
-              <div
-                ref={thumbRef}
-                className="absolute top-1 bottom-1 left-1 w-[calc((100%-8px)/3)] bg-white rounded-[13px] shadow-[0_2px_8px_rgba(15,30,46,0.12)] pointer-events-none will-change-transform"
-                style={{
-                  transform: `translate3d(${getPeriodIndex(selectedPeriod) * 100}%, 0, 0)`,
-                  transition: 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)',
-                }}
-              />
-
-              {/* Morning Segment */}
-              <button
-                type="button"
-                onClick={() => handleSelectPeriod('morning')}
-                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
-              >
-                <span
-                  className={`text-xs sm:text-sm transition-colors ${
-                    selectedPeriod === 'morning'
-                      ? 'font-bold text-[#0f1e2e]'
-                      : isMorningPassed
-                      ? 'font-medium text-[#0f1e2e]/40'
-                      : 'font-semibold text-[#0f1e2e]/70'
-                  }`}
-                >
-                  Morning
-                </span>
-                <span
-                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
-                    isMorningPassed
-                      ? 'text-[#0f1e2e]/40'
-                      : morningAvailable.length === 0
-                      ? 'text-danger font-medium'
-                      : selectedPeriod === 'morning'
-                      ? 'text-[#0f1e2e]/70'
-                      : 'text-[#0f1e2e]/60'
-                  }`}
-                >
-                  {getPeriodSubtitle('morning')}
-                </span>
-              </button>
-
-              {/* Afternoon Segment */}
-              <button
-                type="button"
-                onClick={() => handleSelectPeriod('afternoon')}
-                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
-              >
-                <span
-                  className={`text-xs sm:text-sm transition-colors ${
-                    selectedPeriod === 'afternoon'
-                      ? 'font-bold text-[#0f1e2e]'
-                      : isAfternoonPassed
-                      ? 'font-medium text-[#0f1e2e]/40'
-                      : 'font-semibold text-[#0f1e2e]/70'
-                  }`}
-                >
-                  Afternoon
-                </span>
-                <span
-                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
-                    isAfternoonPassed
-                      ? 'text-[#0f1e2e]/40'
-                      : afternoonAvailable.length === 0
-                      ? 'text-danger font-medium'
-                      : selectedPeriod === 'afternoon'
-                      ? 'text-[#0f1e2e]/70'
-                      : 'text-[#0f1e2e]/60'
-                  }`}
-                >
-                  {getPeriodSubtitle('afternoon')}
-                </span>
-              </button>
-
-              {/* Evening Segment */}
-              <button
-                type="button"
-                onClick={() => handleSelectPeriod('evening')}
-                className="relative z-10 py-2 sm:py-2.5 px-1 flex flex-col items-center justify-center transition-colors duration-200 cursor-pointer"
-              >
-                <span
-                  className={`text-xs sm:text-sm transition-colors ${
-                    selectedPeriod === 'evening'
-                      ? 'font-bold text-[#0f1e2e]'
-                      : isEveningPassed
-                      ? 'font-medium text-[#0f1e2e]/40'
-                      : 'font-semibold text-[#0f1e2e]/70'
-                  }`}
-                >
-                  Evening
-                </span>
-                <span
-                  className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 ${
-                    isEveningPassed
-                      ? 'text-[#0f1e2e]/40'
-                      : eveningAvailable.length === 0
-                      ? 'text-danger font-medium'
-                      : selectedPeriod === 'evening'
-                      ? 'text-[#0f1e2e]/70'
-                      : 'text-[#0f1e2e]/60'
-                  }`}
-                >
-                  {getPeriodSubtitle('evening')}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Active Period Slots Grid */}
-          <div className="space-y-4">
-            {activePeriodSlots.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-                {activePeriodSlots.map(renderSlotCard)}
-              </div>
-            ) : (
-              <div className="p-6 sm:p-8 text-center rounded-2xl bg-surface-2/60 border border-border space-y-2">
-                <p className="text-xs sm:text-sm font-semibold text-navy">
-                  {selectedPeriod === 'morning' && isMorningPassed
-                    ? 'Morning sessions have passed for today.'
-                    : selectedPeriod === 'afternoon' && isAfternoonPassed
-                    ? 'Afternoon sessions have passed for today.'
-                    : `No available slots in the ${selectedPeriod} session for this date.`}
-                </p>
-                <p className="text-[11px] text-ink-soft">
-                  Select another session above or choose a different date.
-                </p>
-              </div>
-            )}
-          </div>
-          </div>
-        )
-      )}
-    </section>
-
-      {/* 4. Floating Frosted-Glass Bottom Dock (Ergonomic for 320px, 375px, 425px) */}
-      <div className="mt-10 sm:mt-12 sticky bottom-4 sm:bottom-6 z-40 max-w-2xl mx-auto bg-surface/95 backdrop-blur-xl border border-border/80 shadow-2xl rounded-2xl p-3 sm:p-4 transition-all duration-300">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center shrink-0 hidden sm:flex">
-              <CalendarIcon className="w-5 h-5 text-gold" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-xs truncate">
-                <span className="font-bold text-navy truncate">
-                  {selectedSlots.length > 0 ? formatTo12Hour(selectedSlots[0]!.timeLabel) : 'Select a match slot'}
-                </span>
-                {assignedCourt && selectedSlots.length > 0 && (
-                  <span className="text-ink-soft font-medium text-[11px] truncate">
-                    · {assignedCourt.name}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-base sm:text-xl font-extrabold text-navy font-mono">
-                  ₹{totalAmountRupees.toLocaleString('en-IN')}
-                </span>
-                <span className="text-[10px] sm:text-xs text-ink-soft font-normal truncate">
-                  {selectedSlots.length > 0 ? '· Pay at Venue' : ''}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            disabled={selectedSlots.length === 0 || isCreatingHold}
-            onClick={handleProceedToHold}
-            className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-navy text-white font-bold text-xs sm:text-sm hover:opacity-90 active:scale-95 transition disabled:opacity-40 flex items-center gap-1.5 sm:gap-2 shadow-md whitespace-nowrap shrink-0"
-          >
-            {isCreatingHold ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-gold" />
-                <span>Holding...</span>
-              </>
-            ) : (
-              <>
-                <span>Book Slot</span>
-                <ArrowRight className="w-4 h-4 text-gold" />
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* 5. Two-Step Player Verification & OTP Modal (Channel Choice: Phone or Email in Step 2) */}
-      {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-navy/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-surface border border-border rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-6 space-y-4">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center border border-gold/30">
-                  <ShieldCheck className="w-4 h-4 text-gold" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold tracking-tight text-navy">
-                    {modalStep === 'details'
-                      ? 'Player Information'
-                      : !otpSent
-                      ? 'Select OTP Channel'
-                      : 'Enter Verification Code'}
-                  </h3>
-                  <p className="text-[11px] text-ink-soft">
-                    {modalStep === 'details'
-                      ? 'Instant WhatsApp, SMS & Email pass'
-                      : !otpSent
-                      ? 'Choose where to receive your 6-digit code'
-                      : otpChannel === 'email'
-                      ? 'Code sent to ' + email.trim()
-                      : 'Code sent to +91 ' + phone.replace(/\D/g, '').slice(-10)}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setShowOtpModal(false);
-                  setFormError(null);
-                  setBookingError(null);
-                }}
-                className="p-1.5 rounded-lg text-ink-faint hover:text-ink hover:bg-surface-2 transition cursor-pointer"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Step Progress Pill */}
-            <div className="flex items-center justify-between text-[11px] px-3 py-1.5 rounded-xl bg-surface-2 border border-border">
-              <div className="flex items-center gap-1.5 font-semibold text-navy">
-                <span className="w-4 h-4 rounded-full bg-navy text-gold text-[10px] font-bold flex items-center justify-center">
-                  {modalStep === 'details' ? '1' : '2'}
-                </span>
-                <span>{modalStep === 'details' ? 'Step 1 of 2: Player Details' : 'Step 2 of 2: OTP Verification'}</span>
-              </div>
-              {modalStep === 'otp' && (
-                <button
-                  onClick={() => {
-                    setModalStep('details');
-                    setBookingError(null);
-                  }}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-navy hover:text-gold-text underline cursor-pointer"
-                >
-                  <Edit3 className="w-3 h-3" />
-                  <span>Edit details</span>
-                </button>
-              )}
-            </div>
-
-            {modalStep === 'details' ? (
-              /* ===== POPUP 1: PLAYER DETAILS ONLY ===== */
-              <div className="space-y-3.5 text-xs">
-                {/* 1. Name */}
-                <div>
-                  <label className="block font-semibold text-ink-soft mb-1.5">
-                    Your Name (Optional)
-                  </label>
-                  <div className="relative">
-                    <User className="w-3.5 h-3.5 text-ink-faint absolute left-3 top-3" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Rahul Kumar"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-surface text-ink text-xs focus:border-navy focus:ring-1 focus:ring-navy outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* 2. Mobile Number (Clean full width input) */}
-                <div>
-                  <label className="block font-semibold text-ink-soft mb-1.5">
-                    Mobile Number (10 Digits) *
-                  </label>
-                  <div className="relative">
-                    <span className="text-xs font-mono font-bold text-ink-soft absolute left-3 top-3">
-                      +91
-                    </span>
-                    <input
-                      type="tel"
-                      maxLength={10}
-                      placeholder="98765 43210"
-                      value={phone}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setPhone(val);
-                        if (formError) setFormError(null);
-                        if (val.length === 10) {
-                          checkCustomerPack(val);
-                        } else {
-                          setActiveCustomerPack(null);
-                        }
-                      }}
-                      className="w-full pl-11 pr-3 py-2.5 rounded-xl border border-border bg-surface text-ink font-mono text-xs focus:border-navy focus:ring-1 focus:ring-navy outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* 3. Email Address */}
-                <div>
-                  <label className="block font-semibold text-ink-soft mb-1.5">
-                    Email Address *
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-3.5 h-3.5 text-ink-faint absolute left-3 top-3" />
-                    <input
-                      type="email"
-                      placeholder="e.g. rahul@example.com"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        if (formError) setFormError(null);
-                      }}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-surface text-ink text-xs focus:border-navy focus:ring-1 focus:ring-navy outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* Validation Error Banner */}
-                {formError && (
-                  <div className="p-2.5 rounded-xl bg-danger-soft text-danger border border-danger/20 flex items-start gap-2 text-[11px] animate-in fade-in">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{formError}</span>
-                  </div>
-                )}
-
-                {/* Active Prepaid Pack Detection Card */}
-                {isCheckingPack && (
-                  <div className="text-[11px] text-ink-soft flex items-center gap-1.5 animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin text-gold" />
-                    <span>Checking active member packs & balance...</span>
-                  </div>
-                )}
-
-                {activeCustomerPack && (
-                  <div className="p-3.5 rounded-xl bg-gold/15 border border-gold/40 space-y-2.5 animate-in fade-in">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-gold-text" />
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-gold-text">
-                          Active Prepaid Pack Found
-                        </span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full bg-navy text-gold text-[10px] font-bold">
-                        {activeCustomerPack.creditsRemaining} Credits Left
-                      </span>
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs text-navy">{activeCustomerPack.name}</div>
-                      <div className="text-[11px] text-ink-soft">
-                        You have prepaid hours! Pay ₹0 now by redeeming 1 hour from your balance.
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleRedeemPackBooking}
-                      disabled={isRedeemingPack}
-                      className="w-full py-2.5 rounded-xl bg-navy text-gold font-bold text-xs uppercase tracking-wider hover:bg-gold hover:text-navy transition shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      {isRedeemingPack ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
-                          <span>Redeeming 1 Credit...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Pay ₹0 via Pack (1 Credit)</span>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-gold" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* Policy Banner */}
-                <div className="p-3 rounded-xl bg-surface-2 border border-border flex items-center gap-2 text-[11px] text-ink-soft">
-                  <CheckCircle2 className="w-4 h-4 text-ok shrink-0" />
-                  <span>Pay at venue upon arrival · Instant WhatsApp, SMS & Email pass</span>
-                </div>
-              </div>
-            ) : (
-              /* ===== POPUP 2: 2ND POPUP / NEXT STEP ===== */
-              !otpSent ? (
-                /* Phase A: User chooses SMS or Email to send OTP */
-                <div className="space-y-3.5 text-xs animate-in fade-in">
-                  <div className="text-center space-y-1 py-1">
-                    <h4 className="text-sm font-bold text-navy">
-                      Where should we send your OTP?
-                    </h4>
-                    <p className="text-[11px] text-ink-soft">
-                      Choose WhatsApp/SMS or Email below. Your 6-digit code will be sent once you click.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {/* Option 1: WhatsApp / SMS */}
-                    <button
-                      type="button"
-                      disabled={isSendingOtp}
-                      onClick={() => handleSelectChannelAndSendOtp('phone')}
-                      className="w-full p-3.5 rounded-xl border border-border bg-surface hover:border-navy hover:bg-surface-2 active:scale-[0.99] transition flex items-center justify-between text-left group cursor-pointer shadow-xs disabled:opacity-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-navy/10 text-navy flex items-center justify-center group-hover:bg-navy group-hover:text-gold transition">
-                          <Phone className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-navy text-xs">WhatsApp / SMS</div>
-                          <div className="text-[11px] text-ink-soft font-mono">
-                            +91 {phone.replace(/\D/g, '').slice(-10)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-navy group-hover:text-gold-text">
-                        <span>{isSendingOtp && otpChannel === 'phone' ? 'Sending...' : 'Send OTP'}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-gold" />
-                      </div>
-                    </button>
-
-                    {/* Option 2: Email */}
-                    <button
-                      type="button"
-                      disabled={isSendingOtp}
-                      onClick={() => handleSelectChannelAndSendOtp('email')}
-                      className="w-full p-3.5 rounded-xl border border-border bg-surface hover:border-navy hover:bg-surface-2 active:scale-[0.99] transition flex items-center justify-between text-left group cursor-pointer shadow-xs disabled:opacity-50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-navy/10 text-navy flex items-center justify-center group-hover:bg-navy group-hover:text-gold transition">
-                          <Mail className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-navy text-xs">Email Inbox</div>
-                          <div className="text-[11px] text-ink-soft font-mono truncate max-w-[170px] sm:max-w-[210px]">
-                            {email.trim()}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-navy group-hover:text-gold-text">
-                        <span>{isSendingOtp && otpChannel === 'email' ? 'Sending...' : 'Send OTP'}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-gold" />
-                      </div>
-                    </button>
-                  </div>
-
-                  {bookingError && (
-                    <div className="p-2.5 rounded-xl bg-danger-soft text-danger border border-danger/20 flex items-start gap-2 text-[11px] animate-in fade-in">
-                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span>{bookingError}</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* Phase B: OTP has been sent to chosen channel (LOCKED) -> Enter 6-digit code */
-                <div className="space-y-3.5 text-xs animate-in fade-in">
-                  {/* Locked Channel Confirmation Badge */}
-                  <div className="p-3 rounded-xl bg-surface-2 border border-border flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-ok-soft text-ok flex items-center justify-center">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-bold text-navy">
-                          {otpChannel === 'email' ? 'Code sent to Email' : 'Code sent to WhatsApp / SMS'}
-                        </div>
-                        <div className="text-[10px] text-ink-soft font-mono">
-                          {otpChannel === 'email' ? email.trim() : '+91 ' + phone.replace(/\D/g, '').slice(-10)}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleChangeChannel}
-                      className="text-[11px] font-bold text-navy hover:text-gold-text underline cursor-pointer"
-                    >
-                      Change
-                    </button>
-                  </div>
-
-                  {/* Dev / Test OTP Helper Banner */}
-                  {devOtp && (
-                    <div className="p-3 rounded-xl bg-gold/10 border border-gold/40 text-navy flex items-center justify-between gap-2 animate-in fade-in">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-gold shrink-0" />
-                        <div className="text-[11px] leading-tight">
-                          <span className="font-semibold text-ink-soft">Test Verification Code: </span>
-                          <span className="font-mono font-extrabold text-navy text-sm tracking-wider">{devOtp}</span>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-bold text-navy bg-white px-2 py-0.5 rounded-full border border-gold/30 shadow-2xs">
-                        Auto-filled
-                      </span>
-                    </div>
-                  )}
-
-                  {/* 6-Digit OTP Code Input */}
-                  <div className="space-y-1.5">
-                    <label className="block font-semibold text-ink-soft text-center">
-                      Enter 6-Digit Verification Code *
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      autoFocus
-                      placeholder="••••••"
-                      value={otpCode}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                        setOtpCode(val);
-                        if (bookingError) setBookingError(null);
-                      }}
-                      className="w-full px-3 py-3 rounded-xl border border-border bg-surface text-ink font-mono text-2xl font-bold tracking-[0.35em] text-center focus:border-navy focus:ring-1 focus:ring-navy outline-hidden"
-                    />
-                  </div>
-
-                  {/* Resend OTP Row */}
-                  <div className="flex items-center justify-between text-[11px] text-ink-soft pt-1">
-                    <span>Didn't receive the code?</span>
-                    {resendCooldown > 0 ? (
-                      <span className="font-mono text-ink-faint">Resend in {resendCooldown}s</span>
-                    ) : (
-                      <button
-                        onClick={handleResendOtp}
-                        disabled={isSendingOtp}
-                        className="font-bold text-navy hover:text-gold-text underline cursor-pointer disabled:opacity-50"
-                      >
-                        {isSendingOtp ? 'Sending...' : 'Resend Code'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Verification Error Banner */}
-                  {bookingError && (
-                    <div className="p-2.5 rounded-xl bg-danger-soft text-danger border border-danger/20 flex items-start gap-2 text-[11px] animate-in fade-in">
-                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span>{bookingError}</span>
-                    </div>
-                  )}
-                </div>
-              )
-            )}
-
-            {/* Modal Footer with Dynamic Action Button */}
-            <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
-              <div className="text-xs text-ink-soft">
-                Total: <strong className="text-navy font-mono text-sm">₹{totalAmountRupees}</strong>
-              </div>
-
-              {modalStep === 'details' ? (
-                <button
-                  disabled={phone.trim().length < 10 || !email.trim()}
-                  onClick={handleProceedToStep2}
-                  className="px-5 sm:px-6 py-2.5 rounded-xl bg-navy text-white text-xs font-bold hover:opacity-90 active:scale-95 transition disabled:opacity-40 flex items-center gap-2 shadow-sm whitespace-nowrap cursor-pointer"
-                >
-                  <span>Proceed to Verification</span>
-                  <ArrowRight className="w-4 h-4 text-gold" />
-                </button>
-              ) : !otpSent ? (
-                <div className="text-[11px] text-ink-faint italic">
-                  Select SMS or Email above
-                </div>
-              ) : (
-                <button
-                  disabled={otpCode.length < 6 || isVerifyingOtp}
-                  onClick={handleVerifyAndConfirm}
-                  className="px-5 sm:px-6 py-2.5 rounded-xl bg-navy text-white text-xs font-bold hover:opacity-90 active:scale-95 transition disabled:opacity-40 flex items-center gap-2 shadow-sm whitespace-nowrap cursor-pointer"
-                >
-                  {isVerifyingOtp ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
-                      <span>Confirming...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Confirm & Book</span>
-                      <Check className="w-4 h-4 text-gold stroke-[3]" />
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+interface HourCell {
+  startsAt: string;
+  endsAt: string;
+  perCourt: Map<string, DaySlot>;
 }
 
+function hourCells(courts: CourtDay[]): HourCell[] {
+  const cells = new Map<string, HourCell>();
+  for (const court of courts) {
+    for (const slot of court.slots) {
+      let cell = cells.get(slot.startsAt);
+      if (!cell) {
+        cell = { startsAt: slot.startsAt, endsAt: slot.endsAt, perCourt: new Map() };
+        cells.set(slot.startsAt, cell);
+      }
+      cell.perCourt.set(court.id, slot);
+    }
+  }
+  return [...cells.values()].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
 
-function SlotGridSkeleton() {
+const pad = (n: number) => String(n).padStart(2, '0');
+const countdown = (s: number) => `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+const hrs = (h: number) => `${h} hr${h === 1 ? '' : 's'}`;
+
+function normaliseMobile(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  return digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits.slice(-10);
+}
+
+const inputClass =
+  'h-12 w-full rounded-md border border-border-strong bg-surface px-4 text-base text-ink placeholder:text-[#a39f96] transition-colors focus:border-navy focus:outline-none focus:ring-[3px] focus:ring-accent-soft read-only:bg-surface-2 read-only:text-ink-faint aria-[invalid=true]:border-danger';
+
+/* ------------------------------------------------------------------ */
+
+export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
+  const router = useRouter();
+  const days = useMemo(buildDays, []);
+
+  const [date, setDate] = useState(() =>
+    days.some((day) => day.ymd === initialDate) ? initialDate : days[0]!.ymd,
+  );
+  const [day, setDay] = useState<VenueDay | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  /** The activity (TurfOS sport type) being booked. Null = the venue's main one. */
+  const [activity, setActivity] = useState<string | null>(null);
+  const [choice, setChoice] = useState('any');
+  const [period, setPeriod] = useState<PeriodKey>('morning');
+  /** The selected hours, by start time, always consecutive. */
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const [step, setStep] = useState<Step>('pick');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
+  const [notice, setNotice] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const [hold, setHold] = useState<Hold | null>(null);
+  const [holdCourt, setHoldCourt] = useState<CourtDay | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [stillWaiting, setStillWaiting] = useState(false);
+
+  const timezone = day?.timezone ?? FALLBACK_TZ;
+
+  /* ---- load a day --------------------------------------------------- */
+
+  const loadDay = useCallback(async (ymd: string) => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      setDay(await fetchDay(ymd));
+    } catch (error) {
+      setDay(null);
+      setLoadError(error instanceof TurfApiError ? error.message : 'Could not load times. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadDay(date);
+  }, [date, loadDay]);
+
+  /* ---- what is free ------------------------------------------------- */
+
+  // Activities are data: whatever sport types the venue's courts carry in
+  // TurfOS. A venue adds "Yoga & Aerobics" by adding a space with that type —
+  // there is no list of activities in this code. The one with the most spaces
+  // leads, which for this venue is pickleball.
+  const activities = useMemo(() => {
+    const bySport = new Map<string, CourtDay[]>();
+    for (const court of day?.courts ?? []) {
+      bySport.set(court.sport, [...(bySport.get(court.sport) ?? []), court]);
+    }
+    return [...bySport.entries()]
+      .map(([sport, list]) => ({ sport, courts: list }))
+      .sort((a, b) => b.courts.length - a.courts.length || a.sport.localeCompare(b.sport));
+  }, [day]);
+  const current = activities.find((a) => a.sport === activity) ?? activities[0] ?? null;
+  const courts = useMemo(() => current?.courts ?? [], [current]);
+  /** "court" for courts, "space" for a studio or a games room. Presentation only. */
+  const unit = courts.length && courts.every((c) => /court/i.test(c.name)) ? 'court' : 'space';
+
+  const visibleCourts = useMemo(
+    () => (choice === 'any' ? courts : courts.filter((court) => court.id === choice)),
+    [courts, choice],
+  );
+  const cells = useMemo(() => hourCells(visibleCourts), [visibleCourts]);
+  const indexOf = useMemo(() => new Map(cells.map((cell, i) => [cell.startsAt, i])), [cells]);
+  const byHour = useMemo(() => {
+    const map = new Map<number, HourCell>();
+    for (const cell of cells) {
+      const hour = hourIn(cell.startsAt, timezone);
+      if (!map.has(hour)) map.set(hour, cell);
+    }
+    return map;
+  }, [cells, timezone]);
+
+  const freeCourts = useCallback(
+    (run: HourCell[]) =>
+      visibleCourts.filter((court) => run.every((cell) => cell.perCourt.get(court.id)?.available)),
+    [visibleCourts],
+  );
+
+  const isPast = (cell: HourCell) => new Date(cell.startsAt).getTime() <= Date.now();
+  const isFree = useCallback(
+    (cell: HourCell) => new Date(cell.startsAt).getTime() > Date.now() && freeCourts([cell]).length > 0,
+    [freeCourts],
+  );
+
+  /** A run can be held if it is consecutive, in the future, and one court has every hour. */
+  const holdable = useCallback(
+    (run: HourCell[]) =>
+      run.length > 0 &&
+      run.length <= MAX_HOURS &&
+      run.every((cell, i) => i === 0 || run[i - 1]!.endsAt === cell.startsAt) &&
+      run.every(isFree) &&
+      freeCourts(run).length > 0,
+    [isFree, freeCourts],
+  );
+
+  /** Cheapest court-hire for a run, and the court that gives it. */
+  const bestFor = useCallback(
+    (run: HourCell[]) => {
+      let best: { court: CourtDay; paise: number; fee: number } | null = null;
+      for (const court of freeCourts(run)) {
+        const slots = run.map((cell) => cell.perCourt.get(court.id)!);
+        const paise = slots.reduce((sum, slot) => sum + slot.pricePaise, 0);
+        if (!best || paise < best.paise) best = { court, paise, fee: slots[0]!.feePaise };
+      }
+      return best;
+    },
+    [freeCourts],
+  );
+
+  const run = useMemo(() => {
+    const picked = selected.map((s) => cells[indexOf.get(s) ?? -1]).filter(Boolean) as HourCell[];
+    return picked.length === selected.length && holdable(picked) ? picked : [];
+  }, [selected, cells, indexOf, holdable]);
+  const best = run.length ? bestFor(run) : null;
+
+  // A selection that stopped being holdable (someone else took an hour, the
+  // day reloaded) is dropped rather than shown as if it were still available.
+  useEffect(() => {
+    if (selected.length && !run.length && !loading) setSelected([]);
+  }, [selected, run, loading]);
+
+  const openPeriods = useMemo(() => {
+    const open = { twilight: false, morning: false, noon: false, evening: false } as Record<PeriodKey, boolean>;
+    for (const p of PERIODS) {
+      for (let h = p.from; h < p.from + 6; h += 1) {
+        const cell = byHour.get(h);
+        if (cell && isFree(cell)) open[p.key] = true;
+      }
+    }
+    return open;
+  }, [byHour, isFree]);
+
+  // Land on the first part of the day that has something to book.
+  useEffect(() => {
+    if (loading || selected.length) return;
+    const first = PERIODS.find((p) => openPeriods[p.key]);
+    if (first) setPeriod(first.key);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day, loading]);
+
+  const priceRange = useMemo(() => {
+    const prices = cells
+      .filter(isFree)
+      .map((cell) => Math.min(...freeCourts([cell]).map((c) => cell.perCourt.get(c.id)!.pricePaise)));
+    return prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
+  }, [cells, isFree, freeCourts]);
+
+  /* ---- tapping the track -------------------------------------------- */
+
+  const tap = (cell: HourCell) => {
+    const s = cell.startsAt;
+    if (!selected.length) {
+      setSelected([s]);
+      return;
+    }
+    if (selected.includes(s)) {
+      setSelected(selected.length === 1 ? [] : [s]);
+      return;
+    }
+    const i = indexOf.get(s)!;
+    const a = indexOf.get(selected[0]!)!;
+    const b = indexOf.get(selected[selected.length - 1]!)!;
+    // A later hour extends to it; an earlier one extends back to it — when the
+    // whole stretch can be held on one court. Otherwise it starts afresh.
+    const stretch = i > b ? cells.slice(a, i + 1) : cells.slice(i, b + 1);
+    setSelected(holdable(stretch) ? stretch.map((c) => c.startsAt) : [s]);
+  };
+
+  const trackCells: TrackCell[] = useMemo(() => {
+    const from = PERIODS.find((p) => p.key === period)!.from;
+    return Array.from({ length: 6 }, (_, i) => {
+      const hour = from + i;
+      const cell = byHour.get(hour);
+      const span = `${hourLabel(hour)} to ${hourLabel(hour + 1)}`;
+      if (!cell) return { hour, state: 'closed' as CellState, label: `${span}, closed` };
+      if (selected.includes(cell.startsAt)) {
+        return { hour, state: 'selected' as CellState, label: `${span}, selected`, onTap: () => tap(cell) };
+      }
+      if (isPast(cell)) return { hour, state: 'past' as CellState, label: `${span}, already passed` };
+      if (!isFree(cell)) return { hour, state: 'booked' as CellState, label: `${span}, booked` };
+      const price = Math.min(...freeCourts([cell]).map((c) => cell.perCourt.get(c.id)!.pricePaise));
+      return { hour, state: 'open' as CellState, label: `${span}, ${formatPaise(price)}`, onTap: () => tap(cell) };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, byHour, selected, isFree, freeCourts]);
+
+  const periodIndex = PERIODS.findIndex((p) => p.key === period);
+
+  /* ---- choices ------------------------------------------------------ */
+
+  const chooseDate = (ymd: string) => {
+    setDate(ymd);
+    setSelected([]);
+    setNotice(null);
+  };
+  const chooseCourt = (id: string) => {
+    setChoice(id);
+    setSelected([]);
+  };
+  const chooseActivity = (sport: string) => {
+    setActivity(sport);
+    setChoice('any');
+    setSelected([]);
+    setNotice(null);
+  };
+
+  const backToPick = useCallback(
+    (text: string | null, tone: 'info' | 'error' = 'info') => {
+      setHold(null);
+      setHoldCourt(null);
+      setBusy(false);
+      setStep('pick');
+      setSelected([]);
+      setNotice(text ? { tone, text } : null);
+      void loadDay(date);
+    },
+    [date, loadDay],
+  );
+
+  /* ---- hold countdown ----------------------------------------------- */
+
+  useEffect(() => {
+    if (!hold) return;
+    const tick = () => {
+      const left = Math.max(0, Math.floor((new Date(hold.expiresAt).getTime() - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left === 0 && step === 'details') {
+        backToPick('Your hold ran out before payment. Please choose the time again — nothing was charged.');
+      }
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [hold, step, backToPick]);
+
+  /* ---- wait for the server to confirm ------------------------------- */
+
+  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stopPolling = () => {
+    if (pollTimer.current) clearInterval(pollTimer.current);
+    pollTimer.current = null;
+  };
+  useEffect(() => stopPolling, []);
+
+  const waitForConfirmation = (bookingId: string) => {
+    setStep('waiting');
+    setStillWaiting(false);
+    stopPolling();
+    const startedAt = Date.now();
+
+    pollTimer.current = setInterval(async () => {
+      try {
+        const booking = await fetchBooking(bookingId);
+        if (booking.status === 'confirmed' || booking.status === 'completed') {
+          stopPolling();
+          router.push(`/book/pass?ref=${encodeURIComponent(bookingId)}`);
+          return;
+        }
+        if (booking.status === 'cancelled') {
+          stopPolling();
+          backToPick(
+            'The hold ended before your payment reached us. If money left your account it is refunded automatically.',
+            'error',
+          );
+          return;
+        }
+      } catch {
+        // A blip is not a verdict. Keep asking until the deadline.
+      }
+      if (Date.now() - startedAt > POLL_GIVE_UP_MS) {
+        stopPolling();
+        setStillWaiting(true);
+      }
+    }, POLL_MS);
+  };
+
+  /* ---- pay ---------------------------------------------------------- */
+
+  const pay = async (current: Hold) => {
+    setNotice(null);
+    setBusy(true);
+    try {
+      const order = await startPayment(current.bookingId);
+      await openCheckout({
+        keyId: order.keyId,
+        orderId: order.orderId,
+        amountPaise: order.amountPaise,
+        currency: order.currency,
+        venueName: order.venueName || 'The Pavilion Club',
+        description: 'Court booking',
+        prefill: order.prefill,
+        onSuccess: () => waitForConfirmation(current.bookingId),
+        onDismiss: () => {
+          setBusy(false);
+          setNotice({ tone: 'info', text: 'Payment window closed. Your court is still held — press Pay to try again.' });
+        },
+        onFailure: (reason) => {
+          setBusy(false);
+          setNotice({ tone: 'error', text: `${reason} You can try again while your court is held.` });
+        },
+      });
+    } catch (error) {
+      setBusy(false);
+      setNotice({ tone: 'error', text: error instanceof Error ? error.message : 'Payment could not be started.' });
+    }
+  };
+
+  const validate = (): boolean => {
+    if (name.trim().length < 2) {
+      setFieldError({ field: 'name', message: 'Please enter your name.' });
+      return false;
+    }
+    if (!/^[6-9]\d{9}$/.test(normaliseMobile(phone))) {
+      setFieldError({ field: 'phone', message: 'Enter a 10-digit mobile number.' });
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      setFieldError({ field: 'email', message: 'Enter a valid email — your confirmation goes there.' });
+      return false;
+    }
+    setFieldError(null);
+    return true;
+  };
+
+  const submitDetails = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    if (hold) {
+      await pay(hold);
+      return;
+    }
+    if (!best || !run.length || !validate()) return;
+
+    setBusy(true);
+    setNotice(null);
+    try {
+      const created = await createHold({
+        courtId: best.court.id,
+        startsAt: run[0]!.startsAt,
+        hours: run.length,
+        name: name.trim(),
+        phone: normaliseMobile(phone),
+        email: email.trim().toLowerCase(),
+      });
+      setHold(created);
+      setHoldCourt(best.court);
+      await pay(created);
+    } catch (error) {
+      setBusy(false);
+      if (error instanceof TurfApiError && ['slot_taken', 'slot_unavailable', 'not_consecutive'].includes(error.code)) {
+        backToPick('Sorry — that time was just taken. Please choose another.', 'error');
+        return;
+      }
+      setNotice({ tone: 'error', text: error instanceof Error ? error.message : 'Could not hold that time.' });
+    }
+  };
+
+  /* ---- what the bar and the recap show ------------------------------ */
+
+  const court = holdCourt ?? best?.court ?? null;
+  const from = hold?.startsAt ?? run[0]?.startsAt ?? null;
+  const to = hold?.endsAt ?? run[run.length - 1]?.endsAt ?? null;
+  const slotPaise = hold ? hold.slotPaise : (best?.paise ?? 0);
+  const feePaise = hold ? hold.feePaise : (best?.fee ?? 0);
+  const total = slotPaise + feePaise;
+  const ready = Boolean(court && from && to);
+  const caption = ready
+    ? `${formatShortDate(from!, timezone)} · ${formatRange(from!, to!, timezone)}`
+    : 'Tap a start hour';
+
+  const message = notice ? (
+    <p
+      role={notice.tone === 'error' ? 'alert' : 'status'}
+      className={cx(
+        'rounded-md px-4 py-3 text-sm leading-relaxed',
+        notice.tone === 'error' ? 'bg-danger-soft text-danger' : 'bg-surface-2 text-ink-soft',
+      )}
+    >
+      {notice.text}
+    </p>
+  ) : null;
+
+  /* ---- waiting ------------------------------------------------------ */
+
+  if (step === 'waiting') {
+    return (
+      <Column className="grid flex-1 place-content-center justify-items-center py-16 text-center">
+        <div role="status" aria-live="polite" className="grid justify-items-center gap-4">
+          {stillWaiting ? (
+            <>
+              <Mark tone="wait" />
+              <h1 className="font-serif text-3xl font-semibold">Still confirming</h1>
+              <p className="max-w-sm text-ink-soft">
+                Your payment is taking longer than usual to reach us. Please don&rsquo;t pay again — your
+                confirmation will be emailed as soon as it lands.
+              </p>
+              <a className={buttonClass('primary')} href={`/book/pass?ref=${encodeURIComponent(hold?.bookingId ?? '')}`}>
+                Check my booking
+              </a>
+            </>
+          ) : (
+            <>
+              <Spinner />
+              <h1 className="font-serif text-3xl font-semibold">Confirming your court</h1>
+              <p className="max-w-sm text-ink-soft">Payment received. This takes a few seconds — please keep this page open.</p>
+            </>
+          )}
+        </div>
+      </Column>
+    );
+  }
+
+  /* ---- details ------------------------------------------------------ */
+
+  if (step === 'details' && ready) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <Column className="flex-1 pt-6">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => backToPick(hold ? 'Your earlier hold releases by itself within ten minutes.' : null)}
+            className="mb-4 inline-flex min-h-10 items-center gap-1.5 text-sm font-medium text-ink-faint hover:text-ink disabled:opacity-40"
+          >
+            <ArrowLeft /> Change time
+          </button>
+
+          <h1 className="font-serif text-[2.4rem] font-semibold leading-none tracking-tight">Your details</h1>
+          <p className="mt-2 text-[15px] text-ink-faint">Your confirmation is emailed to you.</p>
+
+          <dl className="mt-7 divide-y divide-border rounded-lg border border-border bg-surface px-4 text-[15px]">
+            {[
+              ['Date', formatLongDate(from!, timezone)],
+              ['Time', `${formatRange(from!, to!, timezone)} (${hrs(Math.round((new Date(to!).getTime() - new Date(from!).getTime()) / 3_600_000))})`],
+              [unit === 'court' ? 'Court' : 'Space', court!.name],
+              ['Court hire', formatPaise(slotPaise)],
+              ['Booking fee', formatPaise(feePaise)],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between gap-4 py-3">
+                <dt className="text-ink-faint">{label}</dt>
+                <dd className="text-right font-medium tabular-nums">{value}</dd>
+              </div>
+            ))}
+            <div className="flex justify-between gap-4 py-3">
+              <dt className="font-semibold">Total</dt>
+              <dd className="text-right text-lg font-bold tabular-nums">{formatPaise(total)}</dd>
+            </div>
+          </dl>
+
+          {hold ? (
+            <p className="mt-4" role="timer">
+              <Pill tone="wait">
+                Court held for you · <span className="font-mono text-xs tracking-normal">{countdown(secondsLeft)}</span>
+              </Pill>
+            </p>
+          ) : null}
+
+          <form id="bk-details" onSubmit={submitDetails} noValidate className="mt-7 grid gap-5">
+            <div className="grid gap-1.5">
+              <label htmlFor="bk-name" className="text-sm font-semibold">Full name</label>
+              <input
+                id="bk-name"
+                autoComplete="name"
+                value={name}
+                readOnly={Boolean(hold)}
+                aria-invalid={fieldError?.field === 'name'}
+                onChange={(event) => setName(event.target.value)}
+                className={inputClass}
+              />
+              {fieldError?.field === 'name' ? (
+                <small role="alert" className="text-[13px] font-medium text-danger">{fieldError.message}</small>
+              ) : null}
+            </div>
+
+            <div className="grid gap-1.5">
+              <label htmlFor="bk-phone" className="text-sm font-semibold">Mobile number</label>
+              <div
+                className={cx(
+                  'flex h-12 items-center rounded-md border border-border-strong bg-surface transition-colors focus-within:border-navy focus-within:ring-[3px] focus-within:ring-accent-soft',
+                  fieldError?.field === 'phone' && 'border-danger',
+                  hold && 'bg-surface-2',
+                )}
+              >
+                <span className="pl-4 pr-1 tabular-nums text-ink-faint">+91</span>
+                <input
+                  id="bk-phone"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  value={phone}
+                  readOnly={Boolean(hold)}
+                  aria-invalid={fieldError?.field === 'phone'}
+                  onChange={(event) => setPhone(event.target.value)}
+                  className="h-full w-full bg-transparent px-2 text-base text-ink focus:outline-none read-only:text-ink-faint"
+                />
+              </div>
+              {fieldError?.field === 'phone' ? (
+                <small role="alert" className="text-[13px] font-medium text-danger">{fieldError.message}</small>
+              ) : null}
+            </div>
+
+            <div className="grid gap-1.5">
+              <label htmlFor="bk-email" className="text-sm font-semibold">Email</label>
+              <input
+                id="bk-email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={email}
+                readOnly={Boolean(hold)}
+                aria-invalid={fieldError?.field === 'email'}
+                onChange={(event) => setEmail(event.target.value)}
+                className={inputClass}
+              />
+              {fieldError?.field === 'email' ? (
+                <small role="alert" className="text-[13px] font-medium text-danger">{fieldError.message}</small>
+              ) : (
+                <small className="text-[13px] text-ink-faint">You&rsquo;ll also use this to see your bookings later.</small>
+              )}
+            </div>
+
+            {message}
+
+            <p className="text-[13px] leading-relaxed text-ink-faint">
+              Pay securely with UPI, card or netbanking (Razorpay). We hold the court for ten minutes while you
+              pay. Free cancellation up to 24 hours before.
+            </p>
+          </form>
+        </Column>
+
+        <ActionBar caption={`${caption} · ${court!.name}`} amount={formatPaise(total)}>
+          <button type="submit" form="bk-details" disabled={busy} className={buttonClass('primary')}>
+            {busy ? 'Please wait…' : `Pay ${formatPaise(total)}`}
+          </button>
+        </ActionBar>
+      </div>
+    );
+  }
+
+  /* ---- choose ------------------------------------------------------- */
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Skeleton Group 1: Morning Sessions */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full animate-skeleton" />
-          <div className="w-44 sm:w-56 h-3.5 rounded-md animate-skeleton" />
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={`m-skel-${i}`}
-              className="p-3.5 rounded-2xl border border-border/60 bg-surface flex flex-col justify-between h-[86px] shadow-xs"
-            >
-              <div className="flex items-center justify-between gap-1 w-full">
-                <div className="w-16 h-4 rounded-md animate-skeleton" />
-                <div className="w-12 h-4 rounded-md animate-skeleton" />
-              </div>
-              <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-                <div className="w-12 h-4.5 rounded-md animate-skeleton" />
-                <div className="w-10 h-3 rounded-md animate-skeleton" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="flex flex-1 flex-col">
+      <Column className="flex-1 pt-8">
+        <h1 className="font-serif text-[2.4rem] font-semibold leading-none tracking-tight">
+          {activities.length > 1 ? 'Book a session' : 'Book a court'}
+        </h1>
+        <p className="mt-2 text-[15px] text-ink-faint">
+          {current ? current.sport : 'Pickleball'}
+          {courts.length > 1 ? ` · ${courts.length} ${unit}s` : ''}
+          {priceRange
+            ? ` · ${formatPaise(priceRange.min)}${priceRange.max > priceRange.min ? `–${formatPaise(priceRange.max)}` : ''} per hour`
+            : ''}
+        </p>
 
-      {/* Skeleton Group 2: Afternoon Sessions */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full animate-skeleton" />
-          <div className="w-48 sm:w-60 h-3.5 rounded-md animate-skeleton" />
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={`a-skel-${i}`}
-              className="p-3.5 rounded-2xl border border-border/60 bg-surface flex flex-col justify-between h-[86px] shadow-xs"
-            >
-              <div className="flex items-center justify-between gap-1 w-full">
-                <div className="w-16 h-4 rounded-md animate-skeleton" />
-                <div className="w-12 h-4 rounded-md animate-skeleton" />
-              </div>
-              <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-                <div className="w-12 h-4.5 rounded-md animate-skeleton" />
-                <div className="w-10 h-3 rounded-md animate-skeleton" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        {message ? <div className="mt-6">{message}</div> : null}
 
-      {/* Skeleton Group 3: Evening Sessions */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full animate-skeleton" />
-          <div className="w-52 sm:w-64 h-3.5 rounded-md animate-skeleton" />
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={`e-skel-${i}`}
-              className="p-3.5 rounded-2xl border border-border/60 bg-surface flex flex-col justify-between h-[86px] shadow-xs"
-            >
-              <div className="flex items-center justify-between gap-1 w-full">
-                <div className="w-16 h-4 rounded-md animate-skeleton" />
-                <div className="w-12 h-4 rounded-md animate-skeleton" />
+        {activities.length > 1 ? (
+          <section className="mt-8">
+            <SectionLabel>Activity</SectionLabel>
+            <ActivityTabs
+              value={current?.sport ?? ''}
+              onChange={chooseActivity}
+              options={activities.map((a) => ({
+                value: a.sport,
+                label: a.sport,
+                note: `${a.courts.length} ${a.courts.every((c) => /court/i.test(c.name)) ? 'court' : 'space'}${a.courts.length === 1 ? '' : 's'}`,
+              }))}
+            />
+          </section>
+        ) : null}
+
+        {courts.length > 1 ? (
+          <section className={activities.length > 1 ? 'mt-6' : 'mt-8'}>
+            <SectionLabel>{unit === 'court' ? 'Court' : 'Space'}</SectionLabel>
+            <CourtPills
+              value={choice}
+              onChange={chooseCourt}
+              options={[
+                { value: 'any', label: 'Any' },
+                ...shortNames(courts.map((c) => c.name)).map((label, i) => ({ value: courts[i]!.id, label })),
+              ]}
+            />
+          </section>
+        ) : null}
+
+        <section className="mt-6 border-t border-border pt-6">
+          <DateStrip days={days} value={date} onChange={chooseDate} />
+        </section>
+
+        <section className="mt-6 border-t border-border pt-6" aria-label="Time">
+          <PeriodTabs value={period} onChange={setPeriod} open={openPeriods} />
+
+          <div className="mt-6">
+            {loading ? (
+              <div aria-busy="true" aria-label="Loading times" className="grid gap-5">
+                {[0, 1].map((i) => (
+                  <div key={i}>
+                    <div className="mb-2 h-5 w-full animate-pulse rounded bg-surface-2" />
+                    <div className="h-12 animate-pulse rounded-full bg-surface-2" />
+                  </div>
+                ))}
               </div>
-              <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-                <div className="w-12 h-4.5 rounded-md animate-skeleton" />
-                <div className="w-10 h-3 rounded-md animate-skeleton" />
+            ) : loadError ? (
+              <div className="rounded-lg border border-dashed border-border-strong p-6 text-center text-[15px] text-ink-soft">
+                {loadError}{' '}
+                <button type="button" className={textButtonClass} onClick={() => void loadDay(date)}>
+                  Try again
+                </button>
               </div>
+            ) : (
+              <HourTracks
+                cells={trackCells}
+                canPrev={periodIndex > 0}
+                canNext={periodIndex < PERIODS.length - 1}
+                onPrev={() => setPeriod(PERIODS[Math.max(0, periodIndex - 1)]!.key)}
+                onNext={() => setPeriod(PERIODS[Math.min(PERIODS.length - 1, periodIndex + 1)]!.key)}
+              />
+            )}
+          </div>
+
+          {!loading && !loadError ? (
+            <div className="mt-5 grid gap-3">
+              <p className="text-sm text-ink-soft" aria-live="polite">
+                {run.length
+                  ? `${formatRange(run[0]!.startsAt, run[run.length - 1]!.endsAt, timezone)} · ${hrs(run.length)} · ${best!.court.name}. Tap another hour to change.`
+                  : openPeriods[period]
+                    ? 'Tap a start hour. Tap a later hour to book longer.'
+                    : 'Nothing free in this part of the day — try another.'}
+              </p>
+              <TrackLegend />
             </div>
-          ))}
-        </div>
-      </div>
+          ) : null}
+        </section>
+      </Column>
+
+      <ActionBar caption={caption} amount={ready ? formatPaise(total) : '—'}>
+        <button
+          type="button"
+          disabled={!ready}
+          onClick={() => {
+            setNotice(null);
+            setStep('details');
+          }}
+          className={buttonClass('primary')}
+        >
+          Continue
+        </button>
+      </ActionBar>
     </div>
   );
 }

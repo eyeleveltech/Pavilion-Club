@@ -1,24 +1,14 @@
 import { Suspense } from 'react';
-import { PublicHeader } from '@/components/public/PublicHeader';
-import { PublicFooter } from '@/components/public/PublicFooter';
+
+import { BookShell } from '@/components/public/book/BookShell';
 import { BookingPassClient } from '@/components/public/BookingPassClient';
-import { Loader2 } from 'lucide-react';
 
 export default function PassPage() {
   return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col justify-between">
-      <PublicHeader />
-      <main className="flex-1">
-        <Suspense fallback={
-          <div className="max-w-xl mx-auto px-4 py-20 flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="w-10 h-10 text-gold animate-spin" />
-            <p className="text-sm text-ink-soft">Loading Match Pass...</p>
-          </div>
-        }>
-          <BookingPassClient />
-        </Suspense>
-      </main>
-      <PublicFooter />
-    </div>
+    <BookShell active="book">
+      <Suspense fallback={<div className="flex-1" aria-busy="true" />}>
+        <BookingPassClient />
+      </Suspense>
+    </BookShell>
   );
 }

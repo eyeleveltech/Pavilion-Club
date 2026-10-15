@@ -1,436 +1,426 @@
 ﻿'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
+
 import {
-  Calendar,
-  Clock,
-  MapPin,
-  AlertTriangle,
-  CheckCircle2,
-  Phone,
-  ShieldCheck,
-  X,
-  Loader2,
-  LogOut,
-  ArrowRight,
-  Sparkles,
-} from 'lucide-react';
+  cancelMyBooking,
+  fetchMyBookings,
+  formatPaise,
+  formatRange,
+  formatShortDate,
+  logoutSession,
+  requestLoginCode,
+  TurfApiError,
+  verifyLoginCode,
+  type MyBooking,
+} from '@/lib/turfos-client';
 
-interface BookingRecord {
-  id: string;
-  reference: string;
-  courtName: string;
-  businessDate: string;
-  timeLabel: string;
-  amountRupees: number;
-  paidRupees: number;
-  isPaid: boolean;
-  status: string;
-  isCancellable: boolean;
-  hoursUntilMatch: number;
-}
+import { buttonClass, Column, cx, Pill, Segmented, Spinner, textButtonClass } from '../book/ui';
 
-interface CustomerProfile {
-  id: string;
-  name: string | null;
-  phone: string;
-}
+/**
+ * My bookings.
+ *
+ * Sign-in is an emailed six-digit code: no password, no SMS. The session token
+ * lives in this browser only, opens only this venue's "my bookings" endpoints,
+ * and is destroyed on the server at sign-out.
+ *
+ * Everything shown comes from the server — including the refund a cancellation
+ * would give, which is the same figure the cancel endpoint then applies
+ * (docs/ui P6: say what will happen, before it happens).
+ */
 
-interface MyBookingsViewProps {
-  initialCustomer?: CustomerProfile | null;
-  initialBookings?: BookingRecord[];
-}
+const STORAGE_KEY = 'pavilion_session';
+const RESEND_SECONDS = 30;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function formatTo12Hour(timeStr: string): string {
-  if (!timeStr) return '';
-  return timeStr.replace(/(\d{1,2}):(\d{2})/g, (_, hStr, mStr) => {
-    let hour = parseInt(hStr, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12;
-    if (hour === 0) hour = 12;
-    return `${String(hour).padStart(2, '0')}:${mStr} ${ampm}`;
-  });
-}
+type Stage = 'loading' | 'email' | 'code' | 'list';
 
-export function MyBookingsView({
-  initialCustomer = null,
-  initialBookings = [],
-}: MyBookingsViewProps) {
-  const [customer, setCustomer] = useState<CustomerProfile | null>(initialCustomer);
-  const [bookings, setBookings] = useState<BookingRecord[]>(initialBookings);
+const readToken = () => {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+};
+const writeToken = (token: string | null) => {
+  try {
+    if (token) window.localStorage.setItem(STORAGE_KEY, token);
+    else window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* private mode: the session simply lasts as long as the tab */
+  }
+};
 
-  // OTP Login State (for unauthenticated players)
-  const [phone, setPhone] = useState('');
-  const [otpCode, setOtpCode] = useState('');
-  const [devOtp, setDevOtp] = useState<string | null>(null);
-  const [otpSent, setOtpSent] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
+const inputClass =
+  'h-12 w-full rounded-md border border-border-strong bg-surface px-4 text-base text-ink placeholder:text-[#a39f96] transition-colors focus:border-navy focus:outline-none focus:ring-[3px] focus:ring-accent-soft aria-[invalid=true]:border-danger';
 
-  // Cancellation State
-  const [cancelTarget, setCancelTarget] = useState<BookingRecord | null>(null);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [cancelSuccess, setCancelSuccess] = useState(false);
-  const [cancelError, setCancelError] = useState<string | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+const STATUS: Record<string, { label: string; tone: 'ok' | 'bad' | 'off' }> = {
+  confirmed: { label: 'Confirmed', tone: 'ok' },
+  completed: { label: 'Played', tone: 'off' },
+  cancelled: { label: 'Cancelled', tone: 'bad' },
+  no_show: { label: 'Missed', tone: 'bad' },
+};
 
-  const handleSignOut = async () => {
-    setIsLoggingOut(true);
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
-    document.cookie = 'pavilion_customer_session=; path=/; max-age=0;';
-    window.location.href = '/my-bookings';
-  };
+export function MyBookingsView() {
+  const [stage, setStage] = useState<Stage>('loading');
+  const [token, setToken] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
-  const handleSendOtp = async () => {
-    if (!phone || phone.trim().length < 10) return;
-    setIsSendingOtp(true);
-    setLoginError(null);
-    try {
-      const res = await fetch('/api/public/otp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      const json = await res.json();
-      if (res.ok && json.ok) {
-        setOtpSent(true);
-        if (json.devOtp) {
-          setDevOtp(json.devOtp);
-          setOtpCode(json.devOtp);
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<MyBooking[]>([]);
+  const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+
+  const signOutLocally = useCallback(() => {
+    writeToken(null);
+    setToken(null);
+    setBookings([]);
+    setStage('email');
+  }, []);
+
+  const load = useCallback(
+    async (activeToken: string) => {
+      try {
+        const data = await fetchMyBookings(activeToken);
+        setFirstName(data.firstName);
+        setBookings(data.bookings);
+        setError(null);
+        setStage('list');
+      } catch (failure) {
+        if (failure instanceof TurfApiError && failure.status === 401) {
+          signOutLocally();
+        } else {
+          setError(failure instanceof Error ? failure.message : 'Could not load your bookings.');
+          setStage('list');
         }
-      } else {
-        setLoginError(json.error || 'Failed to send OTP.');
       }
-    } catch (err) {
-      setLoginError('Network error.');
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
+    },
+    [signOutLocally],
+  );
 
-  const handleVerifyOtp = async () => {
-    if (!otpCode) return;
-    setIsLoggingIn(true);
-    setLoginError(null);
+  useEffect(() => {
+    const saved = readToken();
+    if (saved) {
+      setToken(saved);
+      void load(saved);
+    } else {
+      setStage('email');
+    }
+  }, [load]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  /* ---- sign in ------------------------------------------------------ */
+
+  const sendCode = async (event?: React.FormEvent) => {
+    event?.preventDefault();
+    if (busy) return;
+    setError(null);
+    if (!EMAIL.test(email.trim())) {
+      setError('Enter the email address you booked with.');
+      return;
+    }
+    setBusy(true);
     try {
-      const res = await fetch('/api/public/otp/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code: otpCode }),
-      });
-      const json = await res.json();
-      if (res.ok && json.ok) {
-        setCustomer(json.customer);
-        // Refresh page to load customer's bookings
-        window.location.reload();
-      } else {
-        setLoginError(json.error || 'Invalid OTP code.');
-      }
-    } catch (err) {
-      setLoginError('Network error.');
+      await requestLoginCode(email.trim().toLowerCase());
+      setStage('code');
+      setCode('');
+      setCooldown(RESEND_SECONDS);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'Could not send the code.');
     } finally {
-      setIsLoggingIn(false);
+      setBusy(false);
     }
   };
 
-  const handleConfirmCancel = async () => {
-    if (!cancelTarget) return;
-    setIsCancelling(true);
-    setCancelError(null);
+  const checkCode = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    setError(null);
+    if (!/^\d{6}$/.test(code)) {
+      setError('Enter the 6-digit code from the email.');
+      return;
+    }
+    setBusy(true);
     try {
-      const res = await fetch('/api/public/my-bookings/cancel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: cancelTarget.id }),
-      });
-      const json = await res.json();
-      if (res.ok && json.ok) {
-        setCancelSuccess(true);
-        setBookings((prev) =>
-          prev.map((b) => (b.id === cancelTarget.id ? { ...b, status: 'cancelled' } : b))
-        );
-        setTimeout(() => {
-          setCancelSuccess(false);
-          setCancelTarget(null);
-        }, 2000);
-      } else {
-        setCancelError(json.error || 'Failed to cancel booking.');
-      }
-    } catch (err) {
-      setCancelError('Network error cancelling booking.');
+      const result = await verifyLoginCode(email.trim().toLowerCase(), code);
+      writeToken(result.token);
+      setToken(result.token);
+      setFirstName(result.firstName);
+      await load(result.token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'That code didn’t work.');
     } finally {
-      setIsCancelling(false);
+      setBusy(false);
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
-      {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy">
-            My Bookings & Matches
-          </h1>
-          <p className="text-xs text-ink-soft mt-0.5">
-            View your upcoming sessions, past history, and manage cancellations
-          </p>
-        </div>
+  const signOut = async () => {
+    if (token) await logoutSession(token);
+    signOutLocally();
+    setEmail('');
+    setFlash(null);
+  };
 
-        {customer && (
-          <div className="flex items-center gap-3 text-xs">
-            <span className="font-mono text-ink-soft">{customer.phone}</span>
+  /* ---- cancel ------------------------------------------------------- */
+
+  const cancel = async (booking: MyBooking) => {
+    if (!token) return;
+    setCancelling(booking.bookingId);
+    setError(null);
+    try {
+      const result = await cancelMyBooking(token, booking.bookingId);
+      setConfirming(null);
+      setFlash(
+        result.refundPaise > 0
+          ? `Cancelled. ${formatPaise(result.refundPaise)} will be refunded to how you paid.`
+          : 'Cancelled. No refund applies under the cancellation policy.',
+      );
+      await load(token);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'Could not cancel that booking.');
+    } finally {
+      setCancelling(null);
+    }
+  };
+
+  /* ---- render: loading / sign in ------------------------------------ */
+
+  if (stage === 'loading') {
+    return (
+      <Column className="grid flex-1 place-content-center justify-items-center py-16">
+        <Spinner />
+      </Column>
+    );
+  }
+
+  const heading = (title: string, sub: React.ReactNode) => (
+    <>
+      <h1 className="font-serif text-[2.4rem] font-semibold leading-none tracking-tight">{title}</h1>
+      <p className="mt-2 text-[15px] text-ink-faint">{sub}</p>
+    </>
+  );
+
+  if (stage === 'email') {
+    return (
+      <Column className="py-8">
+        {heading('My bookings', 'See your courts, or cancel if plans change.')}
+        <form onSubmit={sendCode} noValidate className="mt-8 grid gap-5">
+          <div className="grid gap-1.5">
+            <label htmlFor="mb-email" className="text-sm font-semibold">
+              Email you booked with
+            </label>
+            <input
+              id="mb-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={Boolean(error)}
+              className={inputClass}
+            />
+            {error ? (
+              <small role="alert" className="text-[13px] font-medium text-danger">{error}</small>
+            ) : (
+              <small className="text-[13px] text-ink-faint">We&rsquo;ll email you a code. No password needed.</small>
+            )}
+          </div>
+          <button type="submit" disabled={busy} className={cx(buttonClass('primary'), 'w-full')}>
+            {busy ? 'Sending…' : 'Send code'}
+          </button>
+        </form>
+      </Column>
+    );
+  }
+
+  if (stage === 'code') {
+    return (
+      <Column className="py-8">
+        {heading(
+          'Check your email',
+          <>
+            If <b className="font-semibold text-ink">{email.trim().toLowerCase()}</b> has booked
+            with us, a 6-digit code is on its way. It works for 10 minutes.
+          </>,
+        )}
+        <form onSubmit={checkCode} noValidate className="mt-8 grid gap-5">
+          <div className="grid gap-1.5">
+            <label htmlFor="mb-code" className="text-sm font-semibold">Code</label>
+            <input
+              id="mb-code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              autoFocus
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              aria-invalid={Boolean(error)}
+              className={cx(inputClass, 'h-14 pl-[1.4rem] text-center font-mono text-2xl tracking-[0.5em]')}
+            />
+            {error ? (
+              <small role="alert" className="text-[13px] font-medium text-danger">{error}</small>
+            ) : (
+              <small className="text-[13px] text-ink-faint">Not there? Check spam.</small>
+            )}
+          </div>
+          <button type="submit" disabled={busy || code.length !== 6} className={cx(buttonClass('primary'), 'w-full')}>
+            {busy ? 'Checking…' : 'Show my bookings'}
+          </button>
+          <div className="flex flex-wrap justify-between gap-3">
             <button
-              onClick={handleSignOut}
-              disabled={isLoggingOut}
-              className="inline-flex items-center gap-1.5 text-ink-soft hover:text-danger active:text-danger px-2 py-1 rounded-md hover:bg-surface-2 transition cursor-pointer disabled:opacity-50"
-              title="Sign out"
+              type="button"
+              disabled={cooldown > 0 || busy}
+              onClick={() => void sendCode()}
+              className={textButtonClass}
             >
-              {isLoggingOut ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <LogOut className="w-3.5 h-3.5" />
-              )}
-              <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStage('email');
+                setError(null);
+              }}
+              className={cx(textButtonClass, 'font-medium text-ink-faint')}
+            >
+              Different email
             </button>
           </div>
-        )}
+        </form>
+      </Column>
+    );
+  }
+
+  /* ---- render: the list --------------------------------------------- */
+
+  const now = Date.now();
+  const isUpcoming = (b: MyBooking) => b.status === 'confirmed' && new Date(b.endsAt).getTime() > now;
+  const upcoming = bookings.filter(isUpcoming).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const past = bookings.filter((b) => !isUpcoming(b));
+  const shown = tab === 'upcoming' ? upcoming : past;
+
+  return (
+    <Column className="py-8">
+      {heading(firstName ? `Hi ${firstName}` : 'My bookings', 'Your courts at The Pavilion Club.')}
+
+      {flash ? (
+        <p role="status" className="mt-6 rounded-md bg-ok-soft px-4 py-3 text-sm text-ok">{flash}</p>
+      ) : null}
+      {error ? (
+        <p role="alert" className="mt-6 rounded-md bg-danger-soft px-4 py-3 text-sm text-danger">{error}</p>
+      ) : null}
+
+      <div className="mt-7">
+        <Segmented
+          role="tablist"
+          label="Bookings"
+          value={tab}
+          onChange={(value) => {
+            setTab(value as 'upcoming' | 'past');
+            setConfirming(null);
+          }}
+          options={[
+            { value: 'upcoming', label: `Upcoming · ${upcoming.length}` },
+            { value: 'past', label: `Past · ${past.length}` },
+          ]}
+        />
       </div>
 
-      {/* 2. Unauthenticated State: OTP Login Form */}
-      {!customer ? (
-        <div className="max-w-md mx-auto p-8 rounded-2xl bg-surface border border-border shadow-xs text-center space-y-6">
-          <div className="w-12 h-12 rounded-full bg-navy/10 text-navy flex items-center justify-center mx-auto">
-            <Phone className="w-6 h-6 text-gold" />
-          </div>
-
-          <div className="space-y-1">
-            <h2 className="text-base font-bold text-navy">Player Login</h2>
-            <p className="text-xs text-ink-soft">
-              Enter your mobile number to view and manage your reservations
-            </p>
-          </div>
-
-          {loginError && (
-            <div className="p-3 rounded bg-danger-soft text-danger border border-danger/30 text-xs font-semibold">
-              {loginError}
-            </div>
-          )}
-
-          <div className="space-y-4 text-xs text-left">
-            <div>
-              <label className="block font-semibold text-ink-soft mb-1">
-                Mobile Number
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="tel"
-                  placeholder="98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-surface text-ink font-mono text-xs focus:border-navy"
-                />
-                <button
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp || phone.trim().length < 10}
-                  className="px-4 py-2 rounded-lg bg-navy text-white font-bold text-xs hover:opacity-90 transition disabled:opacity-40"
-                >
-                  {isSendingOtp ? 'Sending...' : otpSent ? 'Resend' : 'Send OTP'}
-                </button>
-              </div>
-            </div>
-
-
-
-            {otpSent && (
-              <div className="space-y-2">
-                {devOtp && (
-                  <div className="p-2.5 rounded-lg bg-gold/10 border border-gold/40 text-navy flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
-                      <span className="font-semibold text-ink-soft">Test Code:</span>
-                      <span className="font-mono font-bold text-navy text-sm tracking-wider">{devOtp}</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-navy bg-white px-2 py-0.5 rounded-full border border-gold/30">
-                      Auto-filled
-                    </span>
-                  </div>
-                )}
-                <label className="block font-semibold text-ink-soft">
-                  Enter 6-Digit OTP Code
-                </label>
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="123456"
-                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-surface text-ink font-mono text-center font-bold tracking-widest text-sm focus:border-navy"
-                />
-                <button
-                  onClick={handleVerifyOtp}
-                  disabled={isLoggingIn || !otpCode}
-                  className="w-full py-2.5 rounded-lg bg-navy text-white font-bold text-xs hover:opacity-90 transition flex items-center justify-center gap-1.5 disabled:opacity-40 shadow-xs"
-                >
-                  {isLoggingIn && <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />}
-                  <span>Access My Bookings</span>
-                </button>
-              </div>
-            )}
-          </div>
+      {shown.length === 0 ? (
+        <div className="mt-6 grid justify-items-center gap-4 rounded-lg border border-dashed border-border-strong px-6 py-10 text-center">
+          <p className="text-[15px] text-ink-soft">
+            {tab === 'upcoming' ? 'No upcoming bookings.' : 'Nothing here yet.'}
+          </p>
+          {tab === 'upcoming' ? (
+            <Link href="/book" className={buttonClass('primary')}>Book a court</Link>
+          ) : null}
         </div>
       ) : (
-        /* 3. Authenticated State: Bookings List */
-        <div className="space-y-6">
-          {bookings.length === 0 ? (
-            <div className="p-12 text-center text-xs text-ink-soft space-y-3 bg-surface border border-border rounded-xl">
-              <p className="font-semibold text-navy text-sm">No bookings found</p>
-              <p className="text-ink-faint">
-                You haven&apos;t booked any pickleball courts yet.
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/book"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-navy text-white text-xs font-bold hover:opacity-90 transition"
-                >
-                  <span>Book a Court Now</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-gold" />
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {bookings.map((b) => (
-                <div
-                  key={b.id}
-                  className="p-5 rounded-xl bg-surface border border-border shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-mono font-bold text-navy text-sm">
-                        {b.reference}
-                      </span>
-                      <span className="font-semibold text-ink">{b.courtName}</span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          b.status === 'confirmed'
-                            ? 'bg-ok-soft text-ok'
-                            : b.status === 'cancelled'
-                            ? 'bg-danger-soft text-danger'
-                            : 'bg-surface-2 text-ink-soft'
-                        }`}
-                      >
-                        {b.status}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3 text-ink-soft">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-gold" />
-                        <span>{b.businessDate}</span>
-                      </span>
-                      <span>·</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-gold" />
-                        <span>{formatTo12Hour(b.timeLabel)}</span>
-                      </span>
-                    </div>
+        <ul className="mt-4 divide-y divide-border border-y border-border">
+          {shown.map((b) => {
+            const status = STATUS[b.status] ?? { label: b.status, tone: 'off' as const };
+            const open = confirming === b.bookingId;
+            return (
+              <li key={b.bookingId} className="py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-semibold">{formatShortDate(b.startsAt, b.timezone)}</p>
+                    <p className="text-[15px] tabular-nums text-ink-soft">
+                      {formatRange(b.startsAt, b.endsAt, b.timezone)} · {b.courtName}
+                    </p>
                   </div>
-
-                  <div className="flex items-center gap-4 sm:text-right">
-                    <div>
-                      <div className="font-bold text-navy text-sm font-mono">
-                        ₹{b.amountRupees}
-                      </div>
-                      <p className="text-[10px] text-ink-faint">
-                        {b.isPaid ? 'Paid at counter' : 'Pay at venue'}
-                      </p>
-                    </div>
-
-                    {b.status === 'confirmed' && (
-                      <div>
-                        {b.isCancellable ? (
-                          <button
-                            onClick={() => setCancelTarget(b)}
-                            className="px-3 py-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-700 font-semibold text-xs hover:bg-rose-100 active:scale-95 transition shadow-2xs"
-                          >
-                            Cancel Slot
-                          </button>
-                        ) : (
-                          <span
-                            className="text-[10px] text-ink-faint"
-                            title="Session is completed"
-                          >
-                            Session Completed
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <Pill tone={status.tone}>{status.label}</Pill>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="mt-1.5 text-[13px] text-ink-faint">
+                  Ref <span className="font-mono text-ink-soft">{b.reference}</span> · Paid {formatPaise(b.paidPaise)}
+                </p>
+
+                {open ? (
+                  <div role="group" aria-label="Confirm cancellation" className="mt-3 grid gap-3 rounded-lg bg-danger-soft p-4 text-sm">
+                    <p>
+                      <b className="font-semibold">Cancel this booking?</b>{' '}
+                      {b.refund && b.refund.totalPaise > 0
+                        ? `You’ll get ${formatPaise(b.refund.totalPaise)} back. ${b.refund.explanation}`
+                        : 'No refund applies at this point under the cancellation policy.'}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <button
+                        type="button"
+                        disabled={cancelling === b.bookingId}
+                        onClick={() => void cancel(b)}
+                        className={buttonClass('danger', 'sm')}
+                      >
+                        {cancelling === b.bookingId ? 'Cancelling…' : 'Yes, cancel'}
+                      </button>
+                      <button type="button" onClick={() => setConfirming(null)} className={textButtonClass}>
+                        Keep it
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-1 flex flex-wrap gap-5">
+                    <Link href={`/book/pass?ref=${b.bookingId}`} className={textButtonClass}>
+                      View pass
+                    </Link>
+                    {b.canCancel ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setConfirming(b.bookingId);
+                          setFlash(null);
+                        }}
+                        className={cx(textButtonClass, 'font-medium text-ink-faint')}
+                      >
+                        Cancel booking
+                      </button>
+                    ) : null}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       )}
 
-      {/* 4. Cancellation Confirmation Dialog */}
-      {cancelTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-surface border border-border rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
-            <div className="flex items-center gap-2 text-danger">
-              <AlertTriangle className="w-5 h-5 shrink-0" />
-              <h3 className="text-sm font-bold">
-                Cancel Booking {cancelTarget.reference}?
-              </h3>
-            </div>
-
-            <p className="text-xs text-ink leading-relaxed">
-              Are you sure you want to cancel your session on <strong>{cancelTarget.businessDate} ({formatTo12Hour(cancelTarget.timeLabel)})</strong>? Your reserved court will immediately be made available for other players.
-            </p>
-
-            <div className="p-3 bg-surface-2 rounded-lg border border-border text-[11px] text-ink-soft">
-              Policy: {cancelTarget.hoursUntilMatch >= 2 ? "100% Free cancellation per Fair Play Policy (> 2 hours before match)." : "Late cancellation (< 2 hours before match). Slot will be immediately released."}
-            </div>
-
-            {cancelError && (
-              <div className="p-2.5 rounded bg-danger-soft text-danger text-xs font-semibold">
-                {cancelError}
-              </div>
-            )}
-
-            {cancelSuccess && (
-              <div className="p-2.5 rounded bg-ok-soft text-ok text-xs font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Booking cancelled successfully.</span>
-              </div>
-            )}
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                disabled={isCancelling}
-                onClick={() => setCancelTarget(null)}
-                className="px-4 py-2 rounded-lg border border-border text-ink text-xs font-semibold hover:bg-surface-2"
-              >
-                Keep Booking
-              </button>
-              <button
-                disabled={isCancelling}
-                onClick={handleConfirmCancel}
-                className="px-4 py-2 rounded-lg bg-danger text-white text-xs font-bold hover:opacity-90 transition flex items-center gap-1.5"
-              >
-                {isCancelling && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>Cancel Booking</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <Link href="/book" className={buttonClass('primary')}>Book a court</Link>
+        <button type="button" onClick={() => void signOut()} className={cx(textButtonClass, 'font-medium text-ink-faint')}>
+          Sign out
+        </button>
+      </div>
+    </Column>
   );
 }
