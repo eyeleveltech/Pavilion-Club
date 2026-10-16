@@ -137,6 +137,10 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
   .hero__side{display:none}
   .hero__media img{object-position:58% 58%}
 }
+@media (min-width:1800px){
+  .hero__media{inset:-3% 0}
+  .hero__media img{object-position:50% 52%}
+}
 
 /* --- ticker ----------------------------------------------------- */
 .ticker{position:relative;overflow:hidden;border-top:1px solid var(--gold-line);border-bottom:1px solid var(--gold-line);background:var(--midnight-deep);padding:1.05rem 0}
