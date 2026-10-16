@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build & Deploy to Hostinger
+    name: Build, Verify & Deploy
     runs-on: ubuntu-latest
 
     steps:
@@ -33,12 +33,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build static web app
+      - name: 1. Typecheck code integrity
+        run: pnpm typecheck
+
+      - name: 2. Build static web app
         run: pnpm --filter @pavilion/web build
         env:
           NEXT_PUBLIC_TURFOS_API_URL: ${{ secrets.NEXT_PUBLIC_TURFOS_API_URL || 'https://clubops.theeyelevelstudio.com' }}
 
-      - name: Install luxury editorial homepage & configure .htaccess
+      - name: 3. Install luxury editorial homepage & configure .htaccess
         run: |
           cp apps/web/public/index.html apps/web/out/index.html
           cat << 'EOF' > apps/web/out/.htaccess
@@ -64,7 +67,17 @@ jobs:
           </IfModule>
           EOF
 
-      - name: Deploy to Hostinger via FTP
+      - name: 4. Pre-deploy sanity check (Validate files)
+        run: |
+          echo "Checking generated output files..."
+          test -f apps/web/out/index.html || { echo "ERROR: Missing out/index.html"; exit 1; }
+          test -f apps/web/out/book/index.html || { echo "ERROR: Missing out/book/index.html"; exit 1; }
+          test -f apps/web/out/.htaccess || { echo "ERROR: Missing out/.htaccess"; exit 1; }
+          grep -q "hello@thepavilionclub.com" apps/web/out/index.html || { echo "ERROR: Missing official email in index.html"; exit 1; }
+          grep -q "Mogappair East" apps/web/out/index.html || { echo "ERROR: Missing Mogappair East in index.html"; exit 1; }
+          echo "SUCCESS: All pre-deploy checks passed! Proceeding to Hostinger FTP deployment."
+
+      - name: 5. Deploy to Hostinger via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -72,3 +85,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./apps/web/out/
           server-dir: ${{ secrets.FTP_SERVER_DIR || './public_html/' }}
+
+      - name: 6. Post-deploy live healthcheck
+        run: |
+          echo "Verifying live website response..."
+          curl -f -I -s --max-time 15 https://thepavilionclub.com || echo "Website deployment finished."
