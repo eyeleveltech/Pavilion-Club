@@ -82,25 +82,15 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          lftp << EOF
-set ftp:ssl-allow true
-set ssl:verify-certificate no
-set net:timeout 30
-set net:max-retries 3
-open -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_SERVER"
-pwd
-ls -la
-cd domains/thepavilionclub.com/public_html || cd public_html || cd domains/thepavilionclub.in/public_html || cd /public_html || pwd
-pwd
-mirror --reverse --delete --verbose=1 --parallel=4 ./apps/web/out/ .
-ls -la index.html
-bye
-EOF
-          echo "FTP deployment script finished."
+          node scripts/generate-lftp-script.cjs
+          lftp -f deploy_lftp.txt
+          echo "FTP deployment script finished successfully."
 
       - name: 6. Post-deploy live healthcheck
         run: |
           echo "Verifying live website response..."
-          curl -f -I -s --max-time 15 https://thepavilionclub.com || echo "Website deployment finished."
+          sleep 5
+          curl -f -s https://thepavilionclub.com/ | grep -q "membership-sec" && echo "SUCCESS: Live website has membership section!" || echo "Warning: membership-sec not yet reflected or cached."
