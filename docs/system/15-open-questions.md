@@ -314,6 +314,12 @@ Docker Compose + Caddy on one box. Postgres from the official Docker image, so
 *Verify before purchase:* an India region (Singapore as fallback), and that
 daily snapshots are available.
 
+*Plan chosen 2026-10-01:* **KVM 1** (1 vCPU / 4 GB / 50 GB) to start. This is
+below the 4 vCPU / 8–16 GB in `13-ops-security.md`, accepted for launch with
+three courts. Conditions: build the images off the server (the compose file
+currently builds on the box), add swap, and serve homepage video from a CDN or
+storage bucket, not this box. Move up to KVM 2 if memory or CPU runs tight.
+
 **Q23a — Domain name.** `BLOCKING for Phase 2`
 Needed before any real webhook can be tested.
 
