@@ -1,9 +1,8 @@
 ﻿name: Deploy Pavilion Club to Hostinger
 
 on:
-  push:
-    branches:
-      - main
+  # Automatic deployment on git push is turned off.
+  # Trigger manually via GitHub Actions -> 'Deploy Pavilion Club to Hostinger' -> 'Run workflow'
   workflow_dispatch:
 
 concurrency:
