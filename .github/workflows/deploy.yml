@@ -84,26 +84,30 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          lftp -c "
-            set ftp:ssl-allow true
-            set ssl:verify-certificate no
-            set net:timeout 20
-            set net:max-retries 3
-            open -u \"\$FTP_USERNAME\",\"\$FTP_PASSWORD\" \"\$FTP_SERVER\"
-            echo '=== Checking FTP Directory Structure ==='
-            pwd
-            ls -la
-            echo '=== Navigating to Hostinger public_html ==='
-            cd domains/thepavilionclub.com/public_html || cd public_html || cd domains/thepavilionclub.in/public_html || cd /public_html || pwd
-            echo '=== Target Deployment Directory ==='
-            pwd
-            echo '=== Mirroring Production Files ==='
-            mirror --reverse --delete --verbose=2 --parallel=4 ./apps/web/out/ .
-            echo '=== Verifying Uploaded Files ==='
-            ls -la index.html
-            echo 'FTP Sync successfully finished!'
-            bye
-          "
+          cat << EOF > deploy_lftp.sh
+          set cmd:fail-exit true
+          set ftp:ssl-allow true
+          set ssl:verify-certificate no
+          set net:timeout 30
+          set net:max-retries 3
+          open -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_SERVER"
+          set cmd:fail-exit false
+          echo "=== Connected to FTP Server! ==="
+          pwd
+          ls -la
+          echo "=== Navigating to Hostinger public_html ==="
+          cd domains/thepavilionclub.com/public_html || cd public_html || cd domains/thepavilionclub.in/public_html || cd /public_html || pwd
+          echo "=== Target Deployment Directory ==="
+          pwd
+          echo "=== Mirroring Production Files ==="
+          mirror --reverse --delete --verbose=2 --parallel=4 ./apps/web/out/ .
+          echo "=== Verifying Uploaded Files ==="
+          ls -la index.html
+          bye
+          EOF
+
+          lftp -f deploy_lftp.sh
+          echo "FTP Sync successfully completed!"
 
       - name: 6. Post-deploy live healthcheck
         run: |
