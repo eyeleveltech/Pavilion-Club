@@ -515,26 +515,63 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 }
 
 /* --- membership section --- */
-.membership-sec{position:relative;background:var(--midnight-deep);padding:clamp(6rem,12vw,10rem) var(--gutter);border-top:1px solid var(--gold-line)}
-.membership-sec__head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;margin-bottom:clamp(3rem,6vw,4.5rem)}
-.membership-sec__tabs{display:inline-flex;padding:.4rem;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--gold-line);gap:.4rem;margin-bottom:3rem;flex-wrap:wrap}
-.membership-tab-btn{padding:.7rem 1.6rem;border-radius:100px;font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-70);transition:all .3s var(--ease);background:none;border:none;cursor:pointer}
-.membership-tab-btn.is-active{background:var(--gold);color:var(--midnight);box-shadow:0 4px 20px rgba(199,162,106,.3)}
-.membership-cards{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:1.8rem}
-.m-card{position:relative;background:rgba(15,30,46,.75);border:1px solid var(--gold-line);border-radius:16px;padding:2.2rem 1.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:transform .4s var(--ease), border-color .4s, box-shadow .4s}
-.m-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 12px 32px rgba(0,0,0,.4)}
-.m-card.is-popular{background:linear-gradient(180deg, rgba(24,44,61,.95) 0%, rgba(15,30,46,.95) 100%);border-color:var(--gold);box-shadow:0 12px 32px rgba(199,162,106,.15)}
-.m-card__badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--midnight);padding:.25rem .9rem;font-size:.58rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;border-radius:100px;white-space:nowrap}
-.m-card__type{font-size:.62rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
-.m-card__title{font-size:1.35rem;font-weight:700;line-height:1.2;color:var(--ivory);margin-bottom:.8rem;font-family:var(--font-serif)}
-.m-card__desc{font-size:.82rem;line-height:1.6;color:var(--ivory-70);margin-bottom:1.4rem}
-.m-card__price{margin:1.4rem 0;padding-top:1.4rem;border-top:1px solid var(--gold-line);display:flex;align-items:baseline;gap:.4rem}
-.m-card__price-num{font-size:2.2rem;font-weight:800;color:var(--ivory);font-family:var(--font-serif);line-height:1}
-.m-card__price-unit{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-45)}
-.m-card__features{list-style:none;padding:0;margin:0 0 2rem;display:grid;gap:.8rem;font-size:.78rem;color:var(--ivory-70)}
-.m-card__features li{display:flex;align-items:center;gap:.7rem}
-.m-card__features li::before{content:"";width:5px;height:5px;background:var(--gold);border-radius:50%;flex-shrink:0}
-.m-card .btn{width:100%;text-align:center;padding:.9rem 1.4rem;font-size:.64rem}
-@media (max-width:900px){
-  .membership-sec__head{grid-template-columns:1fr;gap:1.5rem}
+/* --- memberships & packs ---------------------------------------- */
+/* An editorial price list, not a wall of cards: one hairline grid, the
+   wordmark's serif for plan names, quiet arrow links and a single gold
+   button for the plan the club recommends. Tabs are the same underlined
+   uppercase labels the booking widget uses. */
+.mship{position:relative;background:var(--midnight-deep);border-top:1px solid var(--gold-line)}
+.mship__head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;margin-bottom:clamp(3rem,6vw,4.5rem)}
+.mship__head .eyebrow{margin-bottom:2rem}
+.mship__tabs{display:flex;gap:clamp(1.6rem,4vw,3.4rem);border-bottom:1px solid var(--ivory-line);overflow-x:auto;scrollbar-width:none}
+.mship__tabs::-webkit-scrollbar{display:none}
+.mship__tab{position:relative;flex:0 0 auto;display:inline-flex;align-items:baseline;gap:.8rem;padding:0 0 1.2rem;font-size:.68rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);transition:color .3s}
+.mship__tab span{font-size:.6rem;letter-spacing:.1em;color:var(--gold);font-variant-numeric:tabular-nums}
+.mship__tab::after{content:"";position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.mship__tab:hover{color:var(--ivory)}
+.mship__tab[aria-selected="true"]{color:var(--ivory)}
+.mship__tab[aria-selected="true"]::after{transform:scaleX(1)}
+.mship__tab:focus-visible{outline:none;color:var(--ivory)}
+.mship__tab:focus-visible::after{transform:scaleX(1);height:2px}
+.mship__panel[hidden]{display:none}
+.mship__panel.is-in{animation:mshipIn .6s var(--ease) both}
+@keyframes mshipIn{from{opacity:0;transform:translateY(12px)}}
+.mship__plans{list-style:none;margin:2.6rem 0 0;padding:0;display:grid;gap:1px;background:var(--ivory-line);border:1px solid var(--ivory-line)}
+.mship__plans--4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mship__plans--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mship__plan{position:relative;display:flex;flex-direction:column;padding:clamp(2rem,3vw,2.6rem) clamp(1.4rem,2.2vw,2rem);background:var(--midnight-deep);transition:background .4s}
+.mship__plan:hover{background:#0d1a28}
+.mship__plan.is-featured{background:linear-gradient(180deg,rgba(199,162,106,.09),rgba(199,162,106,0) 60%),var(--midnight-deep)}
+.mship__plan.is-featured::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--gold)}
+.mship__top{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:1.3rem;margin-bottom:1.6rem}
+.mship__term{font-size:.6rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+.mship__flag{font-family:var(--font-script);font-size:1.25rem;line-height:.8;color:var(--gold);white-space:nowrap}
+.mship__name{font-family:var(--font-serif);font-weight:600;font-size:clamp(1.55rem,2vw,1.9rem);line-height:1.1;letter-spacing:-.005em;color:var(--ivory)}
+.mship__desc{margin-top:.8rem;font-size:.8rem;line-height:1.65;color:var(--ivory-70)}
+/* prices start on one line across a row, whatever the description length */
+.mship__plans--4 .mship__desc{min-height:4.95em}
+.mship__plans--2 .mship__desc{min-height:3.3em}
+.mship__price{margin-top:2rem;display:flex;align-items:flex-start;gap:.15rem;font-size:clamp(2.4rem,3.2vw,3rem);font-weight:500;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ivory)}
+.mship__price small{font-size:.42em;font-weight:500;margin-top:.18em;color:var(--gold)}
+.mship__per{margin-top:.6rem;font-size:.68rem;letter-spacing:.08em;color:var(--ivory-45);font-variant-numeric:tabular-nums}
+.mship__per b{color:var(--ivory-70);font-weight:600}
+.mship__perks{list-style:none;margin:1.8rem 0 2.2rem;padding:0;border-top:1px solid var(--ivory-line)}
+.mship__perks li{position:relative;padding:.8rem 0 .8rem 1.4rem;border-bottom:1px solid var(--ivory-line);font-size:.8rem;line-height:1.5;color:var(--ivory-70)}
+.mship__perks li::before{content:"";position:absolute;left:0;top:1.35em;width:.6rem;height:1px;background:var(--gold)}
+.mship__cta{margin-top:auto}
+.mship__plan .btn{width:100%;padding:1rem 1.4rem}
+.mship__plan .link-arrow{padding:.9rem 0}
+.mship__foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem 3rem;flex-wrap:wrap;margin-top:2.4rem;font-size:.78rem;line-height:1.7;color:var(--ivory-45)}
+.mship__foot .link-arrow{color:var(--ivory)}
+@media (max-width:1100px){
+  .mship__plans--4{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+@media (max-width:900px){
+  .mship__head{grid-template-columns:1fr;gap:1.5rem}
+}
+@media (max-width:640px){
+  .mship__plans--4,.mship__plans--2{grid-template-columns:minmax(0,1fr)}
+  .mship__plans--4 .mship__desc,.mship__plans--2 .mship__desc{min-height:0}
+  .mship__tabs{margin:0 calc(var(--gutter) * -1);padding:0 var(--gutter)}
+}
+@media (prefers-reduced-motion:reduce){.mship__panel.is-in{animation:none}}
