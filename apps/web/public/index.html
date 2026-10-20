@@ -348,12 +348,14 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .club{background:var(--midnight)}
 .club__head{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end;margin-bottom:clamp(3rem,7vw,7rem)}
 .club__head .lede{max-width:26rem;justify-self:end}
-.collage{display:grid;grid-template-columns:repeat(12,1fr);gap:1.4rem;align-items:start}
-.collage .frame img{transform:scale(1.15)}
-.c1{grid-column:1/8;aspect-ratio:4/3}
-.c2{grid-column:9/13;aspect-ratio:4/5;margin-top:-16vh}
-.c3{grid-column:5/10;aspect-ratio:16/9;margin-top:-6vh}
-.c4{grid-column:11/13;align-self:end;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-45);line-height:2;padding-bottom:1rem}
+/* One large image, two stacked beside it, every edge on the grid. No
+   negative margins or scroll parallax: those pushed the wellness photo over
+   the intro text and left the three images overlapping. */
+.collage{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr)) auto;gap:1.4rem}
+.c1{grid-column:1/8;grid-row:1/3;min-height:clamp(22rem,40vw,38rem)}
+.c2{grid-column:8/13;grid-row:1}
+.c3{grid-column:8/13;grid-row:2}
+.c4{grid-column:1/13;grid-row:3;padding-top:1.2rem;border-top:1px solid var(--ivory-line);font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-45);line-height:2}
 .quote{margin-top:clamp(4rem,9vw,9rem);display:grid;grid-template-columns:1fr 3fr;gap:2rem;border-top:1px solid var(--gold-line);padding-top:clamp(2.5rem,5vw,4rem)}
 .quote__mark{font-family:var(--font-script);color:var(--gold);font-size:clamp(5rem,9vw,9rem);line-height:.5;padding-top:.2em}
 .quote p{font-size:clamp(1.4rem,2.5vw,2.5rem);font-weight:500;line-height:1.32;letter-spacing:-.01em;max-width:34rem}
@@ -361,7 +363,10 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 @media (max-width:900px){
   .club__head{grid-template-columns:1fr}
   .club__head .lede{justify-self:start}
-  .c1{grid-column:1/11}.c2{grid-column:7/13;margin-top:-10vh}.c3{grid-column:1/9;margin-top:-4vh}.c4{grid-column:1/13;padding-top:1rem}
+  .collage{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;gap:.8rem}
+  .c1{grid-column:1/3;grid-row:auto;min-height:0;aspect-ratio:4/3}
+  .c2,.c3{grid-column:auto;grid-row:auto;aspect-ratio:4/5}
+  .c4{grid-column:1/3;grid-row:auto}
   .quote{grid-template-columns:1fr}
   .quote__mark{line-height:.7}
 }
@@ -470,6 +475,10 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .mship__cta{margin-top:auto}
 .mship__plan .btn{width:100%;padding:1rem 1.4rem}
 .mship__plan .link-arrow{padding:.9rem 0}
+/* Plans not on sale yet: a quiet label where the button will go. */
+.mship__soon{display:flex;align-items:center;justify-content:center;gap:.7rem;width:100%;padding:1rem 1.4rem;border:1px solid var(--ivory-line);font-size:.64rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);cursor:default;user-select:none}
+.mship__soon::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.mship__plan.is-featured .mship__soon{border-color:var(--gold-line);color:var(--gold)}
 .mship__foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem 3rem;flex-wrap:wrap;margin-top:2.4rem;font-size:.78rem;line-height:1.7;color:var(--ivory-45)}
 .mship__foot .link-arrow{color:var(--ivory)}
 @media (max-width:1100px){
@@ -769,10 +778,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="lede" data-fade>Rally &amp; Brew runs from first serve to last rally. The wellness centre is there for the strength work pickleball quietly demands. The banquet hall, one floor up, hosts tournament dinners, birthdays and the occasional wedding.</p>
   </div>
   <div class="collage">
-    <figure class="frame c1" data-reveal="up" data-parallax="40" data-cursor="The lounge"><img src="/assets/images/pavilion-lounge.jpg" alt="The Pavilion lounge with the pickleball mural" loading="lazy"></figure>
-    <figure class="frame c2" data-reveal="up" data-parallax="-60" data-cursor="Wellness"><img src="/assets/images/wellness-a.jpg" alt="The wellness studio, mirrored, mats laid out" loading="lazy"></figure>
-    <figure class="frame c3" data-reveal="left" data-parallax="20" data-cursor="Banquet"><img src="/assets/images/lobby.jpg" alt="The banquet lobby, glass walls and planting" loading="lazy"></figure>
-    <div class="c4" data-fade>Rally &amp; Brew · Wellness centre<br>Banquet hall · Courts 1–3</div>
+    <figure class="frame c1" data-reveal="up" data-cursor="The lounge"><img src="/assets/images/pavilion-lounge.jpg" alt="The Pavilion lounge with the pickleball mural" loading="lazy"></figure>
+    <figure class="frame c2" data-reveal="up" data-cursor="Wellness"><img src="/assets/images/wellness-a.jpg" alt="The wellness studio, mirrored, mats laid out" loading="lazy"></figure>
+    <figure class="frame c3" data-reveal="up" data-cursor="Banquet"><img src="/assets/images/lobby.jpg" alt="The banquet lobby, glass walls and planting" loading="lazy"></figure>
+    <div class="c4" data-fade>Rally &amp; Brew · Wellness centre · Banquet hall · Courts 1–3</div>
   </div>
   <blockquote class="quote">
     <span class="quote__mark" aria-hidden="true">“</span>
@@ -818,7 +827,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>Premium shower &amp; locker access</li>
             <li>Floor trainer assistance included</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%201-Month%20Gym%20Unlimited%20Pass%20(₹2,499).%20Please%20assist%20me!" target="_blank" rel="noopener">Join on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
         <li class="mship__plan is-featured">
           <div class="mship__top"><p class="mship__term">90 days</p><p class="mship__flag">Most popular</p></div>
@@ -831,7 +840,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>Personal fitness assessment</li>
             <li>Dedicated priority locker</li>
           </ul>
-          <a class="btn magnetic mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%203-Month%20Classic%20Gym%20Pass%20(₹6,499).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Join on WhatsApp</span></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
         <li class="mship__plan">
           <div class="mship__top"><p class="mship__term">180 days</p></div>
@@ -844,7 +853,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>2 complimentary guest day-passes</li>
             <li>Quarterly body composition check</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%206-Month%20Pro%20Gym%20Pass%20(₹11,999).%20Please%20assist%20me!" target="_blank" rel="noopener">Join on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
         <li class="mship__plan">
           <div class="mship__top"><p class="mship__term">365 days</p></div>
@@ -857,7 +866,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>15% discount on pickleball bookings</li>
             <li>VIP club merchandise included</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%20Annual%20VIP%20Gym%20Pass%20(₹19,999).%20Please%20assist%20me!" target="_blank" rel="noopener">Join on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
       </ol>
     </div>
@@ -876,7 +885,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>Valid across all 3 championship courts</li>
             <li>Automated balance debit with mobile number</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20purchase%20the%2010-Hour%20Pickleball%20Pack%20(₹6,500).%20Please%20assist%20me!" target="_blank" rel="noopener">Buy on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
         <li class="mship__plan is-featured">
           <div class="mship__top"><p class="mship__term">25 hours · 180 days</p><p class="mship__flag">Best value</p></div>
@@ -889,7 +898,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>180 days generous validity window</li>
             <li>Priority peak-hour booking access</li>
           </ul>
-          <a class="btn magnetic mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20purchase%20the%2025-Hour%20Pickleball%20Champion%20Pack%20(₹14,500).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Buy on WhatsApp</span></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
       </ol>
     </div>
@@ -908,7 +917,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>Dedicated instructor batch scheduling</li>
             <li>Front-desk check-in assistance for students</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20reserve%20the%208-Session%20Studio%20Batch%20(₹3,999).%20Please%20assist%20me!" target="_blank" rel="noopener">Reserve on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
         <li class="mship__plan">
           <div class="mship__top"><p class="mship__term">16 sessions · 60 days</p></div>
@@ -921,15 +930,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li>Full equipment &amp; yoga props included</li>
             <li>Student reception &amp; parking assistance</li>
           </ul>
-          <a class="link-arrow mship__cta" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20reserve%20the%2016-Session%20Studio%20Batch%20(₹6,999).%20Please%20assist%20me!" target="_blank" rel="noopener">Reserve on WhatsApp <i></i></a>
+          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
         </li>
       </ol>
     </div>
   </div>
 
   <div class="mship__foot" data-fade>
-    <p>Every plan starts the day you activate it — at the front desk, or over WhatsApp.</p>
-    <a class="link-arrow" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20know%20more%20about%20memberships%20and%20packs." target="_blank" rel="noopener">Ask about a plan <i></i></a>
+    <p>Memberships and packs open soon. Message us and we will tell you the day they launch.</p>
+    <a class="link-arrow" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20Please%20let%20me%20know%20when%20memberships%20and%20packs%20launch." target="_blank" rel="noopener">Get notified <i></i></a>
   </div>
 </section>
 
