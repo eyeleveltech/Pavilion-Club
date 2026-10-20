@@ -780,7 +780,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>Contact</h4>
-      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:bookings@pavilionclub.in">bookings@pavilionclub.in</a></li><li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li></ul>
+      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li><li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li></ul>
     </div>
   </div>
   <div class="footer__bottom">
@@ -880,7 +880,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .to('.loader__line', { scaleX: 1, duration: 1.7, ease: 'power2.inOut' }, 0)
         .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.2')
         .set('.loader', { display: 'none' })
-        .add(() => heroIntro.play(), '-=1.05');
+        .add(() => {
+          heroIntro.play();
+          if (window.location.hash) {
+            const hTarget = $(window.location.hash);
+            if (hTarget) {
+              setTimeout(() => {
+                if (window.lenis) lenis.scrollTo(hTarget, { offset: 0, duration: 1.6, easing: x => 1 - Math.pow(1 - x, 4) });
+                else hTarget.scrollIntoView({ behavior: 'smooth' });
+              }, 400);
+            }
+          }
+        }, '-=1.05');
     }
 
     /* ---------- hero scroll parallax + mouse drift ---------- */

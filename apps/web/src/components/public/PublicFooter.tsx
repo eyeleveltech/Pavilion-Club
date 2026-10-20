@@ -47,7 +47,7 @@ export function PublicFooter({ className = "mt-16" }: { className?: string }) {
             </p>
             <p className="flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-gold shrink-0" />
-              <a href="mailto:bookings@pavilionclub.in" className="hover:text-gold transition">bookings@pavilionclub.in</a>
+              <a href="mailto:hello@thepavilionclub.com" className="hover:text-gold transition">hello@thepavilionclub.com</a>
             </p>
           </div>
         </div>

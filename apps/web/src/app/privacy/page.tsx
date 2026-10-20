@@ -43,7 +43,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <div className="p-3 bg-surface-2 rounded border border-border space-y-1 font-mono text-[11px]">
             <p><strong>Name:</strong> Jayaraman R., Managing Director</p>
-            <p><strong>Email:</strong> grievance@pavilion.club</p>
+            <p><strong>Email:</strong> hello@thepavilionclub.com</p>
             <p><strong>Address:</strong> The Pavilion Club, Velammal School Road, JJ Nagar, Mogappair East, Chennai 600037</p>
           </div>
         </section>
