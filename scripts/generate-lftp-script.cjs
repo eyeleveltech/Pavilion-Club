@@ -3,10 +3,9 @@
 const server = process.env.FTP_SERVER;
 const user = process.env.FTP_USERNAME;
 const pass = process.env.FTP_PASSWORD;
-const dir = process.env.FTP_SERVER_DIR || '';
 
 if (!server || !user || !pass) {
-  console.error('ERROR: Missing FTP_SERVER, FTP_USERNAME, or FTP_PASSWORD environment variables.');
+  console.error('ERROR: Missing FTP credentials.');
   process.exit(1);
 }
 
@@ -20,30 +19,25 @@ const lines = [
   'set net:max-retries 3',
   'set cmd:fail-exit false',
   'open -u "' + escapeLftp(user) + '","' + escapeLftp(pass) + '" "' + escapeLftp(server) + '"',
-  'echo "=== Connected to Hostinger FTP! ==="',
+  'echo "=== [1] INITIAL DIRECTORY ==="',
   'pwd',
-  'ls -la'
+  'ls -la',
+  'echo "=== [2] PARENT DIRECTORY (..) ==="',
+  'cd ..',
+  'pwd',
+  'ls -la',
+  'echo "=== [3] ROOT DIRECTORY (/) ==="',
+  'cd /',
+  'pwd',
+  'ls -la',
+  'echo "=== [4] DOMAINS DIRECTORY (/domains) ==="',
+  'cd /domains || cd domains',
+  'pwd',
+  'ls -la',
+  'echo "=== [5] FINDING ALL FOLDERS ==="',
+  'cls -l -d 2 /',
+  'bye'
 ];
 
-if (dir && dir.trim() !== '') {
-  lines.push('cd "' + escapeLftp(dir.trim()) + '"');
-} else {
-  // Navigate strictly to absolute /public_html or domain web root (NOT relative ./public_html)
-  lines.push('cd /public_html || cd /domains/thepavilionclub.com/public_html || cd /');
-}
-
-lines.push(
-  'echo "=== Verified Target Deployment Directory ==="',
-  'pwd',
-  'ls -la index.html',
-  'set cmd:fail-exit true',
-  'echo "=== Starting High-Speed Mirror Upload to Web Root ==="',
-  'mirror --reverse --delete --verbose=1 --parallel=2 ./apps/web/out/ .',
-  'echo "=== Verifying Updated Live Files ==="',
-  'ls -la index.html',
-  'echo "=== FTP Upload Completed Successfully! ==="',
-  'bye'
-);
-
 fs.writeFileSync('deploy_lftp.txt', lines.join('\n') + '\n', 'utf8');
-console.log('Successfully generated deploy_lftp.txt with ' + lines.length + ' commands.');
+console.log('Generated discovery script successfully.');
