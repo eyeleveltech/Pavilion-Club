@@ -91,14 +91,15 @@ jobs:
 
       - name: 6. Post-deploy live healthcheck
         run: |
-          echo "Verifying live website response..."
+          echo "Verifying live website response from thepavilionclub.com..."
           sleep 5
-          for i in 1 2 3; do
+          for i in 1 2 3 4 5; do
             echo "Checking live site attempt $i..."
-            if curl -f -s "https://thepavilionclub.com/?v=$(date +%s)" | grep -q "membership-sec"; then
-              echo "SUCCESS: Live website is updated with membership section!"
+            HTML=$(curl -f -s "https://thepavilionclub.com/?v=$(date +%s%N)")
+            if echo "$HTML" | grep -q "membership-sec"; then
+              echo "SUCCESS: thepavilionclub.com is live with the in-page membership section!"
               exit 0
             fi
-            sleep 5
+            sleep 4
           done
-          echo "Notice: Live cache may take 1-2 minutes to clear across CDN/browsers."
+          echo "Notice: CDN / LiteSpeed cache is propagating."
