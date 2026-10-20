@@ -93,4 +93,12 @@ jobs:
         run: |
           echo "Verifying live website response..."
           sleep 5
-          curl -f -s https://thepavilionclub.com/ | grep -q "membership-sec" && echo "SUCCESS: Live website has membership section!" || echo "Warning: membership-sec not yet reflected or cached."
+          for i in 1 2 3; do
+            echo "Checking live site attempt $i..."
+            if curl -f -s "https://thepavilionclub.com/?v=$(date +%s)" | grep -q "membership-sec"; then
+              echo "SUCCESS: Live website is updated with membership section!"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Notice: Live cache may take 1-2 minutes to clear across CDN/browsers."

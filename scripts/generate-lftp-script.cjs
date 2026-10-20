@@ -28,16 +28,18 @@ const lines = [
 if (dir && dir.trim() !== '') {
   lines.push('cd "' + escapeLftp(dir.trim()) + '"');
 } else {
-  lines.push('cd domains/thepavilionclub.com/public_html || cd public_html || cd domains/thepavilionclub.in/public_html || cd /public_html || pwd');
+  // Navigate strictly to absolute /public_html or domain web root (NOT relative ./public_html)
+  lines.push('cd /public_html || cd /domains/thepavilionclub.com/public_html || cd /');
 }
 
 lines.push(
-  'echo "=== Target Deployment Directory ==="',
+  'echo "=== Verified Target Deployment Directory ==="',
   'pwd',
+  'ls -la index.html',
   'set cmd:fail-exit true',
-  'echo "=== Starting High-Speed Mirror Upload ==="',
+  'echo "=== Starting High-Speed Mirror Upload to Web Root ==="',
   'mirror --reverse --delete --verbose=1 --parallel=2 ./apps/web/out/ .',
-  'echo "=== Verifying Deployment Files ==="',
+  'echo "=== Verifying Updated Live Files ==="',
   'ls -la index.html',
   'echo "=== FTP Upload Completed Successfully! ==="',
   'bye'
