@@ -13,6 +13,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Pavilion Club — Pickleball, Mogappair East, Chennai</title>
 <meta name="description" content="Three tournament-grade pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
 <link href="/assets/fonts/fonts.css" rel="stylesheet">
 <style>
 /* ------------------------------------------------------------------
@@ -418,6 +422,32 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
   .chapter:not(:first-of-type) .chapter__img{clip-path:none}
   .chapter:not(:first-of-type) .chapter__body{opacity:1}
 }
+
+/* --- membership section --- */
+.membership-sec{position:relative;background:var(--midnight-deep);padding:clamp(6rem,12vw,10rem) var(--gutter);border-top:1px solid var(--gold-line)}
+.membership-sec__head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;margin-bottom:clamp(3rem,6vw,4.5rem)}
+.membership-sec__tabs{display:inline-flex;padding:.4rem;border-radius:100px;background:rgba(255,255,255,.05);border:1px solid var(--gold-line);gap:.4rem;margin-bottom:3rem;flex-wrap:wrap}
+.membership-tab-btn{padding:.7rem 1.6rem;border-radius:100px;font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ivory-70);transition:all .3s var(--ease);background:none;border:none;cursor:pointer}
+.membership-tab-btn.is-active{background:var(--gold);color:var(--midnight);box-shadow:0 4px 20px rgba(199,162,106,.3)}
+.membership-cards{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:1.8rem}
+.m-card{position:relative;background:rgba(15,30,46,.75);border:1px solid var(--gold-line);border-radius:16px;padding:2.2rem 1.8rem;display:flex;flex-direction:column;justify-content:space-between;transition:transform .4s var(--ease), border-color .4s, box-shadow .4s}
+.m-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.m-card.is-popular{background:linear-gradient(180deg, rgba(24,44,61,.95) 0%, rgba(15,30,46,.95) 100%);border-color:var(--gold);box-shadow:0 12px 32px rgba(199,162,106,.15)}
+.m-card__badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--midnight);padding:.25rem .9rem;font-size:.58rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;border-radius:100px;white-space:nowrap}
+.m-card__type{font-size:.62rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.m-card__title{font-size:1.35rem;font-weight:700;line-height:1.2;color:var(--ivory);margin-bottom:.8rem;font-family:var(--font-serif)}
+.m-card__desc{font-size:.82rem;line-height:1.6;color:var(--ivory-70);margin-bottom:1.4rem}
+.m-card__price{margin:1.4rem 0;padding-top:1.4rem;border-top:1px solid var(--gold-line);display:flex;align-items:baseline;gap:.4rem}
+.m-card__price-num{font-size:2.2rem;font-weight:800;color:var(--ivory);font-family:var(--font-serif);line-height:1}
+.m-card__price-unit{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ivory-45)}
+.m-card__features{list-style:none;padding:0;margin:0 0 2rem;display:grid;gap:.8rem;font-size:.78rem;color:var(--ivory-70)}
+.m-card__features li{display:flex;align-items:center;gap:.7rem}
+.m-card__features li::before{content:"";width:5px;height:5px;background:var(--gold);border-radius:50%;flex-shrink:0}
+.m-card .btn{width:100%;text-align:center;padding:.9rem 1.4rem;font-size:.64rem}
+@media (max-width:900px){
+  .membership-sec__head{grid-template-columns:1fr;gap:1.5rem}
+}
+
 </style>
 </head>
 <body>
@@ -464,7 +494,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#courts">Courts</a>
     <a href="#club">The club</a>
     <a href="#day">Court-side</a>
-    <a href="/membership">Membership</a>
+    <a href="#membership">Membership</a>
     <a href="/book">Booking</a>
     <a href="#venue">Find us</a>
   </nav>
@@ -477,7 +507,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#courts">Courts</a>
   <a href="#club">The club</a>
   <a href="#day">Court-side</a>
-  <a href="/membership">Membership</a>
+  <a href="#membership">Membership</a>
   <a href="/book">Booking</a>
   <a href="#venue">Find us</a>
   <div class="menu__foot">
@@ -714,6 +744,194 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <cite data-fade>A regular · Court 2, Tuesdays</cite>
     </div>
   </blockquote>
+</section>
+
+
+<!-- membership -->
+<section class="section has-lines membership-sec" id="membership">
+  <div class="membership-sec__head">
+    <div>
+      <p class="eyebrow" style="margin-bottom:2rem">Memberships &amp; Packs</p>
+      <h2 class="display display--l" data-lines>
+        <span class="ln"><span>Elevate your</span></span>
+        <span class="ln"><span><em class="sc">game.</em></span></span>
+      </h2>
+    </div>
+    <p class="lede">Unlimited gym access, tournament-spec court bundles, and dedicated studio batches. Transparent pricing, zero hidden fees, instant activation at the front desk or via WhatsApp concierge.</p>
+  </div>
+
+  <div style="display:flex;justify-content:center;">
+    <div class="membership-sec__tabs" role="tablist">
+      <button type="button" class="membership-tab-btn is-active" data-tab="gym" onclick="switchMembershipTab('gym')">Gym Unlimited</button>
+      <button type="button" class="membership-tab-btn" data-tab="pickleball" onclick="switchMembershipTab('pickleball')">Court Hour Packs</button>
+      <button type="button" class="membership-tab-btn" data-tab="studio" onclick="switchMembershipTab('studio')">Studio Batches</button>
+    </div>
+  </div>
+
+  <!-- Gym Tab Content -->
+  <div id="tab-gym" class="membership-tab-content">
+    <div class="membership-cards">
+      <!-- 1 Month -->
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">30 Days Pass</div>
+          <h3 class="m-card__title">1-Month Unlimited</h3>
+          <p class="m-card__desc">Daily access to strength zone, cardio floor, lockers and hot showers.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹2,499</span>
+            <span class="m-card__price-unit">/ month</span>
+          </div>
+          <ul class="m-card__features">
+            <li>Unlimited daily gym sessions</li>
+            <li>Premium shower &amp; locker access</li>
+            <li>Floor trainer assistance included</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%201-Month%20Gym%20Unlimited%20Pass%20(₹2,499).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Join Now</span></a>
+      </div>
+
+      <!-- 3 Months (Popular) -->
+      <div class="m-card is-popular">
+        <span class="m-card__badge">Most Popular</span>
+        <div>
+          <div class="m-card__type">90 Days Pass</div>
+          <h3 class="m-card__title">3-Month Classic</h3>
+          <p class="m-card__desc">Our flagship membership. Complete fitness assessment and priority locker.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹6,499</span>
+            <span class="m-card__price-unit">/ 3 months</span>
+          </div>
+          <ul class="m-card__features">
+            <li>Unlimited daily gym sessions</li>
+            <li>Personal fitness assessment</li>
+            <li>Dedicated priority locker</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%203-Month%20Classic%20Gym%20Pass%20(₹6,499).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Join Now</span></a>
+      </div>
+
+      <!-- 6 Months -->
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">180 Days Pass</div>
+          <h3 class="m-card__title">6-Month Pro</h3>
+          <p class="m-card__desc">Half-year commitment with complimentary guest day passes and body composition tracking.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹11,999</span>
+            <span class="m-card__price-unit">/ 6 months</span>
+          </div>
+          <ul class="m-card__features">
+            <li>180 days unlimited gym access</li>
+            <li>2 complimentary guest day-passes</li>
+            <li>Quarterly body composition check</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%206-Month%20Pro%20Gym%20Pass%20(₹11,999).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Join Now</span></a>
+      </div>
+
+      <!-- 1 Year -->
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">365 Days Pass</div>
+          <h3 class="m-card__title">Annual VIP</h3>
+          <p class="m-card__desc">Full year of elite club access, 15% discount on court bookings &amp; club merch.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹19,999</span>
+            <span class="m-card__price-unit">/ year</span>
+          </div>
+          <ul class="m-card__features">
+            <li>365 days unlimited gym access</li>
+            <li>15% discount on pickleball bookings</li>
+            <li>VIP club merchandise included</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20join%20the%20Annual%20VIP%20Gym%20Pass%20(₹19,999).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Join Now</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pickleball Tab Content -->
+  <div id="tab-pickleball" class="membership-tab-content" style="display:none;">
+    <div class="membership-cards" style="grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));max-width:840px;margin:0 auto;">
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">10 Hours Court Pack</div>
+          <h3 class="m-card__title">10-Hour Starter</h3>
+          <p class="m-card__desc">Prepaid court bundle for regular players. Valid across Court 1, 2, and 3 with zero booking fee.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹6,500</span>
+            <span class="m-card__price-unit">/ 60 days validity</span>
+          </div>
+          <ul class="m-card__features">
+            <li>Save ₹1,500 vs walk-in hourly rates</li>
+            <li>Valid across all 3 championship courts</li>
+            <li>Automated balance debit with mobile number</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20purchase%20the%2010-Hour%20Pickleball%20Pack%20(₹6,500).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Buy 10h Pack</span></a>
+      </div>
+
+      <div class="m-card is-popular">
+        <span class="m-card__badge">Best Value</span>
+        <div>
+          <div class="m-card__type">25 Hours Court Pack</div>
+          <h3 class="m-card__title">25-Hour Champion</h3>
+          <p class="m-card__desc">Bulk tournament-tier hours at substantial savings (₹580/hr). Priority slot reservation window.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹14,500</span>
+            <span class="m-card__price-unit">/ 180 days validity</span>
+          </div>
+          <ul class="m-card__features">
+            <li>Save ₹5,500 with ₹580/hr effective rate</li>
+            <li>180 days generous validity window</li>
+            <li>Priority peak-hour booking access</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20purchase%20the%2025-Hour%20Pickleball%20Champion%20Pack%20(₹14,500).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Buy 25h Pack</span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studio Tab Content -->
+  <div id="tab-studio" class="membership-tab-content" style="display:none;">
+    <div class="membership-cards" style="grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));max-width:840px;margin:0 auto;">
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">8 Studio Sessions</div>
+          <h3 class="m-card__title">8-Session Batch</h3>
+          <p class="m-card__desc">For yoga, pilates, or group functional fitness batches. Acoustic sound system &amp; full mirrored walls.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹3,999</span>
+            <span class="m-card__price-unit">/ 30 days</span>
+          </div>
+          <ul class="m-card__features">
+            <li>Acoustic sound system &amp; full mirrors</li>
+            <li>Dedicated instructor batch scheduling</li>
+            <li>Front-desk check-in assistance for students</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20reserve%20the%208-Session%20Studio%20Batch%20(₹3,999).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Reserve Batch</span></a>
+      </div>
+
+      <div class="m-card">
+        <div>
+          <div class="m-card__type">16 Studio Sessions</div>
+          <h3 class="m-card__title">16-Session Master Intensive</h3>
+          <p class="m-card__desc">Dedicated batch time blocks for certified instructors and coaches with front-desk student check-in.</p>
+          <div class="m-card__price">
+            <span class="m-card__price-num">₹6,999</span>
+            <span class="m-card__price-unit">/ 60 days</span>
+          </div>
+          <ul class="m-card__features">
+            <li>60 days validity for season batches</li>
+            <li>Full equipment &amp; yoga props included</li>
+            <li>Student reception &amp; parking assistance</li>
+          </ul>
+        </div>
+        <a class="btn magnetic" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20reserve%20the%2016-Session%20Studio%20Batch%20(₹6,999).%20Please%20assist%20me!" target="_blank" rel="noopener"><span>Reserve Batch</span></a>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- venue -->
