@@ -224,6 +224,64 @@ export async function startPayment(bookingId: string): Promise<PaymentOrder> {
 }
 
 /* ------------------------------------------------------------------ */
+/* Packs & Hour Credits Redemption                                     */
+/* ------------------------------------------------------------------ */
+
+export interface CustomerPack {
+  id: string;
+  name: string;
+  sport: string | null;
+  creditsTotal: number;
+  creditsUsed: number;
+  creditsRemaining: number;
+  expiresAt: string | null;
+}
+
+export interface CustomerPacksResponse {
+  found: boolean;
+  customer?: { name: string };
+  packs: CustomerPack[];
+}
+
+export async function checkCustomerPacks(phone: string): Promise<CustomerPacksResponse> {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) return { found: false, packs: [] };
+  return call<CustomerPacksResponse>(`/customers/${encodeURIComponent(digits)}/packs`);
+}
+
+export interface BookingPackOption {
+  id: string;
+  name: string;
+  creditsLeft: number;
+  creditsNeeded: number;
+  usable: boolean;
+  reason?: string;
+}
+
+export async function checkBookingPacks(bookingId: string): Promise<{ packs: BookingPackOption[] }> {
+  return call<{ packs: BookingPackOption[] }>(`/bookings/${encodeURIComponent(bookingId)}/packs`);
+}
+
+export interface RedeemPackResult {
+  ok: boolean;
+  booking_id: string;
+  reference: string;
+  status: string;
+  credits_left: number;
+  message: string;
+}
+
+export async function redeemPackBooking(
+  bookingId: string,
+  packId?: string,
+): Promise<RedeemPackResult> {
+  return call<RedeemPackResult>(`/bookings/${encodeURIComponent(bookingId)}/redeem-pack`, {
+    method: 'POST',
+    body: JSON.stringify({ pack_id: packId }),
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /* The booking, for the pass page and the post-payment poll            */
 /* ------------------------------------------------------------------ */
 
@@ -251,6 +309,8 @@ export interface BookingView {
   totalPaise: number;
   /** True when the booking is settled at the front desk rather than online. */
   payAtVenue: boolean;
+  payment: 'online' | 'at_venue' | 'pack';
+  isPackRedemption: boolean;
 }
 
 export async function fetchBooking(bookingId: string): Promise<BookingView> {
@@ -265,7 +325,8 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
     court: { display_name: string; sport_type: string };
     venue: { name: string; address: string | null; timezone: string };
     customer: { first_name: string | null; phone_last4: string | null };
-    payment?: 'online' | 'at_venue';
+    payment?: 'online' | 'at_venue' | 'pack';
+    payment_path?: string;
     amounts: {
       slot_paise: number;
       booking_fee_paise: number;
@@ -273,6 +334,8 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
       total_paise: number;
     };
   }>(`/bookings/${encodeURIComponent(bookingId)}`);
+
+  const isPack = wire.payment === 'pack' || wire.payment_path === 'redemption';
 
   return {
     bookingId: wire.booking_id,
@@ -293,7 +356,9 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
     feePaise: wire.amounts.booking_fee_paise,
     paidPaise: wire.amounts.paid_paise,
     totalPaise: wire.amounts.total_paise,
-    payAtVenue: wire.payment === 'at_venue',
+    payAtVenue: wire.payment === 'at_venue' && !isPack,
+    payment: isPack ? 'pack' : (wire.payment ?? 'online'),
+    isPackRedemption: isPack,
   };
 }
 

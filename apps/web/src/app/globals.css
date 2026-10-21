@@ -558,3 +558,20 @@ button:focus-visible {
   user-select: none !important;
   white-space: nowrap !important;
 }
+
+.footer__contact-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+}
+.footer__contact-link svg {
+  color: var(--gold) !important;
+  width: 15px !important;
+  height: 15px !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.25s ease, color 0.25s ease !important;
+}
+.footer__contact-link:hover svg {
+  color: var(--ivory) !important;
+  transform: scale(1.12) !important;
+}

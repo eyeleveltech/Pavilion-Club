@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
+  checkCustomerPacks,
   confirmAtVenue,
   createHold,
   fetchBooking,
@@ -13,9 +14,11 @@ import {
   formatRange,
   formatShortDate,
   hourIn,
+  redeemPackBooking,
   startPayment,
   TurfApiError,
   type CourtDay,
+  type CustomerPack,
   type DaySlot,
   type Hold,
   type VenueDay,
@@ -139,6 +142,11 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
   const [fieldError, setFieldError] = useState<{ field: string; message: string } | null>(null);
   const [notice, setNotice] = useState<{ tone: 'info' | 'error'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const [customerPacks, setCustomerPacks] = useState<CustomerPack[]>([]);
+  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
+  const [checkingPacks, setCheckingPacks] = useState(false);
+  const [usePack, setUsePack] = useState(false);
 
   const [hold, setHold] = useState<Hold | null>(null);
   const [holdCourt, setHoldCourt] = useState<CourtDay | null>(null);
@@ -487,11 +495,105 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
     }
   };
 
+  /* ---- auto-detect customer membership packs ----------------------- */
+
+  useEffect(() => {
+    const normPhone = normaliseMobile(phone);
+    if (normPhone.length !== 10 || !/^[6-9]\d{9}$/.test(normPhone)) {
+      setCustomerPacks([]);
+      setSelectedPackId(null);
+      setUsePack(false);
+      return;
+    }
+
+    let cancelled = false;
+    setCheckingPacks(true);
+    checkCustomerPacks(normPhone)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.found && res.packs.length > 0) {
+          setCustomerPacks(res.packs);
+          const matching = res.packs.filter(
+            (p) => !p.sport || !current?.sport || p.sport.toLowerCase() === current.sport.toLowerCase(),
+          );
+          const bestPack = matching[0] ?? res.packs[0];
+          if (bestPack) {
+            setSelectedPackId(bestPack.id);
+            const hoursNeeded = run.length || 1;
+            setUsePack(bestPack.creditsRemaining >= hoursNeeded);
+          }
+          if (!name && res.customer?.name) {
+            setName(res.customer.name);
+          }
+        } else {
+          setCustomerPacks([]);
+          setSelectedPackId(null);
+          setUsePack(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCustomerPacks([]);
+          setSelectedPackId(null);
+          setUsePack(false);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setCheckingPacks(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [phone, current?.sport, run.length, name]);
+
+  const bookWithPack = async () => {
+    if (busy || !best || !run.length || !validate()) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      let currentHold = hold;
+      if (!currentHold) {
+        currentHold = await createHold({
+          courtId: best.court.id,
+          startsAt: run[0]!.startsAt,
+          hours: run.length,
+          name: name.trim(),
+          phone: normaliseMobile(phone),
+          email: email.trim().toLowerCase(),
+        });
+        setHold(currentHold);
+        setHoldCourt(best.court);
+      }
+      const result = await redeemPackBooking(currentHold.bookingId, selectedPackId ?? undefined);
+      if (result.ok) {
+        router.push(`/book/pass?ref=${encodeURIComponent(result.booking_id)}`);
+      } else {
+        setBusy(false);
+        setNotice({ tone: 'error', text: result.message || 'Could not redeem hours from pack.' });
+      }
+    } catch (error) {
+      setBusy(false);
+      if (error instanceof TurfApiError && ['slot_taken', 'slot_unavailable', 'not_consecutive'].includes(error.code)) {
+        backToPick('Sorry — that time was just taken. Please choose another.', 'error');
+        return;
+      }
+      setNotice({
+        tone: 'error',
+        text: error instanceof Error ? error.message : 'Could not redeem hours from pack.',
+      });
+    }
+  };
+
   const settle = (current: Hold) => (atVenue ? confirmHere(current) : pay(current));
 
   const submitDetails = async (event: React.FormEvent) => {
     event.preventDefault();
     if (busy) return;
+    if (usePack) {
+      await bookWithPack();
+      return;
+    }
     if (hold) {
       await settle(hold);
       return;
@@ -609,8 +711,17 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
               </div>
             ))}
             <div className="flex justify-between gap-4 py-3">
-              <dt className="font-semibold">{atVenue ? 'Pay at the venue' : 'Total'}</dt>
-              <dd className="text-right text-lg font-bold tabular-nums">{formatPaise(total)}</dd>
+              <dt className="font-semibold">{usePack ? 'Total (Covered by Pack)' : atVenue ? 'Pay at the venue' : 'Total'}</dt>
+              <dd className="text-right text-lg font-bold tabular-nums">
+                {usePack ? (
+                  <>
+                    <span className="mr-2 text-xs font-normal text-ink-faint line-through">{formatPaise(total)}</span>
+                    <span className="text-[#2E6F4E] font-semibold">₹0</span>
+                  </>
+                ) : (
+                  formatPaise(total)
+                )}
+              </dd>
             </div>
           </dl>
 
@@ -662,8 +773,101 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
               </div>
               {fieldError?.field === 'phone' ? (
                 <small role="alert" className="text-[13px] font-medium text-danger">{fieldError.message}</small>
+              ) : checkingPacks ? (
+                <small className="text-[13px] text-ink-faint animate-pulse">Checking membership packs…</small>
               ) : null}
             </div>
+
+            {customerPacks.length > 0 && (
+              <div className="rounded-lg border border-[#2E6F4E]/30 bg-[#E2F0E8]/50 p-4 text-[14px]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2E6F4E]/20 text-base">
+                      🎟️
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-ink">Active Membership Pack</span>
+                        <Pill tone="ok">Detected</Pill>
+                      </div>
+                      <p className="mt-0.5 text-xs text-ink-soft">
+                        You have prepaid hours available on this mobile number.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {customerPacks.length > 1 && (
+                  <div className="mt-3 grid gap-1.5">
+                    <label htmlFor="bk-pack-select" className="text-xs font-medium text-ink-faint">
+                      Choose pack to redeem:
+                    </label>
+                    <select
+                      id="bk-pack-select"
+                      value={selectedPackId ?? ''}
+                      onChange={(e) => {
+                        setSelectedPackId(e.target.value);
+                        const p = customerPacks.find((cp) => cp.id === e.target.value);
+                        setUsePack((p?.creditsRemaining ?? 0) >= (run.length || 1));
+                      }}
+                      className="h-10 rounded-md border border-border-strong bg-surface px-3 text-sm text-ink focus:border-navy focus:outline-none"
+                    >
+                      {customerPacks.map((pack) => (
+                        <option key={pack.id} value={pack.id}>
+                          {pack.name} — {pack.creditsRemaining} hrs left {pack.sport ? `(${pack.sport})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {(() => {
+                  const activePack = customerPacks.find((p) => p.id === selectedPackId) ?? customerPacks[0];
+                  const hoursNeeded = run.length || 1;
+                  const hasEnough = (activePack?.creditsRemaining ?? 0) >= hoursNeeded;
+
+                  return (
+                    <div className="mt-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between rounded-md bg-surface px-3.5 py-2.5 border border-border text-xs">
+                        <div>
+                          <span className="font-semibold text-ink">{activePack?.name}</span>
+                          <div className="text-ink-faint mt-0.5">
+                            Balance: <span className="font-semibold text-[#2E6F4E]">{activePack?.creditsRemaining} hrs</span> • Booking: <span className="font-semibold text-ink">{hoursNeeded} hr{hoursNeeded > 1 ? 's' : ''}</span>
+                          </div>
+                        </div>
+                        {hasEnough ? (
+                          <span className="font-semibold text-[#2E6F4E]">
+                            {usePack ? '₹0 to pay' : 'Ready'}
+                          </span>
+                        ) : (
+                          <span className="font-semibold text-warn">
+                            Need {hoursNeeded - (activePack?.creditsRemaining ?? 0)} more hr{hoursNeeded - (activePack?.creditsRemaining ?? 0) > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+
+                      {hasEnough ? (
+                        <label className="flex items-center gap-2.5 cursor-pointer pt-1">
+                          <input
+                            type="checkbox"
+                            checked={usePack}
+                            onChange={(e) => setUsePack(e.target.checked)}
+                            className="h-4 w-4 rounded border-border-strong text-navy focus:ring-accent"
+                          />
+                          <span className="text-sm font-medium text-ink">
+                            Redeem {hoursNeeded} hour{hoursNeeded > 1 ? 's' : ''} from pack (Pay ₹0)
+                          </span>
+                        </label>
+                      ) : (
+                        <p className="text-xs text-warn">
+                          This pack does not have enough hours for this session. Standard payment will be used.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             <div className="grid gap-1.5">
               <label htmlFor="bk-email" className="text-sm font-semibold">Email</label>
@@ -695,9 +899,9 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
           </form>
         </Column>
 
-        <ActionBar caption={`${caption} · ${court!.name}`} amount={formatPaise(total)}>
+        <ActionBar caption={`${caption} · ${court!.name}`} amount={usePack ? '₹0' : formatPaise(total)}>
           <button type="submit" form="bk-details" disabled={busy} className={buttonClass('primary')}>
-            {busy ? 'Please wait…' : atVenue ? 'Confirm booking' : `Pay ${formatPaise(total)}`}
+            {busy ? 'Please wait…' : usePack ? 'Book with Pack — ₹0' : atVenue ? 'Confirm booking' : `Pay ${formatPaise(total)}`}
           </button>
         </ActionBar>
       </div>

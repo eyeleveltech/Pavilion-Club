@@ -143,8 +143,9 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
   const tz = booking.timezone;
   const confirmed = booking.status === 'confirmed' || booking.status === 'completed';
   const pending = booking.status === 'held';
+  const isPack = booking.isPackRedemption || booking.payment === 'pack';
   /** Confirmed, to be paid at the front desk (venue in pay-at-venue mode). */
-  const dueAtVenue = confirmed && booking.payAtVenue && booking.paidPaise < booking.totalPaise;
+  const dueAtVenue = confirmed && booking.payAtVenue && !isPack && booking.paidPaise < booking.totalPaise;
 
   const copy = async () => {
     try {
@@ -165,9 +166,11 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
         </h1>
         <p className="text-[15px] text-ink-soft">
           {confirmed
-            ? dueAtVenue
-              ? `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed. Please pay ${formatPaise(booking.totalPaise - booking.paidPaise)} at the front desk when you arrive.`
-              : `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed and paid. A confirmation is in your email.`
+            ? isPack
+              ? `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed and covered with your membership pack. A confirmation is in your email.`
+              : dueAtVenue
+                ? `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed. Please pay ${formatPaise(booking.totalPaise - booking.paidPaise)} at the front desk when you arrive.`
+                : `${booking.firstName ? `${booking.firstName}, your` : 'Your'} court is confirmed and paid. A confirmation is in your email.`
             : pending
               ? 'We’re waiting for your payment to be confirmed. This page updates by itself — please don’t pay again.'
               : booking.status === 'cancelled'
@@ -191,9 +194,11 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
             ['Date', formatLongDate(booking.startsAt, tz)],
             ['Time', formatRange(booking.startsAt, booking.endsAt, tz)],
             ['Booked', `${booking.sport} · ${booking.courtName}`],
-            dueAtVenue
-              ? ['Pay at the venue', formatPaise(booking.totalPaise - booking.paidPaise)]
-              : [confirmed ? 'Paid' : 'Amount', formatPaise(confirmed ? booking.paidPaise || booking.totalPaise : booking.totalPaise)],
+            isPack
+              ? ['Payment', 'Membership pack (₹0)']
+              : dueAtVenue
+                ? ['Pay at the venue', formatPaise(booking.totalPaise - booking.paidPaise)]
+                : [confirmed ? 'Paid' : 'Amount', formatPaise(confirmed ? booking.paidPaise || booking.totalPaise : booking.totalPaise)],
             ...(booking.venueAddress ? [['Where', booking.venueAddress]] : []),
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between gap-4 py-3">
