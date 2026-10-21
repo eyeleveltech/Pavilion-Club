@@ -47,7 +47,7 @@ export function CancellationPolicyContent() {
           </div>
           <div className="space-y-3 text-ink-soft text-xs">
             <p>
-              Players can cancel or reschedule bookings directly online via the <Link href="/my-bookings" className="text-navy font-semibold underline hover:text-gold">My Bookings</Link> portal using their registered phone number and OTP verification:
+              Players can cancel or reschedule bookings directly online via the <Link href="/my-bookings/" className="text-navy font-semibold underline hover:text-gold">My Bookings</Link> portal using their registered phone number and OTP verification:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="p-4 rounded-xl bg-surface-2 border border-border space-y-1">
@@ -117,7 +117,7 @@ export function CancellationPolicyContent() {
             <p className="text-xs text-ink-soft">Access your confirmed reservations using your mobile number and OTP.</p>
           </div>
           <Link
-            href="/my-bookings"
+            href="/my-bookings/"
             className="px-6 py-2.5 rounded-xl bg-navy text-white text-xs font-semibold hover:bg-navy/90 transition shadow-xs whitespace-nowrap"
           >
             Go to My Bookings &rarr;

@@ -1,5 +1,12 @@
-﻿import { PublicHeader } from '@/components/public/PublicHeader';
+import type { Metadata } from 'next';
+import { PublicHeader } from '@/components/public/PublicHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Terms of service, court rules, footwear policy, and booking conditions for The Pavilion Club, Mogappair East, Chennai.',
+};
+﻿
 
 export default function TermsPage() {
   return (

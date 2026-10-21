@@ -69,8 +69,8 @@ function Notice({
         {body}
       </p>
       <div className="mt-2 flex flex-wrap items-center justify-center gap-5">
-        <Link className={buttonClass('primary')} href="/my-bookings">My bookings</Link>
-        <Link className={textButtonClass} href="/book">Book a court</Link>
+        <Link className={buttonClass('primary')} href="/my-bookings/">My bookings</Link>
+        <Link className={textButtonClass} href="/book/">Book a court</Link>
       </div>
     </Column>
   );
@@ -226,10 +226,10 @@ export function BookingPassClient({ initialRef }: { initialRef?: string }) {
             Add to calendar
           </button>
         ) : null}
-        <Link className={buttonClass(confirmed ? 'secondary' : 'primary')} href="/my-bookings">
+        <Link className={buttonClass(confirmed ? 'secondary' : 'primary')} href="/my-bookings/">
           My bookings
         </Link>
-        <Link className={textButtonClass} href="/book">
+        <Link className={textButtonClass} href="/book/">
           Book another
         </Link>
       </div>

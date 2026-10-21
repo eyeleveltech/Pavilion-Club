@@ -347,7 +347,7 @@ export function MyBookingsView() {
             {tab === 'upcoming' ? 'No upcoming bookings.' : 'Nothing here yet.'}
           </p>
           {tab === 'upcoming' ? (
-            <Link href="/book" className={buttonClass('primary')}>Book a court</Link>
+            <Link href="/book/" className={buttonClass('primary')}>Book a court</Link>
           ) : null}
         </div>
       ) : (
@@ -423,7 +423,7 @@ export function MyBookingsView() {
       )}
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-        <Link href="/book" className={buttonClass('primary')}>Book a court</Link>
+        <Link href="/book/" className={buttonClass('primary')}>Book a court</Link>
         <button type="button" onClick={() => void signOut()} className={cx(textButtonClass, 'font-medium text-ink-faint')}>
           Sign out
         </button>

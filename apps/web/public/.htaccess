@@ -1,0 +1,37 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Block direct browser navigation to *.txt files (prevent index.txt from ever showing in browser)
+  RewriteCond %{HTTP_ACCEPT} text/html [NC]
+  RewriteRule ^index\.txt$ / [R=301,L]
+  RewriteCond %{HTTP_ACCEPT} text/html [NC]
+  RewriteRule ^(.*)/index\.txt$ /$1/ [R=301,L]
+
+  # 2. Existing static file/dir pass-through
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 3. Directory index rewrite for clean trailing-slash URLs
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.*)/?$ $1/index.html [L]
+
+  ErrorDocument 404 /404.html
+</IfModule>
+<IfModule mod_headers.c>
+  # Ensure RSC text files are served with the component MIME type for Next.js internal client fetch
+  <Files "*.txt">
+    Header set Content-Type "text/x-component; charset=utf-8"
+  </Files>
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>

@@ -29,8 +29,18 @@
         panel.hidden = true;
       }
     }
+    if (window.ScrollTrigger && typeof window.ScrollTrigger.refresh === 'function') {
+      window.ScrollTrigger.refresh();
+    }
     if (focus) tab.focus();
   }
+
+  // Backward-compatible fallback in case legacy calls exist
+  window.switchMembershipTab = function (tabName) {
+    var tab = document.getElementById('mship-tab-' + tabName) ||
+              document.querySelector('[aria-controls="mship-' + tabName + '"]');
+    if (tab) select(tab, false);
+  };
 
   document.addEventListener('click', function (e) {
     var tab = e.target.closest && e.target.closest('.mship__tab');

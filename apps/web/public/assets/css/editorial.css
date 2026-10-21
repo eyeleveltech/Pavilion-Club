@@ -106,7 +106,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .menu a{font-size:clamp(2.2rem,9vw,4rem);font-weight:800;text-transform:uppercase;line-height:1.15;letter-spacing:-.02em;padding:.35rem 0;border-bottom:1px solid rgba(199,162,106,.16)}
 .menu__foot{margin-top:2.4rem;display:grid;gap:.5rem;font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
 @media (max-width:900px){
-  .nav{grid-template-columns:1fr auto}
+  .nav{grid-template-columns:1fr auto}.nav .brand{justify-self:start}
   .nav__links{display:none}
   .nav__right .btn{display:none}
   .nav__menu{display:inline-flex}
@@ -396,7 +396,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .footer__ghost{font-size:clamp(4.6rem,19vw,19rem);font-weight:800;line-height:.78;letter-spacing:-.02em;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.22);text-align:center;transform:translateY(26%);pointer-events:none;user-select:none;white-space:nowrap}
 @media (max-width:900px){
   .footer__top{grid-template-columns:1fr 1fr}
-  .footer__top>div:first-child{grid-column:1/-1}
+  .footer__top>div:first-child{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:1rem}.footer__top>div:first-child .brand{margin:0 auto}.footer__tag{margin:1.2rem auto 0;text-align:center;max-width:20rem}
 }
 
 /* --- cursor ----------------------------------------------------- */
@@ -407,7 +407,10 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .cursor-ring{width:34px;height:34px;border:1.5px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
 .cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
 .cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold);color:var(--midnight)}
-@media (hover:none) and (pointer:coarse){body:not(.has-cursor) .cursor,body:not(.has-cursor) .cursor-ring{display:none}}
+@media (max-width:1024px), (hover:none), (pointer:coarse){
+  .cursor, .cursor-ring { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+  body, body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: auto !important; }
+}
 @media (prefers-reduced-motion:reduce){
   .loader{display:none}
   .chapter:not(:first-of-type) .chapter__img{clip-path:none}
@@ -550,14 +553,15 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .mship__plan.is-featured::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--gold)}
 .mship__top{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:1.3rem;margin-bottom:1.6rem}
 .mship__term{font-size:.6rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
-.mship__flag{font-family:var(--font-script);font-size:1.25rem;line-height:.8;color:var(--gold);white-space:nowrap}
+.mship__flag{display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-script);font-size:1.18rem;line-height:1;color:var(--gold);padding:.54rem .75rem .42rem;border:1px solid var(--gold);background:rgba(199,162,106,.08);white-space:nowrap;letter-spacing:.02em}
 .mship__name{font-family:var(--font-serif);font-weight:600;font-size:clamp(1.55rem,2vw,1.9rem);line-height:1.1;letter-spacing:-.005em;color:var(--ivory)}
 .mship__desc{margin-top:.8rem;font-size:.8rem;line-height:1.65;color:var(--ivory-70)}
 /* prices start on one line across a row, whatever the description length */
 .mship__plans--4 .mship__desc{min-height:4.95em}
 .mship__plans--2 .mship__desc{min-height:3.3em}
-.mship__price{margin-top:2rem;display:flex;align-items:flex-start;gap:.15rem;font-size:clamp(2.4rem,3.2vw,3rem);font-weight:500;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ivory)}
-.mship__price small{font-size:.42em;font-weight:500;margin-top:.18em;color:var(--gold)}
+.mship__price--text{font-family:var(--font-serif);font-size:clamp(1.4rem,1.8vw,1.7rem);font-weight:500;letter-spacing:-.01em;color:var(--ivory);margin-top:1.8rem;line-height:1.2}
+.mship__price{margin-top:1.6rem;display:flex;align-items:baseline;gap:.4rem;font-size:1.15rem;font-weight:600;letter-spacing:.04em;line-height:1.2;color:var(--ivory)}
+.mship__price small{font-size:1.05rem;font-weight:500;color:var(--gold)}
 .mship__per{margin-top:.6rem;font-size:.68rem;letter-spacing:.08em;color:var(--ivory-45);font-variant-numeric:tabular-nums}
 .mship__per b{color:var(--ivory-70);font-weight:600}
 .mship__perks{list-style:none;margin:1.8rem 0 2.2rem;padding:0;border-top:1px solid var(--ivory-line)}
@@ -567,9 +571,9 @@ body.has-cursor input,body.has-cursor textarea,body.has-cursor select{cursor:tex
 .mship__plan .btn{width:100%;padding:1rem 1.4rem}
 .mship__plan .link-arrow{padding:.9rem 0}
 /* Plans not on sale yet: a quiet label where the button will go. */
-.mship__soon{display:flex;align-items:center;justify-content:center;gap:.7rem;width:100%;padding:1rem 1.4rem;border:1px solid var(--ivory-line);font-size:.64rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);cursor:default;user-select:none}
-.mship__soon::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.mship__plan.is-featured .mship__soon{border-color:var(--gold-line);color:var(--gold)}
+.mship__soon{display:flex;align-items:center;justify-content:center;width:100%;padding:1.05rem 1.4rem;background:var(--gold);color:var(--midnight);border:1px solid var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;cursor:default;user-select:none;transition:background .3s,opacity .3s}
+.mship__soon::before{display:none}
+.mship__plan.is-featured .mship__soon{background:var(--gold);color:var(--midnight);border-color:var(--gold)}
 .mship__foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem 3rem;flex-wrap:wrap;margin-top:2.4rem;font-size:.78rem;line-height:1.7;color:var(--ivory-45)}
 .mship__foot .link-arrow{color:var(--ivory)}
 @media (max-width:1100px){

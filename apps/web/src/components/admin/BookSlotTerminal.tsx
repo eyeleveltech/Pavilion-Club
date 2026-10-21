@@ -304,7 +304,7 @@ export function BookSlotTerminal({
             <div className="flex justify-between py-1 border-b border-border/50">
               <span className="text-ink-soft">Court & Date:</span>
               <strong className="text-navy font-semibold">
-                {confirmedBlackout.courtName} � {confirmedBlackout.date}
+                {confirmedBlackout.courtName} · {confirmedBlackout.date}
               </strong>
             </div>
             <div className="flex justify-between py-1 border-b border-border/50">
@@ -662,7 +662,7 @@ export function BookSlotTerminal({
                     {lookupMatch?.found && (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-ok">
                         <Check className="w-3 h-3" />
-                        {lookupMatch.name} � {lookupMatch.bookingCount} bookings
+                        {lookupMatch.name} · {lookupMatch.bookingCount} bookings
                       </span>
                     )}
                   </div>
@@ -803,7 +803,7 @@ export function BookSlotTerminal({
                     <span>Processing Booking & Receipt...</span>
                   </>
                 ) : (
-                  <span>Payment received � Confirm booking</span>
+                  <span>Payment received · Confirm booking</span>
                 )}
               </button>
 

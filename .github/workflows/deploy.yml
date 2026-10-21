@@ -1,8 +1,8 @@
 ﻿name: Deploy Pavilion Club to Hostinger
 
 on:
-  # Automatic deployment on git push is turned off.
-  # Trigger manually via GitHub Actions -> 'Deploy Pavilion Club to Hostinger' -> 'Run workflow'
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -43,28 +43,7 @@ jobs:
       - name: 3. Install luxury editorial homepage & configure .htaccess
         run: |
           cp apps/web/public/index.html apps/web/out/index.html
-          cat << 'EOF' > apps/web/out/.htaccess
-          <IfModule mod_rewrite.c>
-            RewriteEngine On
-            RewriteBase /
-            RewriteCond %{REQUEST_FILENAME} -f [OR]
-            RewriteCond %{REQUEST_FILENAME} -d
-            RewriteRule ^ - [L]
-            RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
-            RewriteRule ^(.*)/?$ $1/index.html [L]
-            ErrorDocument 404 /404.html
-          </IfModule>
-          <IfModule mod_expires.c>
-            ExpiresActive On
-            ExpiresByType image/jpeg "access plus 1 year"
-            ExpiresByType image/png "access plus 1 year"
-            ExpiresByType image/webp "access plus 1 year"
-            ExpiresByType image/svg+xml "access plus 1 year"
-            ExpiresByType text/css "access plus 1 year"
-            ExpiresByType application/javascript "access plus 1 year"
-            ExpiresByType font/woff2 "access plus 1 year"
-          </IfModule>
-          EOF
+          cp apps/web/public/.htaccess apps/web/out/.htaccess
 
       - name: 4. Pre-deploy sanity check (Validate files)
         run: |

@@ -1,3 +1,9 @@
+function sanitizeVenueName(name?: string | null): string {
+  if (!name) return 'The Pavilion Club, Mogappair East';
+  if (name.includes('Adyar')) return 'The Pavilion Club, Mogappair East';
+  return name;
+}
+
 // Browser client for the TurfOS keyless public booking API.
 //
 // This site is a static export: everything here ships to the visitor's
@@ -212,7 +218,7 @@ export async function startPayment(bookingId: string): Promise<PaymentOrder> {
     keyId: wire.key_id,
     amountPaise: wire.amount_paise,
     currency: wire.currency ?? 'INR',
-    venueName: wire.venue_name ?? '',
+    venueName: sanitizeVenueName(wire.venue_name),
     prefill: wire.prefill ?? { name: '', email: '', contact: '' },
   };
 }
@@ -278,7 +284,7 @@ export async function fetchBooking(bookingId: string): Promise<BookingView> {
     businessDate: wire.business_date,
     courtName: wire.court.display_name,
     sport: wire.court.sport_type,
-    venueName: wire.venue.name,
+    venueName: sanitizeVenueName(wire.venue.name),
     venueAddress: wire.venue.address,
     timezone: wire.venue.timezone,
     firstName: wire.customer.first_name,
@@ -363,7 +369,7 @@ export async function fetchMyBookings(
       startsAt: b.starts_at,
       endsAt: b.ends_at,
       courtName: b.court_name,
-      venueName: b.venue_name,
+      venueName: sanitizeVenueName(b.venue_name),
       timezone: b.timezone,
       paidPaise: b.paid_paise,
       totalPaise: b.total_paise ?? b.paid_paise,

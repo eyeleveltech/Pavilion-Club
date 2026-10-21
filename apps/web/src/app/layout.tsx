@@ -3,6 +3,7 @@ import { Montserrat } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { PwaInstallPrompt } from '@/components/public/PwaInstallPrompt';
+import { RouteTransitionGuard } from '@/components/public/RouteTransitionGuard';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -18,13 +19,39 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'The Pavilion Club - Pickleball Arena',
+  metadataBase: new URL('https://thepavilionclub.com'),
+  title: {
+    default: 'The Pavilion Club · Pickleball Arena, Mogappair East, Chennai',
+    template: '%s | The Pavilion Club',
+  },
   description: 'Premier indoor pickleball arena in Mogappair East, Chennai. 3 championship regulation pickleball courts, glare-free LED lighting.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Pavilion Club',
+  },
+  openGraph: {
+    title: 'The Pavilion Club · Pickleball Arena, Mogappair East, Chennai',
+    description: 'Premier indoor pickleball arena in Mogappair East, Chennai. 3 championship regulation pickleball courts, glare-free LED lighting.',
+    url: 'https://thepavilionclub.com',
+    siteName: 'The Pavilion Club',
+    images: [
+      {
+        url: '/assets/images/courts-hall.png',
+        width: 1200,
+        height: 630,
+        alt: 'The Pavilion Club Championship Pickleball Courts',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The Pavilion Club · Pickleball Arena, Mogappair East, Chennai',
+    description: 'Premier indoor pickleball arena in Mogappair East, Chennai. 3 championship regulation pickleball courts, glare-free LED lighting.',
+    images: ['/assets/images/courts-hall.png'],
   },
   icons: {
     icon: [
@@ -33,6 +60,7 @@ export const metadata: Metadata = {
       { url: '/favicon-64.png', sizes: '64x64', type: 'image/png' },
     ],
     apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
@@ -64,6 +92,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {children}
         <PwaInstallPrompt />
+        <RouteTransitionGuard />
       </body>
     </html>
   );

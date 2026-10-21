@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import { PublicHeader } from '@/components/public/PublicHeader';
 import { PublicFooter } from '@/components/public/PublicFooter';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Digital Personal Data Protection (DPDP) compliance and privacy policy for The Pavilion Club, Mogappair East, Chennai.',
+};
+
 
 export default function PrivacyPolicyPage() {
   return (

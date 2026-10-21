@@ -291,6 +291,13 @@ button:focus-visible {
 }
 
 @media (max-width: 900px) {
+  .nav {
+    grid-template-columns: 1fr auto !important;
+  }
+  .nav .brand,
+  .editorial-nav .editorial-brand {
+    justify-self: start !important;
+  }
   .editorial-nav {
     grid-template-columns: 1fr auto;
     padding: 0.9rem 1.5rem;
@@ -370,4 +377,179 @@ button:focus-visible {
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--gold);
+}
+
+/* Membership price font size fix */
+.mship__price {
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 0.35rem !important;
+  margin-top: 1.6rem !important;
+}
+.mship__price small {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  color: var(--gold) !important;
+  margin: 0 !important;
+}
+
+/* Most popular badge: Luxury gold box border */
+.mship__flag {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--font-script) !important;
+  font-size: 1.18rem !important;
+  line-height: 1 !important;
+  color: var(--gold) !important;
+  padding: 0.54rem 0.75rem 0.42rem !important;
+  border: 1px solid var(--gold) !important;
+  background: rgba(199, 162, 106, 0.08) !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Hide custom round cursor on mobile and tablet */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  .cursor,
+  .cursor-ring {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  body,
+  body.has-cursor,
+  body.has-cursor a,
+  body.has-cursor button {
+    cursor: auto !important;
+  }
+}
+
+/* Center footer logo on mobile & tablet view */
+@media (max-width: 900px) {
+  .footer__top > div:first-child {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin-bottom: 1rem !important;
+  }
+  .footer__top > div:first-child .brand {
+    margin: 0 auto !important;
+  }
+  .footer__tag {
+    margin: 1.2rem auto 0 !important;
+    text-align: center !important;
+    max-width: 20rem !important;
+  }
+}
+
+/* --- Global Brand & Luxury Editorial Footer --------------------- */
+.brand {
+  display: inline-grid;
+  justify-items: center;
+  line-height: 1;
+  color: var(--ivory);
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+.brand__the {
+  font-family: var(--font-script);
+  font-size: 1.55em;
+  transform: translateX(14%);
+  margin-bottom: -0.12em;
+}
+.brand__name {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1em;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  text-transform: uppercase;
+}
+.brand__club {
+  font-family: var(--font-script);
+  font-size: 1.55em;
+  transform: translateX(12%);
+  margin-top: -0.22em;
+}
+
+.footer {
+  background: var(--midnight-deep) !important;
+  padding: clamp(5rem, 9vw, 8rem) var(--gutter) 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  color: var(--ivory) !important;
+}
+.footer__top {
+  display: grid !important;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr !important;
+  gap: 3rem !important;
+  padding-bottom: 4rem !important;
+  border-bottom: 1px solid var(--gold-line) !important;
+}
+.footer .brand {
+  font-size: 1.5rem !important;
+}
+.footer__tag {
+  margin-top: 1.8rem !important;
+  font-size: 0.8rem !important;
+  color: var(--ivory-45) !important;
+  max-width: 16rem !important;
+  line-height: 1.7 !important;
+}
+.footer h4 {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.3em !important;
+  text-transform: uppercase !important;
+  color: var(--gold) !important;
+  margin: 0 0 1.4rem !important;
+  font-weight: 600 !important;
+}
+.footer ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: grid !important;
+  gap: 0.7rem !important;
+  font-size: 0.9rem !important;
+  color: var(--ivory-70) !important;
+}
+.footer ul a {
+  color: inherit !important;
+  text-decoration: none !important;
+  transition: color 0.3s !important;
+}
+.footer ul a:hover {
+  color: var(--gold) !important;
+}
+.footer__bottom {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
+  padding: 1.8rem 0 !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--ivory-45) !important;
+}
+.footer__ghost {
+  font-size: clamp(4.6rem, 19vw, 19rem) !important;
+  font-weight: 800 !important;
+  line-height: 0.78 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: uppercase !important;
+  color: transparent !important;
+  -webkit-text-stroke: 1px rgba(199, 162, 106, 0.22) !important;
+  text-align: center !important;
+  transform: translateY(26%) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  white-space: nowrap !important;
 }

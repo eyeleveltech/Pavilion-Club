@@ -140,7 +140,7 @@ export default function ContactPage() {
               {/* Instant Book CTA */}
               <div className="pt-2">
                 <Link
-                  href="/book"
+                  href="/book/"
                   className="block w-full text-center py-3.5 rounded-xl bg-navy text-white text-xs font-bold uppercase tracking-wider hover:bg-navy/90 transition shadow-sm"
                 >
                   Check Live Availability &amp; Book &rarr;

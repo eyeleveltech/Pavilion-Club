@@ -77,7 +77,7 @@ export default function AboutPage() {
           </ul>
           <div className="pt-4">
             <Link
-              href="/book"
+              href="/book/"
               className="inline-block px-6 py-3 rounded-lg bg-navy text-white text-xs font-bold hover:opacity-90 transition shadow-sm"
             >
               Book a Slot Now

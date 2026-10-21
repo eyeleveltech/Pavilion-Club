@@ -12,10 +12,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Pavilion Club — Pickleball, Mogappair East, Chennai</title>
-<meta name="description" content="Three tournament-grade pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta name="description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://thepavilionclub.com/">
+<meta property="og:title" content="The Pavilion Club · Pickleball Arena, Mogappair East, Chennai">
+<meta property="og:description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta property="og:image" content="https://thepavilionclub.com/assets/images/courts-hall.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Pavilion Club · Pickleball Arena, Mogappair East, Chennai">
+<meta name="twitter:description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta name="twitter:image" content="https://thepavilionclub.com/assets/images/courts-hall.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
 <link href="/assets/fonts/fonts.css" rel="stylesheet">
 <style>
@@ -126,7 +136,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .menu a{font-size:clamp(2.2rem,9vw,4rem);font-weight:800;text-transform:uppercase;line-height:1.15;letter-spacing:-.02em;padding:.35rem 0;border-bottom:1px solid rgba(199,162,106,.16)}
 .menu__foot{margin-top:2.4rem;display:grid;gap:.5rem;font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
 @media (max-width:900px){
-  .nav{grid-template-columns:1fr auto}
+  .nav{grid-template-columns:1fr auto}.nav .brand{justify-self:start}
   .nav__links{display:none}
   .nav__right .btn{display:none}
   .nav__menu{display:inline-flex}
@@ -412,7 +422,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .footer__ghost{font-size:clamp(4.6rem,19vw,19rem);font-weight:800;line-height:.78;letter-spacing:-.02em;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.22);text-align:center;transform:translateY(26%);pointer-events:none;user-select:none;white-space:nowrap}
 @media (max-width:900px){
   .footer__top{grid-template-columns:1fr 1fr}
-  .footer__top>div:first-child{grid-column:1/-1}
+  .footer__top>div:first-child{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:1rem}.footer__top>div:first-child .brand{margin:0 auto}.footer__tag{margin:1.2rem auto 0;text-align:center;max-width:20rem}
 }
 
 /* --- cursor ----------------------------------------------------- */
@@ -421,7 +431,10 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .cursor-ring{width:34px;height:34px;border:1px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
 .cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
 .cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold)}
-@media (hover:none) and (pointer:coarse){body:not(.has-cursor) .cursor,body:not(.has-cursor) .cursor-ring{display:none}}
+@media (max-width:1024px), (hover:none), (pointer:coarse){
+  .cursor, .cursor-ring { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+  body, body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: auto !important; }
+}
 @media (prefers-reduced-motion:reduce){
   .loader{display:none}
   .chapter:not(:first-of-type) .chapter__img{clip-path:none}
@@ -465,8 +478,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 /* prices start on one line across a row, whatever the description length */
 .mship__plans--4 .mship__desc{min-height:4.95em}
 .mship__plans--2 .mship__desc{min-height:3.3em}
-.mship__price{margin-top:2rem;display:flex;align-items:flex-start;gap:.15rem;font-size:clamp(2.4rem,3.2vw,3rem);font-weight:500;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ivory)}
-.mship__price small{font-size:.42em;font-weight:500;margin-top:.18em;color:var(--gold)}
+.mship__price--text{font-family:var(--font-serif);font-size:clamp(1.4rem,1.8vw,1.7rem);font-weight:500;letter-spacing:-.01em;color:var(--ivory);margin-top:1.8rem;line-height:1.2}
+.mship__price{margin-top:1.6rem;display:flex;align-items:baseline;gap:.4rem;font-size:1.15rem;font-weight:600;letter-spacing:.04em;line-height:1.2;color:var(--ivory)}
+.mship__price small{font-size:1.05rem;font-weight:500;color:var(--gold)}
 .mship__per{margin-top:.6rem;font-size:.68rem;letter-spacing:.08em;color:var(--ivory-45);font-variant-numeric:tabular-nums}
 .mship__per b{color:var(--ivory-70);font-weight:600}
 .mship__perks{list-style:none;margin:1.8rem 0 2.2rem;padding:0;border-top:1px solid var(--ivory-line)}
@@ -476,9 +490,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .mship__plan .btn{width:100%;padding:1rem 1.4rem}
 .mship__plan .link-arrow{padding:.9rem 0}
 /* Plans not on sale yet: a quiet label where the button will go. */
-.mship__soon{display:flex;align-items:center;justify-content:center;gap:.7rem;width:100%;padding:1rem 1.4rem;border:1px solid var(--ivory-line);font-size:.64rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);cursor:default;user-select:none}
-.mship__soon::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.mship__plan.is-featured .mship__soon{border-color:var(--gold-line);color:var(--gold)}
+.mship__soon{display:flex;align-items:center;justify-content:center;width:100%;padding:1.05rem 1.4rem;background:var(--gold);color:var(--midnight);border:1px solid var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;cursor:default;user-select:none;transition:background .3s,opacity .3s}
+.mship__soon::before{display:none}
+.mship__plan.is-featured .mship__soon{background:var(--gold);color:var(--midnight);border-color:var(--gold)}
 .mship__foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem 3rem;flex-wrap:wrap;margin-top:2.4rem;font-size:.78rem;line-height:1.7;color:var(--ivory-45)}
 .mship__foot .link-arrow{color:var(--ivory)}
 @media (max-width:1100px){
@@ -493,6 +507,24 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
   .mship__tabs{margin:0 calc(var(--gutter) * -1);padding:0 var(--gutter)}
 }
 @media (prefers-reduced-motion:reduce){.mship__panel.is-in{animation:none}}
+
+
+
+/* Most popular badge: Luxury gold box border */
+.mship__flag {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: var(--font-script) !important;
+  font-size: 1.18rem !important;
+  line-height: 1 !important;
+  color: var(--gold) !important;
+  padding: 0.54rem 0.75rem 0.42rem !important;
+  border: 1px solid var(--gold) !important;
+  background: rgba(199, 162, 106, 0.08) !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.02em !important;
+}
 
 </style>
 </head>
@@ -541,11 +573,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#club">The club</a>
     <a href="#day">Court-side</a>
     <a href="#membership">Membership</a>
-    <a href="/book">Booking</a>
+    <a href="/book/">Booking</a>
     <a href="#venue">Find us</a>
   </nav>
   <div class="nav__right">
-    <a class="btn magnetic" href="/book">Book a court</a>
+    <a class="btn magnetic" href="/book/">Book a court</a>
     <button class="nav__menu" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>
 </header>
@@ -554,7 +586,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#club">The club</a>
   <a href="#day">Court-side</a>
   <a href="#membership">Membership</a>
-  <a href="/book">Booking</a>
+  <a href="/book/">Booking</a>
   <a href="#venue">Find us</a>
   <div class="menu__foot">
     <span>Mon–Fri 06:00–23:00 · Sat–Sun 06:00–00:00</span>
@@ -583,7 +615,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="hero__aside">
       <p class="lede">Three tournament-grade pickleball courts under one pergola roof, lit until midnight. Book by the hour, pay online, walk in and play.</p>
       <div class="hero__cta">
-        <a class="btn magnetic" href="/book">Book a court</a>
+        <a class="btn magnetic" href="/book/">Book a court</a>
         <a class="link-arrow" href="#courts">See the courts <i></i></a>
       </div>
     </div>
@@ -673,40 +705,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="lede" data-fade>Everything you need before, during and after a session sits under one roof. Only the courts are booked online.</p>
   </div>
   <div class="rows">
-    <a class="row" href="/book" data-img="0" data-cursor="Book">
+    <a class="row" href="/book/" data-img="0" data-cursor="Book">
       <span class="row__n">01</span>
       <span class="row__name">Courts</span>
       <span class="row__desc">Three tournament-grade courts, bookable by the hour</span>
       <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="" loading="lazy">
+      <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="The pickleball courts from the player bench" loading="lazy">
     </a>
     <a class="row" href="#club" data-img="1" data-cursor="View">
       <span class="row__n">02</span>
       <span class="row__name">Wellness centre</span>
       <span class="row__desc">Strength, mobility and recovery for players and regulars</span>
       <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
+      <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="The wellness centre strength and fitness equipment" loading="lazy">
     </a>
     <a class="row" href="#club" data-img="2" data-cursor="View">
       <span class="row__n">03</span>
       <span class="row__name">Rally &amp; Brew</span>
       <span class="row__desc">Coffee, fresh food and the match on the screen</span>
       <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/cafe-wide.jpg" alt="" loading="lazy">
+      <img class="row__thumb" src="/assets/images/cafe-wide.jpg" alt="Rally and Brew café seating and viewing lounge" loading="lazy">
     </a>
     <a class="row" href="#venue" data-img="3" data-cursor="View">
       <span class="row__n">04</span>
       <span class="row__name">Banquet hall</span>
       <span class="row__desc">Tournament dinners, corporate days and private events</span>
       <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/stair-brass.jpg" alt="" loading="lazy">
+      <img class="row__thumb" src="/assets/images/stair-brass.jpg" alt="The brass staircase leading up to the banquet hall" loading="lazy">
     </a>
   </div>
   <div class="float-img" aria-hidden="true">
-    <img src="/assets/images/courts-side.jpg" alt="" loading="lazy">
-    <img src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
-    <img src="/assets/images/cafe-wide.jpg" alt="" loading="lazy">
-    <img src="/assets/images/stair-brass.jpg" alt="" loading="lazy">
+    <img src="/assets/images/courts-side.jpg" alt="The pickleball courts from the player bench" loading="lazy">
+    <img src="/assets/images/wellness-b.jpg" alt="The wellness centre strength and fitness equipment" loading="lazy">
+    <img src="/assets/images/cafe-wide.jpg" alt="Rally and Brew café seating and viewing lounge" loading="lazy">
+    <img src="/assets/images/stair-brass.jpg" alt="The brass staircase leading up to the banquet hall" loading="lazy">
   </div>
 </section>
 
@@ -820,8 +852,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">30 days</p></div>
           <h3 class="mship__name">1-Month Unlimited</h3>
           <p class="mship__desc">Daily access to strength zone, cardio floor, lockers and hot showers.</p>
-          <p class="mship__price"><small>₹</small>2,499</p>
-          <p class="mship__per">Billed once for the month</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>Unlimited daily gym sessions</li>
             <li>Premium shower &amp; locker access</li>
@@ -833,8 +865,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">90 days</p><p class="mship__flag">Most popular</p></div>
           <h3 class="mship__name">3-Month Classic</h3>
           <p class="mship__desc">Our flagship membership. Complete fitness assessment and priority locker.</p>
-          <p class="mship__price"><small>₹</small>6,499</p>
-          <p class="mship__per">Works out to <b>₹2,166</b> a month</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>Unlimited daily gym sessions</li>
             <li>Personal fitness assessment</li>
@@ -846,8 +878,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">180 days</p></div>
           <h3 class="mship__name">6-Month Pro</h3>
           <p class="mship__desc">Half-year commitment with complimentary guest day passes and body composition tracking.</p>
-          <p class="mship__price"><small>₹</small>11,999</p>
-          <p class="mship__per">Works out to about <b>₹2,000</b> a month</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>180 days unlimited gym access</li>
             <li>2 complimentary guest day-passes</li>
@@ -859,8 +891,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">365 days</p></div>
           <h3 class="mship__name">Annual VIP</h3>
           <p class="mship__desc">Full year of elite club access, 15% discount on court bookings &amp; club merch.</p>
-          <p class="mship__price"><small>₹</small>19,999</p>
-          <p class="mship__per">Works out to about <b>₹1,667</b> a month</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>365 days unlimited gym access</li>
             <li>15% discount on pickleball bookings</li>
@@ -878,10 +910,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">10 hours · 60 days</p></div>
           <h3 class="mship__name">10-Hour Starter</h3>
           <p class="mship__desc">Prepaid court bundle for regular players. Valid across Court 1, 2, and 3 with zero booking fee.</p>
-          <p class="mship__price"><small>₹</small>6,500</p>
-          <p class="mship__per">Works out to <b>₹650</b> an hour</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
-            <li>Save ₹1,500 vs walk-in hourly rates</li>
+            <li>Exclusive savings vs walk-in hourly rates</li>
             <li>Valid across all 3 championship courts</li>
             <li>Automated balance debit with mobile number</li>
           </ul>
@@ -891,10 +923,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">25 hours · 180 days</p><p class="mship__flag">Best value</p></div>
           <h3 class="mship__name">25-Hour Champion</h3>
           <p class="mship__desc">Bulk tournament-tier hours at substantial savings. Priority slot reservation window.</p>
-          <p class="mship__price"><small>₹</small>14,500</p>
-          <p class="mship__per">Works out to <b>₹580</b> an hour</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
-            <li>Save ₹5,500 with ₹580/hr effective rate</li>
+            <li>Maximum savings on bulk court hours</li>
             <li>180 days generous validity window</li>
             <li>Priority peak-hour booking access</li>
           </ul>
@@ -910,8 +942,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">8 sessions · 30 days</p></div>
           <h3 class="mship__name">8-Session Batch</h3>
           <p class="mship__desc">For yoga, pilates, or group functional fitness batches. Acoustic sound system &amp; full mirrored walls.</p>
-          <p class="mship__price"><small>₹</small>3,999</p>
-          <p class="mship__per">Works out to about <b>₹500</b> a session</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>Acoustic sound system &amp; full mirrors</li>
             <li>Dedicated instructor batch scheduling</li>
@@ -923,8 +955,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="mship__top"><p class="mship__term">16 sessions · 60 days</p></div>
           <h3 class="mship__name">16-Session Master Intensive</h3>
           <p class="mship__desc">Dedicated batch time blocks for certified instructors and coaches with front-desk student check-in.</p>
-          <p class="mship__price"><small>₹</small>6,999</p>
-          <p class="mship__per">Works out to about <b>₹437</b> a session</p>
+          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
+          <p class="mship__per">Unveiling on opening day</p>
           <ul class="mship__perks">
             <li>60 days validity for season batches</li>
             <li>Full equipment &amp; yoga props included</li>
@@ -978,7 +1010,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </h2>
     <p class="lede" data-fade>Three courts. Book the hour, pay online, play tonight.</p>
     <div class="cta__actions" data-fade>
-      <a class="btn magnetic" href="/book">Book a court</a>
+      <a class="btn magnetic" href="/book/">Book a court</a>
       <a class="link-arrow" href="tel:+919600055623">Or call +91 96000 55623 <i></i></a>
     </div>
   </div>
@@ -998,15 +1030,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/book">Booking</a></li></ul>
+      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/book/">Booking</a></li></ul>
     </div>
     <div>
       <h4>Your bookings</h4>
-      <ul><li><a href="/my-bookings">My bookings</a></li><li><a href="/cancellation">Cancellation</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul>
+      <ul><li><a href="/my-bookings/">My bookings</a></li><li><a href="/cancellation/">Cancellation</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li></ul>
     </div>
     <div>
       <h4>Contact</h4>
-      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li><li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li></ul>
+      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li><li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://www.instagram.com/thepavilion.club/" target="_blank" rel="noopener">Instagram</a></li></ul>
     </div>
   </div>
   <div class="footer__bottom">
@@ -1252,7 +1284,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
 
     const dot = $('.cursor'), ring = $('.cursor-ring');
-    if (dot && ring) {
+    const isTouchOrTablet = window.matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)').matches;
+    if (dot && ring && !isTouchOrTablet) {
       document.body.classList.add('has-cursor');
       gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
       const dx = gsap.quickTo(dot, 'x', { duration: .1 }), dy = gsap.quickTo(dot, 'y', { duration: .1 });

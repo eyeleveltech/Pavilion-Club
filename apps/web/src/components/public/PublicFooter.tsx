@@ -1,89 +1,52 @@
 import Link from 'next/link';
-import { MapPin, Phone, Mail } from 'lucide-react';
 
-export function PublicFooter({ className = "mt-16" }: { className?: string }) {
+export function PublicFooter({ className = '' }: { className?: string }) {
   return (
-    <footer className={`bg-navy text-white pt-12 pb-8 border-t border-border-dark text-xs ${className}`}>
-      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        {/* Col 1: About */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-gold text-navy flex items-center justify-center font-bold text-sm">
-              P
-            </div>
-            <span className="font-bold tracking-wider text-base uppercase text-white">
-              The Pavilion Club
-            </span>
-          </div>
-          <p className="text-ink-on-dark/70 text-xs leading-relaxed">
-            Premier indoor pickleball arena in Adyar. 3 championship regulation pickleball courts, glare-free LED lighting, and luxury player amenities.
+    <footer className={`footer ${className}`}>
+      <div className="footer__top">
+        <div>
+          <a className="brand" href="/" aria-label="The Pavilion Club">
+            <span className="brand__the">The</span>
+            <span className="brand__name">Pavilion</span>
+            <span className="brand__club">Club</span>
+          </a>
+          <p className="footer__tag">
+            Three pickleball courts in Mogappair East, run the way a club should be.
           </p>
         </div>
-
-        {/* Col 2: Hours & Rates */}
-        <div className="space-y-2">
-          <h3 className="text-xs uppercase font-bold tracking-wider text-gold">Operating Hours</h3>
-          <div className="space-y-1 text-ink-on-dark/80 text-xs">
-            <p>Mon – Fri: 06:00 AM – 11:00 PM</p>
-            <p>Sat – Sun: 06:00 AM – 11:00 PM</p>
-            <div className="pt-2 border-t border-white/10 text-gold font-medium">
-              ₹800/hr Weekdays · ₹1,000/hr Weekends
-            </div>
-            <p className="text-[11px] text-emerald-400 font-semibold">100% Pay at Venue</p>
-          </div>
+        <div>
+          <h4>The club</h4>
+          <ul>
+            <li><a href="/#courts">Courts</a></li>
+            <li><a href="/#club">The club</a></li>
+            <li><a href="/#day">Court-side</a></li>
+            <li><Link href="/book/">Booking</Link></li>
+          </ul>
         </div>
-
-        {/* Col 3: Location */}
-        <div className="space-y-2">
-          <h3 className="text-xs uppercase font-bold tracking-wider text-gold">Location & Contact</h3>
-          <div className="space-y-1 text-ink-on-dark/80 text-xs">
-            <p className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-gold shrink-0" />
-              <span>Velammal School Rd, JJ Nagar, Mogappair East, Chennai 600037</span>
-            </p>
-            <p className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-gold shrink-0" />
-              <a href="tel:+919600055623" className="hover:text-gold transition">+91 96000 55623</a>
-            </p>
-            <p className="flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-gold shrink-0" />
-              <a href="mailto:hello@thepavilionclub.com" className="hover:text-gold transition">hello@thepavilionclub.com</a>
-            </p>
-          </div>
+        <div>
+          <h4>Your bookings</h4>
+          <ul>
+            <li><Link href="/my-bookings/">My bookings</Link></li>
+            <li><Link href="/cancellation/">Cancellation</Link></li>
+            <li><Link href="/privacy/">Privacy</Link></li>
+            <li><Link href="/terms/">Terms</Link></li>
+          </ul>
         </div>
-
-        {/* Col 4: Legal */}
-        <div className="space-y-2">
-          <h3 className="text-xs uppercase font-bold tracking-wider text-gold">Club Policies</h3>
-          <ul className="space-y-2 text-xs text-ink-on-dark/80">
-            <li>
-              <Link href="/terms" className="inline-block py-1 hover:text-gold transition">
-                Terms of Service
-              </Link>
-            </li>
-            <li>
-              <Link href="/privacy" className="inline-block py-1 hover:text-gold transition">
-                Privacy Policy (DPDP 2023)
-              </Link>
-            </li>
-            <li>
-              <Link href="/cancellation-policy" className="inline-block py-1 hover:text-gold transition">
-                Cancellation & Refund Policy
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="inline-block py-1 hover:text-gold transition">
-                Contact & Directions
-              </Link>
-            </li>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+919600055623">+91 96000 55623</a></li>
+            <li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li>
+            <li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li>
+            <li><a href="https://www.instagram.com/thepavilion.club/" target="_blank" rel="noopener">Instagram</a></li>
           </ul>
         </div>
       </div>
-
-      <div className="max-w-6xl mx-auto px-4 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-ink-on-dark/50 gap-2">
-        <p>© 2026 The Pavilion Club. All rights reserved.</p>
-        <p>Non-marking court shoes strictly required on all courts.</p>
+      <div className="footer__bottom">
+        <span>© 2026 The Pavilion Club · Chennai</span>
+        <span>Architecture and renders by Feel and Bari</span>
       </div>
+      <div className="footer__ghost" aria-hidden="true">Pavilion</div>
     </footer>
   );
 }
