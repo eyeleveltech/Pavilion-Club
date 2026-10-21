@@ -133,6 +133,8 @@ export function PublicHeader() {
         )}
 
         <div className="editorial-menu__foot">
+          <span>Mon–Fri 06:00 AM – 11:00 PM</span>
+          <span>Sat–Sun 06:00 AM – 12:00 AM</span>
           <a href="tel:+919600055623" style={{ color: 'inherit', textDecoration: 'none' }}>
             Desk +91 96000 55623
           </a>

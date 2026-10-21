@@ -575,3 +575,13 @@ button:focus-visible {
   color: var(--ivory) !important;
   transform: scale(1.12) !important;
 }
+
+.cta .display .sc,
+.cta .sc {
+  top: -0.1em !important;
+  display: inline-block !important;
+  padding-bottom: 0.15em !important;
+}
+.menu__foot span {
+  display: block;
+}
