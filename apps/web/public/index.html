@@ -1038,7 +1038,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>Contact</h4>
-      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li><li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li><li><a href="https://www.instagram.com/thepavilion.club/" target="_blank" rel="noopener">Instagram</a></li></ul>
+      <ul><li><a href="tel:+919600055623">+91 96000 55623</a></li><li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li><li><a href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!" target="_blank" rel="noopener noreferrer">WhatsApp the desk</a></li><li><a href="https://www.instagram.com/thepavilion.club/" target="_blank" rel="noopener">Instagram</a></li></ul>
     </div>
   </div>
   <div class="footer__bottom">
@@ -1401,6 +1401,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       };
     }
+
+    
+    // Universal WhatsApp handler: on mobile devices, open directly to bypass popup blockers
+    document.addEventListener('click', function(e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href*="wa.me"]') : null;
+      if (!a) return;
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(max-width: 1024px), (pointer: coarse)').matches);
+      if (isMobile) {
+        e.preventDefault();
+        window.location.href = a.href;
+      }
+    }, { capture: true });
 
     if (document.readyState === 'complete') ScrollTrigger.refresh(); else addEventListener('load', () => ScrollTrigger.refresh());
   }

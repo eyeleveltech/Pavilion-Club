@@ -492,6 +492,8 @@ button:focus-visible {
   gap: 3rem !important;
   padding-bottom: 4rem !important;
   border-bottom: 1px solid var(--gold-line) !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 .footer .brand {
   font-size: 1.5rem !important;
@@ -524,6 +526,9 @@ button:focus-visible {
   color: inherit !important;
   text-decoration: none !important;
   transition: color 0.3s !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 3 !important;
 }
 .footer ul a:hover {
   color: var(--gold) !important;

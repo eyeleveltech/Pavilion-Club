@@ -37,7 +37,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
           <ul>
             <li><a href="tel:+919600055623">+91 96000 55623</a></li>
             <li><a href="mailto:hello@thepavilionclub.com">hello@thepavilionclub.com</a></li>
-            <li><a href="https://wa.me/919600055623" target="_blank" rel="noopener">WhatsApp the desk</a></li>
+            <li><a href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!" target="_blank" rel="noopener noreferrer">WhatsApp the desk</a></li>
             <li><a href="https://www.instagram.com/thepavilion.club/" target="_blank" rel="noopener">Instagram</a></li>
           </ul>
         </div>

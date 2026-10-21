@@ -347,6 +347,18 @@
       };
     }
 
+    
+    // Universal WhatsApp handler: on mobile devices, open directly to bypass popup blockers
+    document.addEventListener('click', function(e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href*="wa.me"]') : null;
+      if (!a) return;
+      var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (window.matchMedia && window.matchMedia('(max-width: 1024px), (pointer: coarse)').matches);
+      if (isMobile) {
+        e.preventDefault();
+        window.location.href = a.href;
+      }
+    }, { capture: true });
+
     if (document.readyState === 'complete') ScrollTrigger.refresh(); else addEventListener('load', () => ScrollTrigger.refresh());
   }
 })();
