@@ -568,21 +568,36 @@ button:focus-visible {
   white-space: nowrap !important;
 }
 
+.footer__contact-list {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: grid !important;
+  gap: 0.85rem !important;
+}
 .footer__contact-link {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 0.65rem !important;
+  gap: 0.75rem !important;
+  font-size: 0.85rem !important;
+  color: var(--ivory-70) !important;
+  text-decoration: none !important;
+  transition: color 0.25s ease, transform 0.25s ease !important;
+}
+.footer__contact-link:hover {
+  color: var(--gold) !important;
+  transform: translateX(3px) !important;
 }
 .footer__contact-link svg {
   color: var(--gold) !important;
-  width: 15px !important;
-  height: 15px !important;
+  width: 16px !important;
+  height: 16px !important;
   flex-shrink: 0 !important;
   transition: transform 0.25s ease, color 0.25s ease !important;
 }
 .footer__contact-link:hover svg {
   color: var(--ivory) !important;
-  transform: scale(1.12) !important;
+  transform: scale(1.15) !important;
 }
 
 .cta .display .sc,
