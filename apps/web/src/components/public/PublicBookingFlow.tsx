@@ -159,22 +159,53 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
 
   /* ---- load a day --------------------------------------------------- */
 
-  const loadDay = useCallback(async (ymd: string) => {
-    setLoading(true);
-    setLoadError(null);
+  const loadDay = useCallback(async (ymd: string, silent: boolean = false) => {
+    if (!silent) {
+      setLoading(true);
+      setLoadError(null);
+    }
     try {
-      setDay(await fetchDay(ymd));
+      const updated = await fetchDay(ymd);
+      setDay(updated);
     } catch (error) {
-      setDay(null);
-      setLoadError(error instanceof TurfApiError ? error.message : 'Could not load times. Please try again.');
+      if (!silent) {
+        setDay(null);
+        setLoadError(error instanceof TurfApiError ? error.message : 'Could not load times. Please try again.');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     void loadDay(date);
   }, [date, loadDay]);
+
+  // Live silent background sync (Task 3: keep slots synced with front-desk bookings)
+  useEffect(() => {
+    if (step !== 'pick') return;
+
+    const handleSync = () => {
+      if (document.visibilityState === 'visible') {
+        void loadDay(date, true);
+      }
+    };
+
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+
+    const pollInterval = setInterval(() => {
+      handleSync();
+    }, 10000);
+
+    return () => {
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
+      clearInterval(pollInterval);
+    };
+  }, [step, date, loadDay]);
 
   /* ---- what is free ------------------------------------------------- */
 
@@ -257,7 +288,13 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
   // A selection that stopped being holdable (someone else took an hour, the
   // day reloaded) is dropped rather than shown as if it were still available.
   useEffect(() => {
-    if (selected.length && !run.length && !loading) setSelected([]);
+    if (selected.length && !run.length && !loading) {
+      setSelected([]);
+      setNotice({
+        tone: 'info',
+        text: 'A slot you selected was just booked at the desk. Please select another available time.',
+      });
+    }
   }, [selected, run, loading]);
 
   const openPeriods = useMemo(() => {
@@ -286,16 +323,36 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
     return prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
   }, [cells, isFree, freeCourts]);
 
+  const hasSelectedInPeriod = useMemo(() => {
+    const res: Record<PeriodKey, boolean> = { twilight: false, morning: false, noon: false, evening: false };
+    if (!selected.length) return res;
+    for (const p of PERIODS) {
+      for (const s of selected) {
+        const h = hourIn(s, timezone);
+        if (h >= p.from && h < p.from + 6) {
+          res[p.key] = true;
+        }
+      }
+    }
+    return res;
+  }, [selected, timezone]);
+
+  const activeSelectedPeriod = useMemo(() => {
+    return PERIODS.find((p) => hasSelectedInPeriod[p.key])?.key ?? null;
+  }, [hasSelectedInPeriod]);
+
   /* ---- tapping the track -------------------------------------------- */
 
   const tap = (cell: HourCell) => {
     const s = cell.startsAt;
     if (!selected.length) {
       setSelected([s]);
+      setNotice(null);
       return;
     }
     if (selected.includes(s)) {
       setSelected(selected.length === 1 ? [] : [s]);
+      setNotice(null);
       return;
     }
     const i = indexOf.get(s)!;
@@ -304,7 +361,16 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
     // A later hour extends to it; an earlier one extends back to it — when the
     // whole stretch can be held on one court. Otherwise it starts afresh.
     const stretch = i > b ? cells.slice(a, i + 1) : cells.slice(i, b + 1);
-    setSelected(holdable(stretch) ? stretch.map((c) => c.startsAt) : [s]);
+    if (holdable(stretch)) {
+      setSelected(stretch.map((c) => c.startsAt));
+      setNotice(null);
+    } else {
+      setSelected([s]);
+      setNotice({
+        tone: 'info',
+        text: 'Bookings must be continuous hours on one court. Started a new reservation for this time.',
+      });
+    }
   };
 
   const trackCells: TrackCell[] = useMemo(() => {
@@ -961,7 +1027,36 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
         </section>
 
         <section className="mt-6 border-t border-border pt-6" aria-label="Time">
-          <PeriodTabs value={period} onChange={setPeriod} open={openPeriods} />
+          <PeriodTabs value={period} onChange={setPeriod} open={openPeriods} hasSelected={hasSelectedInPeriod} />
+
+          {activeSelectedPeriod && activeSelectedPeriod !== period && run.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-surface-2 px-3.5 py-2.5 text-xs border border-border">
+              <div className="flex items-center gap-2 text-ink">
+                <span className="inline-block size-2 rounded-full bg-gold shrink-0" />
+                <span>
+                  You have <strong>{hrs(run.length)}</strong> selected in{' '}
+                  <strong>{PERIODS.find((p) => p.key === activeSelectedPeriod)?.label}</strong> ({formatRange(run[0]!.startsAt, run[run.length - 1]!.endsAt, timezone)}).
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPeriod(activeSelectedPeriod)}
+                  className="font-semibold text-navy hover:underline cursor-pointer"
+                >
+                  View in {PERIODS.find((p) => p.key === activeSelectedPeriod)?.label}
+                </button>
+                <span className="text-ink-faint">·</span>
+                <button
+                  type="button"
+                  onClick={() => setSelected([])}
+                  className="text-ink-faint hover:text-ink cursor-pointer"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="mt-6">
             {loading ? (

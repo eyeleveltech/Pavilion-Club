@@ -240,16 +240,20 @@ export function PeriodTabs({
   value,
   onChange,
   open,
+  hasSelected,
 }: {
   value: PeriodKey;
   onChange: (period: PeriodKey) => void;
   /** Periods with at least one bookable hour. The rest are shown but greyed. */
   open: Record<PeriodKey, boolean>;
+  /** Periods with currently selected slots. */
+  hasSelected?: Record<PeriodKey, boolean> | undefined;
 }) {
   return (
     <div role="tablist" aria-label="Time of day" className="grid grid-cols-4 gap-1">
       {PERIODS.map((period) => {
         const on = period.key === value;
+        const selectedHere = hasSelected?.[period.key];
         return (
           <button
             key={period.key}
@@ -258,7 +262,7 @@ export function PeriodTabs({
             aria-selected={on}
             onClick={() => onChange(period.key)}
             className={cx(
-              'inline-flex h-11 items-center justify-center gap-1.5 rounded-full px-2 text-[14px] font-semibold transition-colors sm:text-[15px]',
+              'relative inline-flex h-11 items-center justify-center gap-1.5 rounded-full px-2 text-[14px] font-semibold transition-colors sm:text-[15px]',
               ring,
               on ? 'bg-navy text-white' : 'text-ink-faint hover:bg-surface-2 hover:text-ink',
               !on && !open[period.key] && 'text-[#b3ada1]',
@@ -270,6 +274,15 @@ export function PeriodTabs({
               </span>
             ) : null}
             {period.label}
+            {selectedHere ? (
+              <span
+                className={cx(
+                  'inline-block size-2 rounded-full shrink-0',
+                  on ? 'bg-gold' : 'bg-gold ring-2 ring-surface',
+                )}
+                title="Selected slots in this period"
+              />
+            ) : null}
           </button>
         );
       })}

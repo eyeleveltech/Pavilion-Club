@@ -593,6 +593,7 @@ button:focus-visible {
   width: 16px !important;
   height: 16px !important;
   flex-shrink: 0 !important;
+  margin-right: 0.75rem !important;
   transition: transform 0.25s ease, color 0.25s ease !important;
 }
 .footer__contact-link:hover svg {
@@ -652,4 +653,8 @@ button:focus-visible {
 
 .footer__icon-btn:hover svg {
   transform: scale(1.1) !important;
+}
+.footer__contact-link span {
+  display: inline-block !important;
+  vertical-align: middle !important;
 }
