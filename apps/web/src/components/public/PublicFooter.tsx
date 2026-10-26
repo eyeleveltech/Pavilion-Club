@@ -5,10 +5,15 @@ export function PublicFooter({ className = '' }: { className?: string }) {
     <footer className={`footer ${className}`}>
       <div className="footer__top">
         <div>
-          <a className="brand" href="/" aria-label="The Pavilion Club">
-            <span className="brand__the">The</span>
-            <span className="brand__name">Pavilion</span>
-            <span className="brand__club">Club</span>
+          <a className="brand" href="/" aria-label="The Pavilion Club" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+            <img
+              src="/pavilion_logo_reversed.png"
+              alt="The Pavilion Club"
+              width={160}
+              height={119}
+              className="footer-brand__logo"
+              style={{ height: '56px', width: 'auto', display: 'block', objectFit: 'contain' }}
+            />
           </a>
           <p className="footer__tag">
             Three pickleball courts in Mogappair East, run the way a club should be.

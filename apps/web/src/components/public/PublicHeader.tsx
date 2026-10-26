@@ -56,10 +56,15 @@ export function PublicHeader() {
         id="nav"
       >
         {/* Brand Lockup matching editorial homepage - native anchor to root to avoid RSC fetch */}
-        <a href="/" className="editorial-brand" aria-label="The Pavilion Club, home">
-          <span className="editorial-brand__the">The</span>
-          <span className="editorial-brand__name">Pavilion</span>
-          <span className="editorial-brand__club">Club</span>
+        <a href="/" className="editorial-brand" aria-label="The Pavilion Club, home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img
+            src="/pavilion_logo_reversed.png"
+            alt="The Pavilion Club"
+            width={160}
+            height={102}
+            className="editorial-brand__logo"
+            style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain' }}
+          />
         </a>
 
         {/* Desktop Navigation Links */}
