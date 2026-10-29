@@ -26,6 +26,7 @@ import {
 import { openCheckout } from '@/lib/razorpay';
 
 import { ActionBar, ArrowLeft, buttonClass, Column, cx, Mark, Pill, SectionLabel, Spinner, textButtonClass } from './book/ui';
+import { EmailOtpModal } from './book/EmailOtpModal';
 import {
   ActivityTabs,
   CourtPills,
@@ -152,6 +153,8 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
   const [holdCourt, setHoldCourt] = useState<CourtDay | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [stillWaiting, setStillWaiting] = useState(false);
+  const [showEmailOtpModal, setShowEmailOtpModal] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const timezone = day?.timezone ?? FALLBACK_TZ;
   /** The venue takes payment at the front desk (a TurfOS setting), so no Razorpay step. */
@@ -653,9 +656,7 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
 
   const settle = (current: Hold) => (atVenue ? confirmHere(current) : pay(current));
 
-  const submitDetails = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (busy) return;
+  const proceedToBooking = async () => {
     if (usePack) {
       await bookWithPack();
       return;
@@ -688,6 +689,26 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
       }
       setNotice({ tone: 'error', text: error instanceof Error ? error.message : 'Could not hold that time.' });
     }
+  };
+
+  const handleEmailOtpVerified = async () => {
+    setIsEmailVerified(true);
+    setShowEmailOtpModal(false);
+    await proceedToBooking();
+  };
+
+  const submitDetails = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    if (!best || !run.length || !validate()) return;
+
+    // Gate with Email OTP verification before proceeding to payment / hold
+    if (!isEmailVerified) {
+      setShowEmailOtpModal(true);
+      return;
+    }
+
+    await proceedToBooking();
   };
 
   /* ---- what the bar and the recap show ------------------------------ */
@@ -808,7 +829,10 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
                 value={name}
                 readOnly={Boolean(hold)}
                 aria-invalid={fieldError?.field === 'name'}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  if (fieldError?.field === 'name') setFieldError(null);
+                }}
                 className={inputClass}
               />
               {fieldError?.field === 'name' ? (
@@ -833,7 +857,10 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
                   value={phone}
                   readOnly={Boolean(hold)}
                   aria-invalid={fieldError?.field === 'phone'}
-                  onChange={(event) => setPhone(event.target.value)}
+                  onChange={(event) => {
+                    setPhone(event.target.value);
+                    if (fieldError?.field === 'phone') setFieldError(null);
+                  }}
                   className="h-full w-full bg-transparent px-2 text-base text-ink focus:outline-none read-only:text-ink-faint"
                 />
               </div>
@@ -945,7 +972,11 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
                 value={email}
                 readOnly={Boolean(hold)}
                 aria-invalid={fieldError?.field === 'email'}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                setEmail(event.target.value);
+                setIsEmailVerified(false);
+                if (fieldError?.field === 'email') setFieldError(null);
+              }}
                 className={inputClass}
               />
               {fieldError?.field === 'email' ? (
@@ -967,9 +998,24 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
 
         <ActionBar caption={`${caption} · ${court!.name}`} amount={usePack ? '₹0' : formatPaise(total)}>
           <button type="submit" form="bk-details" disabled={busy} className={buttonClass('primary')}>
-            {busy ? 'Please wait…' : usePack ? 'Book with Pack — ₹0' : atVenue ? 'Confirm booking' : `Pay ${formatPaise(total)}`}
+            {busy ? 'Please wait…' : !isEmailVerified ? 'Verify email & proceed' : usePack ? 'Book with Pack — ₹0' : atVenue ? 'Confirm booking' : `Pay ${formatPaise(total)}`}
           </button>
         </ActionBar>
+        <EmailOtpModal
+          isOpen={showEmailOtpModal}
+          email={email.trim().toLowerCase()}
+          slotDetails={caption}
+          courtName={court?.name}
+          amountFormatted={usePack ? '₹0' : formatPaise(total)}
+          onVerify={handleEmailOtpVerified}
+          onClose={() => setShowEmailOtpModal(false)}
+          onChangeEmail={() => {
+            setShowEmailOtpModal(false);
+            setIsEmailVerified(false);
+            const el = document.getElementById('bk-email') as HTMLInputElement | null;
+            el?.focus();
+          }}
+        />
       </div>
     );
   }
