@@ -343,20 +343,34 @@ button:focus-visible {
   visibility: visible;
 }
 
-.editorial-menu__close {
+.editorial-menu__head {
   position: absolute;
-  top: 1.5rem;
-  right: var(--gutter);
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem var(--gutter);
+  z-index: 10;
+}
+
+.editorial-menu__close {
   font-family: var(--font-sans);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--ivory);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem 0;
+  padding: 0.6rem 0;
+  transition: color 0.3s;
+}
+
+.editorial-menu__close:hover {
+  color: var(--gold);
 }
 
 .editorial-menu > a {
@@ -379,9 +393,9 @@ button:focus-visible {
 }
 
 .editorial-menu__foot {
-  margin-top: 1.8rem;
+  margin-top: 2.4rem;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.5rem;
   font-family: var(--font-sans);
   font-size: 0.66rem;
   letter-spacing: 0.26em;
@@ -478,7 +492,7 @@ button:focus-visible {
     padding: 0.45rem 0 !important;
   }
   .editorial-menu__foot {
-    margin-top: 1.8rem !important;
+    margin-top: 2.4rem !important;
   }
 }
 

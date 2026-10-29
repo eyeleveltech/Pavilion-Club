@@ -116,14 +116,32 @@ export function PublicHeader() {
         id="editorial-menu"
         aria-hidden={!mobileMenuOpen}
       >
-        <button
-          type="button"
-          className="editorial-menu__close"
-          aria-label="Close menu"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          Close
-        </button>
+        <div className="editorial-menu__head">
+          <a
+            href="/"
+            className="editorial-brand"
+            aria-label="The Pavilion Club, home"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
+          >
+            <img
+              src="/pavilion_logo_reversed.png"
+              alt="The Pavilion Club"
+              width={160}
+              height={75}
+              className="editorial-brand__logo"
+              style={{ height: '48px', width: 'auto', display: 'block', objectFit: 'contain' }}
+            />
+          </a>
+          <button
+            type="button"
+            className="editorial-menu__close"
+            aria-label="Close menu"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Close
+          </button>
+        </div>
 
         {navLinks.map((link) =>
           link.isExternal ? (
@@ -146,12 +164,10 @@ export function PublicHeader() {
         )}
 
         <div className="editorial-menu__foot">
-          <span>Mon–Fri 06:00 AM – 11:00 PM</span>
-          <span>Sat–Sun 06:00 AM – 12:00 AM</span>
+          <span>Mon–Fri 06:00 AM–11:00 PM · Sat–Sun 06:00 AM–12:00 AM</span>
           <a href="tel:+919600055623" style={{ color: 'inherit', textDecoration: 'none' }}>
-            Desk +91 96000 55623
+            +91 96000 55623
           </a>
-          <span>Mogappair East, Chennai</span>
         </div>
       </div>
     </>
