@@ -35,7 +35,7 @@ export function DigitalMatchPassActions({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const venueName = 'The Pavilion Club, Mogappair East';
-  const venueAddress = 'Plot No. 1 & 2, Door No. 191/2A2, 191/2A3, 191/2A4, Velammal School Road, JJ Nagar, TS Krishna Nagar, Mogappair East, Chennai - 600037';
+  const venueAddress = 'Plot Nos. 1 & 2, Door Nos. 191/2A2, 191/2A3, 191/2A4, Velammal School Road, JJ Nagar, TS Krishna Nagar, Mogappair East, Chennai - 600037';
   const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=The+Pavilion+Club+Velammal+School+Road+Mogappair+East+Chennai+-+600037';
 
   const showToast = (msg: string) => {

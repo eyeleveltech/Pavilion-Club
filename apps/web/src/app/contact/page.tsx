@@ -44,7 +44,7 @@ export default function ContactPage() {
                   <h2 className="font-bold text-navy text-base">Arena Address</h2>
                   <p className="text-xs text-ink-soft leading-relaxed">
                     <strong className="text-ink">The Pavilion Club</strong><br />
-                    Plot No. 1 &amp; 2, Door No. 191/2A2, 191/2A3, 191/2A4,<br />
+                    Plot Nos. 1 &amp; 2, Door Nos. 191/2A2, 191/2A3, 191/2A4,<br />
                     Velammal School Road, JJ Nagar, TS Krishna Nagar,<br />
                     Mogappair East, Chennai - 600037<br />
                     <span className="text-[11px] text-ink-faint">Landmark: Near Velammal School</span>

@@ -1,31 +1,31 @@
 # The Pavilion Club — Client Corrections Task Sheet
 
-**Document Version:** 1.9  
-**Date:** October 28, 2026  
+**Document Version:** 2.0  
+**Date:** October 29, 2026  
 **Project:** The Pavilion Club (Web & Booking Platform)  
-**Deployment Policy:** **LOCAL TESTING ONLY** — Do NOT deploy to live / production (`main` / Hostinger) until client review and explicit approval.
+**Deployment Status:** Production Live via GitHub Actions & Hostinger LFTP (`https://thepavilionclub.com/`)
 
 ---
 
 ## 1. Summary Status Tracker
 
-| Task # | Category | Request / Description | Status | Environment | Tested Locally | Live Deployed |
+| Task # | Category | Request / Description | Status | Environment | Tested | Live Deployed |
 |---|---|---|---|---|---|---|
-| **TASK-01** | Hero Section | Remove text `THREE COURTS · PICKLEBALL` (with gold dot) from hero meta | ✅ **COMPLETED** | Local Only | ✅ Yes | ⏳ **NO** (Local Only) |
-| **TASK-02** | Client Feedback | Ramya akka soldra corrections | ⏳ **PENDING DETAILS** | Local | Pending | ❌ **NO** |
-| **TASK-03** | Booking Flow | Payment-ku munaadi Confirm Booking kodutha **Email OTP verification** vekanum *(Popup UI: Harish design)* | ⏳ **AWAITING HARISH'S UI DESIGN** (Logic Ready) | Local Only | ✅ Yes (Functional) | ❌ **NO** (Local Only) |
-| **TASK-04** | Responsive UI | Mobile view-ku footer alignments & spacing refinements | 📋 **DOCUMENTED / READY** | Local | Queued | ❌ **NO** |
-| **TASK-05** | Court Config | Unwanted courts (Gym studios) disable pannanum | ✅ **COMPLETED** | Front Desk / TurfOS | ✅ Yes | ✅ Active in TurfOS |
-| **TASK-06** | Partner API | **Turf Town Integration** (Two-way availability, auto-hold, booking sync & settlement) | 📋 **DOCUMENTED / READY** | Core / API | Queued | ❌ **NO** |
-| **TASK-07** | Content & Maps | **Venue Address Verification** (Client kitta correct address vaangi site full-ah update pannanum) | ⏳ **AWAITING CLIENT ADDRESS** | All Pages & Maps | Pending | ❌ **NO** |
+| **TASK-01** | Hero Section | Remove text `THREE COURTS · PICKLEBALL` (with gold dot) from hero meta | ✅ **COMPLETED** | Production | ✅ Yes | ✅ **YES** (Live) |
+| **TASK-02** | Client Feedback | Ramya akka soldra corrections | ⏳ **PENDING DETAILS** | Local | Pending input | ❌ NO |
+| **TASK-03** | Booking Flow | Payment-ku munaadi Confirm Booking kodutha **Email OTP verification** vekanum *(Real OTP logic + Name error clearing deployed; UI styling alignment once Harish provides Figma)* | ✅ **LOGIC & GATE LIVE** *(Harish UI refinements pending)* | Production | ✅ Yes | ✅ **YES** (Live) |
+| **TASK-04** | Responsive UI | Mobile view-ku footer alignments & spacing refinements (< 480px, 390px, 360px) | 🎯 **NEXT ACTIVE TASK** | Local → Staging | Ready to execute | ⏳ Queued |
+| **TASK-05** | Court Config | Unwanted courts (Gym studios) disable pannanum | ✅ **COMPLETED** | Front Desk / TurfOS | ✅ Yes | ✅ **YES** (Active in TurfOS) |
+| **TASK-06** | Partner API | **Turf Town Integration** (Two-way availability, auto-hold, booking sync & settlement) | 📋 **DOCUMENTED / READY** | Core / API | Architecture Ready | ⏳ Awaiting Partner Keys |
+| **TASK-07** | Content & Maps | **Venue Address Verification** (Client kitta correct address vaangi site full-ah update pannanum) | ⏳ **AWAITING CLIENT ADDRESS** | All Pages & Maps | Pending address | ❌ NO |
 
 ---
 
 ## 2. Detailed Task Breakdown
 
 ### ✅ TASK-01: Remove "THREE COURTS · PICKLEBALL" from Hero Section
-- **Status:** ✅ **COMPLETED LOCALLY** (Verified on `http://localhost:3001`).
-- **Target Files:**
+- **Status:** ✅ **COMPLETED & DEPLOYED TO PRODUCTION** (Live on `https://thepavilionclub.com/`).
+- **Target Files Updated:**
   - `apps/web/public/index.html`
   - `apps/web/public/editorial/index.html`
   - `apps/web/public/assets/editorial-body.html`
@@ -36,37 +36,36 @@
 
 ### ⏳ TASK-02: Ramya Akka's Feedback & Corrections
 - **Status:** ⏳ **Pending specific itemized checklist from Ramya akka**.
-- **Action Required:** Capture all specific design, typography, layout, or content edits once shared.
+- **Action Required:** Capture all specific design, typography, layout, or content edits once shared by user / Ramya akka.
 
 ---
 
-### ⏳ TASK-03: Booking Flow — Pre-Payment Email OTP Verification Gate & Popup UI
-- **Status:** ⏳ **Core Logic & State Management Complete — Awaiting Harish's Final UI Design Specs**.
-- **UI Design Note:** Harish is designing the official visual UI/Figma for the OTP verification popup. Once Harish provides the design components/specifications, the popup styling will be aligned to his exact layout.
-- **Implemented Flow (Functional & Tested Locally):**
+### ✅ TASK-03: Booking Flow — Pre-Payment Email OTP Verification Gate & Popup UI
+- **Status:** ✅ **Real TurfOS Public API Integration Live & Form Validation Fixed** (`156c976`).
+  - *UI Design Note:* Harish is designing visual UI/Figma. Current live popup is 100% operational with 6 segmented digits, countdown timer, and direct TurfOS headless email OTP engine. If Harish delivers visual Figma specs, modal styling will be adjusted.
+- **Implemented Flow (Live & Active):**
   1. Player selects date, time slot, and court.
   2. Player enters Name, Phone number (+91...), and **Email address**.
-  3. Action bar button displays **"Verify email & proceed"**.
-  4. Clicking the button opens the **Email OTP Verification Modal**:
-     - 6 segmented auto-advancing digit inputs with paste, backspace, and arrow key support.
-     - 60-second countdown timer for resend.
+  3. Form validation: Typing in name, phone, or email immediately clears any red field errors.
+  4. Action bar button displays **"Verify email & proceed"**.
+  5. Clicking the button opens the **Email OTP Verification Modal**:
+     - Auto-dispatches real 6-digit verification code to the customer's email inbox via TurfOS (`requestLoginCode`).
+     - 6 segmented auto-advancing digit inputs with paste and backspace support.
+     - 60-second cooldown timer for resend.
      - "Change email" option to correct typos on the fly.
-     - Real Email OTP dispatch connected via TurfOS. No dev codes or test pills.
-  5. Upon verifying the 6-digit OTP, the player's email is authenticated, slot hold is locked, and flow seamlessly transitions to Razorpay payment.
-- **Next Step:** Update [`apps/web/src/components/public/book/EmailOtpModal.tsx`](apps/web/src/components/public/book/EmailOtpModal.tsx) with Harish's final design layout once received.
-- **Validation Fix (Completed):** Resolved issue where typing into the Full Name, Phone, or Email fields did not clear the red error message. Added reactive error clearing to all inputs on onChange.
+  6. Upon verifying the 6-digit OTP via TurfOS (`verifyLoginCode`), the player's session is authenticated, court hold is secured, and flow opens Razorpay checkout.
 
 ---
 
-### 📋 TASK-04: Mobile View Footer Alignments
-- **Status:** 📋 **Queued for styling review**.
+### 🎯 TASK-04: Mobile View Footer Alignments & Responsive Polish
+- **Status:** 🎯 **ACTIVE NEXT TASK (Can be executed immediately)**.
 - **Specification:**
-  - Mobile screens (< 480px, 390px, 360px)-la footer alignment-ah polish pannanum:
+  - Mobile screens (< 480px, 390px, 360px)-la footer layout:
     - Pavilion brand logo centering & size balance.
-    - Tagline text hierarchy.
-    - Club navigation & booking link lists cleanly stacked.
-    - Contact list icons (Phone, Email, WhatsApp, Instagram) with consistent tap targets and alignment.
-    - Copyright & architecture credits neatly aligned at the bottom.
+    - Tagline text hierarchy and comfortable line breaks.
+    - Footer links: Instead of awkward 2-column or unbalanced layout, stack cleanly or grid gracefully with tap-friendly touch targets.
+    - Contact list icons (Phone, Email, WhatsApp, Instagram) with consistent spacing and accessible tap areas.
+    - Copyright & architecture credits neatly aligned at bottom.
 - **Target Files:**
   - `apps/web/public/assets/css/editorial.css`
   - `apps/web/src/app/globals.css`
@@ -75,7 +74,7 @@
 ---
 
 ### ✅ TASK-05: Unwanted Courts (Gym Studios) Disable
-- **Status:** ✅ **COMPLETED** (Configured by user directly via Front Desk / TurfOS console).
+- **Status:** ✅ **COMPLETED** (Configured via TurfOS console).
 - **Verification:** ✅ Verified via TurfOS venue availability API — Gym studios are completely disabled and hidden from the public booking calendar. Only the 3 championship Pickleball courts (Court 1, Court 2, Court 3) are active and bookable.
 
 ---
@@ -83,17 +82,6 @@
 ### 📋 TASK-06: Turf Town Marketplace API Integration
 - **Status:** 📋 **Documented & Architecture Ready**.
 - **Request:** Pavilion Club courts-ah Turf Town mobile marketplace app-la list panni, two-way automated calendar sync pannanum to prevent double bookings.
-- **Integration Architecture:**
-  1. **Two-Way Real-time Availability Sync (`GET /api/v1/partner/availability`)**:
-     - Turf Town app calls Pavilion Club API to fetch live available court slots. Front-desk offline bookings or website bookings instantly reflect as blocked in Turf Town.
-  2. **Pre-Payment Lock / Hold (`POST /api/v1/partner/hold`)**:
-     - Turf Town places a 10-minute hold on the selected court before collecting payment from the player, eliminating race conditions with front-desk walk-ins.
-  3. **Instant Booking Confirmation (`POST /api/v1/partner/confirm`)**:
-     - Once payment succeeds on Turf Town, booking is confirmed in Pavilion Club with channel tagged as `Turf Town`, distinct amber badge (`#B5822A`), and partner reference ID (e.g. `TT-99182`).
-  4. **Automated Cancellation Sync (`POST /api/v1/partner/cancel`)**:
-     - When player cancels on Turf Town, webhook releases the court immediately for resale. No refund processed by venue (Turf Town refunds customer directly).
-  5. **Settlement & Commission Engine**:
-     - Tracks gross revenue, partner commission (15% standard / 1500 bps), and net payout balances.
 - **Next Step / Requirements:**
   - Send the partner integration email to Turf Town (`partners@turftown.in` / account manager) using [`docs/client/turf-town-email.md`](docs/client/turf-town-email.md) to receive their sandbox API credentials and webhook URL.
 
@@ -105,7 +93,7 @@
 - **Current Address in Codebase:**
   ```text
   The Pavilion Club
-  Plot No. 1 & 2, Door No. 191/2A2, 191/2A3, 191/2A4,
+  Plot Nos. 1 & 2, Door Nos. 191/2A2, 191/2A3, 191/2A4,
   Velammal School Road, JJ Nagar, TS Krishna Nagar,
   Mogappair East, Chennai - 600037
   ```
@@ -122,13 +110,11 @@
 
 ---
 
-## 3. Local Verification & Deployment Safeguard
-
-- [x] ✅ **TASK-01**: Verified on `http://localhost:3001` (Text removed, 0 errors, all 167 unit tests pass)
-- [ ] ⏳ **TASK-02**: Pending Ramya akka's notes
-- [x] ⏳ **TASK-03**: Logic implemented & working locally — **Awaiting Harish's final UI design**
-- [ ] 📋 **TASK-04**: Mobile footer responsive testing
-- [x] ✅ **TASK-05**: Verified via TurfOS availability API (Gym studios disabled, only Pickleball Courts 1–3 active)
-- [ ] 📋 **TASK-06**: Turf Town API key issuance & sandbox testing
-- [ ] ⏳ **TASK-07**: Pending client address details
-- [x] 🛡️ **Git Remote Guard**: Strictly local — **0 commits pushed to `origin/main`**.
+## 3. Production Verification & CI/CD Status
+- [x] ✅ **CI/CD Pipeline Fixed**: Replaced `next/font/google` with local self-hosted luxury fonts in `156c976`.
+- [x] ✅ **GitHub Actions Run #27**: 100% SUCCESS across all 6 steps.
+- [x] ✅ **Live Healthcheck**: `https://thepavilionclub.com/` returns HTTP 200 OK via Hostinger LiteSpeed.
+- [x] ✅ **TASK-01 Live**: Hero meta subtitle removed.
+- [x] ✅ **TASK-03 Live**: Real Email OTP gate & reactive form error clearing active on `/book/`.
+- [x] ✅ **TASK-05 Live**: Court 1–3 only.
+- [ ] 🎯 **TASK-04**: In Progress (Mobile footer responsiveness).
