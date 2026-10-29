@@ -496,25 +496,7 @@ button:focus-visible {
   }
 }
 
-/* Center footer logo on mobile & tablet view */
-@media (max-width: 900px) {
-  .footer__top > div:first-child {
-    grid-column: 1 / -1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    margin-bottom: 0.6rem !important;
-  }
-  .footer__top > div:first-child .brand {
-    margin: 0 auto !important;
-  }
-  .footer__tag {
-    margin: 1.2rem auto 0 !important;
-    text-align: center !important;
-    max-width: 20rem !important;
-  }
-}
+
 
 /* --- Global Brand & Luxury Editorial Footer --------------------- */
 .brand {
@@ -562,6 +544,29 @@ button:focus-visible {
   position: relative !important;
   z-index: 2 !important;
 }
+
+@media (max-width: 900px) {
+  .footer__top {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 3rem 2rem !important;
+  }
+  .footer__top > div:first-child {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin-bottom: 1rem !important;
+  }
+  .footer__top > div:first-child .brand {
+    margin: 0 auto !important;
+  }
+  .footer__tag {
+    margin: 1.2rem auto 0 !important;
+    text-align: center !important;
+    max-width: 20rem !important;
+  }
+}
 .footer .brand {
   font-size: 1.5rem !important;
 }
@@ -579,6 +584,7 @@ button:focus-visible {
   color: var(--gold) !important;
   margin: 0 0 1.4rem !important;
   font-weight: 600 !important;
+  line-height: 1.7 !important;
 }
 .footer ul {
   list-style: none !important;
@@ -588,6 +594,7 @@ button:focus-visible {
   gap: 0.7rem !important;
   font-size: 0.9rem !important;
   color: var(--ivory-70) !important;
+  line-height: 1.7 !important;
 }
 .footer ul a {
   color: inherit !important;

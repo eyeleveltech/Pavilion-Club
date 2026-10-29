@@ -10,7 +10,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
               src="/pavilion_logo_reversed.png"
               alt="The Pavilion Club"
               width={160}
-              height={119}
+              height={75}
               className="footer-brand__logo"
               style={{ height: '56px', width: 'auto', display: 'block', objectFit: 'contain' }}
             />
