@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 :root {
+  --font-montserrat: 'Montserrat', system-ui, sans-serif;
   /* ---- Brand ---- */
   --navy:        #0f1e2e;
   --gold:        #c7a26a;

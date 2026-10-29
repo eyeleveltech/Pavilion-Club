@@ -1,16 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Montserrat } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { PwaInstallPrompt } from '@/components/public/PwaInstallPrompt';
 import { RouteTransitionGuard } from '@/components/public/RouteTransitionGuard';
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-montserrat',
-  display: 'swap',
-});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -76,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={montserrat.variable} suppressHydrationWarning>
+    <html lang="en" className="font-sans" suppressHydrationWarning>
       <body className="font-sans antialiased bg-bg text-ink min-h-screen" suppressHydrationWarning>
         {/* Google Tag Manager */}
         <Script
