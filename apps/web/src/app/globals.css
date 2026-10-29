@@ -439,6 +439,36 @@ button:focus-visible {
   }
 }
 
+/* Disable court background hairlines on mobile view for clean readability */
+@media (max-width: 900px) {
+  .has-lines {
+    background-image: none !important;
+  }
+  .day__pin {
+    padding-top: 2rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+  .day__track {
+    gap: 1.75rem !important;
+  }
+  .day__intro .eyebrow {
+    margin-bottom: 0.6rem !important;
+  }
+  .day__intro .lede {
+    margin-top: 0.75rem !important;
+  }
+  .stats {
+    padding-top: 3rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  .menu a {
+    font-size: clamp(0.95rem, 3.8vw, 1.15rem) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.45rem 0 !important;
+  }
+}
+
 /* Center footer logo on mobile & tablet view */
 @media (max-width: 900px) {
   .footer__top > div:first-child {
@@ -447,7 +477,7 @@ button:focus-visible {
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.6rem !important;
   }
   .footer__top > div:first-child .brand {
     margin: 0 auto !important;

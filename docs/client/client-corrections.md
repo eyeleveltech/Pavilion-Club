@@ -12,7 +12,7 @@
 | Task # | Category | Request / Description | Status | Environment | Tested | Live Deployed |
 |---|---|---|---|---|---|---|
 | **TASK-01** | Hero Section | Remove text `THREE COURTS · PICKLEBALL` (with gold dot) from hero meta | ✅ **COMPLETED** | Production | ✅ Yes | ✅ **YES** (Live) |
-| **TASK-02** | Client Feedback | Ramya akka soldra corrections | ⏳ **PENDING DETAILS** | Local | Pending input | ❌ NO |
+| **TASK-02** | Client Feedback | Ramya akka corrections (Mobile background lines removal on manifesto/desk and mobile spacing refinements) | ✅ **COMPLETED** | Mobile / Web | ✅ Yes | ⏳ Local Approved |
 | **TASK-03** | Booking Flow | Payment-ku munaadi Confirm Booking kodutha **Email OTP verification** vekanum *(Real OTP logic + Name error clearing deployed; UI styling alignment once Harish provides Figma)* | ✅ **LOGIC & GATE LIVE** *(Harish UI refinements pending)* | Production | ✅ Yes | ✅ **YES** (Live) |
 | **TASK-04** | Responsive UI | Mobile view-ku footer alignments & spacing refinements (< 480px, 390px, 360px) | 🎯 **NEXT ACTIVE TASK** | Local → Staging | Ready to execute | ⏳ Queued |
 | **TASK-05** | Court Config | Unwanted courts (Gym studios) disable pannanum | ✅ **COMPLETED** | Front Desk / TurfOS | ✅ Yes | ✅ **YES** (Active in TurfOS) |
@@ -34,9 +34,14 @@
 
 ---
 
-### ⏳ TASK-02: Ramya Akka's Feedback & Corrections
-- **Status:** ⏳ **Pending specific itemized checklist from Ramya akka**.
-- **Action Required:** Capture all specific design, typography, layout, or content edits once shared by user / Ramya akka.
+### ✅ TASK-02: Ramya Akka's Feedback & Corrections
+- **Status:** ✅ **COMPLETED & APPROVED BY CLIENT / USER** (Tested locally).
+- **Items Resolved:**
+  1. **Background Hairline Grid Removal on Mobile**: Removed vertical court cut lines (`.has-lines { background-image: none !important; }` at `@media (max-width: 900px)`) that were cutting through the manifesto, desk, and paragraph text on mobile screens.
+  2. **Mobile Section Spacing Refinements**:
+     - Reduced large gap between `to LAST RALLY.` and the first card `06:00 AM` on mobile (`.day__pin` padding-top, `.day__track` gap, and `.lede` margin tightened).
+     - Reduced large 176px empty gap between `Last rally` (end of day timeline) and `.stats` numbers (`03 | 17 hrs`) on mobile to an exact matching ~133px balanced spacing.
+  3. **Mobile Fullscreen Menu Font Size Reduction**: Reduced oversized fullscreen overlay navigation links (`COURTS`, `THE CLUB`, `COURT-SIDE`, `MEMBERSHIP`, `BOOKING`, `FIND US`) from `43.6px` down to `~26.6px` (`clamp(1.35rem, 5.5vw, 1.9rem)`) with sleek 49px tap targets.
 
 ---
 
