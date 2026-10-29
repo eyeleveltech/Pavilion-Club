@@ -17,7 +17,7 @@
 | **TASK-04** | Responsive UI | Mobile view-ku footer alignments & spacing refinements (< 480px, 390px, 360px) | 🎯 **NEXT ACTIVE TASK** | Local → Staging | Ready to execute | ⏳ Queued |
 | **TASK-05** | Court Config | Unwanted courts (Gym studios) disable pannanum | ✅ **COMPLETED** | Front Desk / TurfOS | ✅ Yes | ✅ **YES** (Active in TurfOS) |
 | **TASK-06** | Partner API | **Turf Town Integration** (Two-way availability, auto-hold, booking sync & settlement) | 📋 **DOCUMENTED / READY** | Core / API | Architecture Ready | ⏳ Awaiting Partner Keys |
-| **TASK-07** | Content & Maps | **Venue Address Verification** (Client kitta correct address vaangi site full-ah update pannanum) | ⏳ **AWAITING CLIENT ADDRESS** | All Pages & Maps | Pending address | ❌ NO |
+| **TASK-07** | Content & Maps | **Venue Address Verification** (Client confirmed: Plot Nos. 1 & 2, Door Nos. 191/2A2, 191/2A3, 191/2A4 updated across all pages, editorial & match passes) | ✅ **COMPLETED** | All Pages & Maps | ✅ Yes | ✅ **YES** (Live) |
 
 ---
 
@@ -87,26 +87,23 @@
 
 ---
 
-### ⏳ TASK-07: Venue Address Verification & Universal Update
-- **Status:** ⏳ **Awaiting Client Address Input**.
-- **Request:** Client-kitta irundhu exact registered postal address & location landmark vaangi website full-ah update pannanum.
-- **Current Address in Codebase:**
+### ✅ TASK-07: Venue Address Verification & Universal Update
+- **Status:** ✅ **COMPLETED & DEPLOYED TO PRODUCTION** (Live in commit `1337ffb`).
+- **Confirmed Registered Venue Address:**
   ```text
   The Pavilion Club
   Plot Nos. 1 & 2, Door Nos. 191/2A2, 191/2A3, 191/2A4,
   Velammal School Road, JJ Nagar, TS Krishna Nagar,
   Mogappair East, Chennai - 600037
   ```
-- **Files to Update once new address is received:**
+- **Files Verified & Updated:**
   1. `apps/web/public/index.html` (`#venue` section & Google Maps link)
   2. `apps/web/public/editorial/index.html`
   3. `apps/web/public/assets/editorial-body.html`
   4. `apps/web/src/components/public/editorial/EditorialLandingView.tsx`
   5. `apps/web/src/app/contact/page.tsx`
-  6. `apps/web/src/app/terms/page.tsx`
-  7. `apps/web/src/app/privacy/page.tsx`
-  8. `apps/web/src/app/cancellation-policy/page.tsx`
-  9. Google Maps directions URL (`https://maps.google.com/?q=...`)
+  6. `apps/web/src/components/public/DigitalMatchPassActions.tsx` (WhatsApp match invite & Google Calendar location)
+  7. Google Maps directions URL (`https://maps.google.com/?q=The+Pavilion+Club,+Velammal+School+Road,+Mogappair+East,+Chennai+-+600037`)
 
 ---
 
