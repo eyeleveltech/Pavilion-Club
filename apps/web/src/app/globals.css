@@ -359,27 +359,27 @@ button:focus-visible {
   padding: 0.5rem 0;
 }
 
-.editorial-menu a {
+.editorial-menu > a {
   font-family: var(--font-sans);
-  font-size: clamp(2rem, 8vw, 3.8rem);
-  font-weight: 800;
+  font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+  font-weight: 700;
   text-transform: uppercase;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  padding: 0.4rem 0;
+  line-height: 1.25;
+  letter-spacing: 0.05em;
+  padding: 0.45rem 0;
   border-bottom: 1px solid rgba(199, 162, 106, 0.16);
   color: var(--ivory);
   text-decoration: none;
   transition: color 0.3s, transform 0.3s;
 }
 
-.editorial-menu a:hover {
+.editorial-menu > a:hover {
   color: var(--gold);
   transform: translateX(6px);
 }
 
 .editorial-menu__foot {
-  margin-top: 2.4rem;
+  margin-top: 1.8rem;
   display: grid;
   gap: 0.6rem;
   font-family: var(--font-sans);
@@ -387,6 +387,15 @@ button:focus-visible {
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--gold);
+}
+.editorial-menu__foot a {
+  font-size: 0.66rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.26em !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  line-height: 1.6 !important;
+  color: var(--gold) !important;
 }
 
 /* Membership price font size fix */
@@ -461,11 +470,15 @@ button:focus-visible {
     padding-top: 3rem !important;
     padding-bottom: 2.5rem !important;
   }
-  .menu a {
+  .menu > a,
+  .editorial-menu > a {
     font-size: clamp(0.95rem, 3.8vw, 1.15rem) !important;
     font-weight: 700 !important;
     letter-spacing: 0.05em !important;
     padding: 0.45rem 0 !important;
+  }
+  .editorial-menu__foot {
+    margin-top: 1.8rem !important;
   }
 }
 
