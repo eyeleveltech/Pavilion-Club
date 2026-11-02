@@ -16,23 +16,29 @@ export function PublicFooter({ className = '' }: { className?: string }) {
             />
           </a>
           <p className="footer__tag">
-            Three pickleball courts in Mogappair East, run the way a club should be.
+            Your everyday getaway. Pickleball, studio, events and food in Mogappair East, Chennai.
           </p>
         </div>
         <div>
           <h4>The club</h4>
           <ul>
-            <li><a href="/#courts">Courts</a></li>
-            <li><a href="/#club">The club</a></li>
-            <li><a href="/#day">Court-side</a></li>
-            <li><Link href="/book/">Booking</Link></li>
+            <li><Link href="/membership/">Memberships</Link></li>
+            <li><Link href="/academy/">Pickleball Academy</Link></li>
+            <li><Link href="/events/">Tournaments &amp; Events</Link></li>
+            <li><a href="/#spaces">Our Spaces</a></li>
+            <li><a href="/#cafe">Café &amp; Food</a></li>
+            <li><Link href="/franchise/">Franchise</Link></li>
+            <li><Link href="/about/">About</Link></li>
           </ul>
         </div>
         <div>
-          <h4>Your bookings</h4>
+          <h4>Players</h4>
           <ul>
+            <li><Link href="/book/">Book a court</Link></li>
             <li><Link href="/my-bookings/">My bookings</Link></li>
-            <li><Link href="/cancellation/">Cancellation</Link></li>
+            <li><Link href="/rules/">Court rules</Link></li>
+            <li><Link href="/faq/">FAQs</Link></li>
+            <li><Link href="/cancellation/">Cancellation &amp; refunds</Link></li>
             <li><Link href="/privacy/">Privacy</Link></li>
             <li><Link href="/terms/">Terms</Link></li>
           </ul>
@@ -71,7 +77,32 @@ export function PublicFooter({ className = '' }: { className?: string }) {
         <span>© 2026 The Pavilion Club · Chennai</span>
         <span>Architecture and renders by Feel and Bari</span>
       </div>
-      <div className="footer__ghost" aria-hidden="true">Pavilion</div>
+      <FooterGhost />
     </footer>
+  );
+}
+
+/**
+ * The outlined PAVILION wordmark. Montserrat builds its heavy letters from
+ * overlapping shapes, so a plain text stroke draws the joins inside P, A and N.
+ * Here the stroke is masked by the filled word, leaving only the outer edge.
+ * The same markup is in public/index.html.
+ */
+function FooterGhost() {
+  const word = { x: 600, y: 170, textAnchor: 'middle', textLength: 1180, lengthAdjust: 'spacing' } as const;
+  return (
+    <svg className="footer__ghost" viewBox="0 0 1200 176" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="footer-ghost-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="176">
+          <rect width="1200" height="176" fill="#fff" />
+          <text {...word} fill="#000">
+            PAVILION
+          </text>
+        </mask>
+      </defs>
+      <text {...word} className="footer__ghost-line" mask="url(#footer-ghost-cut)">
+        PAVILION
+      </text>
+    </svg>
   );
 }

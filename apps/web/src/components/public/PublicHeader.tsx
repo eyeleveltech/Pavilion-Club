@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-export function PublicHeader() {
+import { CLUB, NAV_LINKS, isHomeLink } from '@/lib/club';
+
+/**
+ * `overlay` lets the bar sit transparent over a full-bleed hero, as on the
+ * home page, until the page scrolls.
+ */
+export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -26,33 +32,34 @@ export function PublicHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Prevent background scroll when mobile menu is open
+  // Prevent background scroll when mobile menu is open. Pages with smooth
+  // scrolling (SiteMotion) scroll by wheel through Lenis, so pause it too.
   useEffect(() => {
+    const lenis = (window as { lenis?: { stop(): void; start(): void } | null }).lenis;
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      lenis?.stop();
     } else {
       document.body.style.overflow = '';
+      lenis?.start();
     }
     return () => {
       document.body.style.overflow = '';
     };
   }, [mobileMenuOpen]);
 
-  const navLinks = [
-    { label: 'Courts', href: '/#courts', isExternal: true },
-    { label: 'The club', href: '/#club', isExternal: true },
-    { label: 'Court-side', href: '/#day', isExternal: true },
-    { label: 'Membership', href: '/#membership', isExternal: true },
-    { label: 'Booking', href: '/book/', isExternal: false, active: pathname.startsWith('/book') },
-    { label: 'Find us', href: '/#venue', isExternal: true },
-  ];
+  const navLinks = NAV_LINKS.map((link) => ({
+    ...link,
+    isExternal: isHomeLink(link.href),
+    active: !isHomeLink(link.href) && pathname.startsWith(link.href.slice(0, -1)),
+  }));
 
   const isBookingPage = pathname.startsWith('/book');
 
   return (
     <>
       <header
-        className={`editorial-nav ${isScrolled ? 'is-scrolled' : ''}`}
+        className={`editorial-nav ${isScrolled ? 'is-scrolled' : overlay ? 'is-overlay' : ''}`}
         id="nav"
       >
         {/* Brand Lockup matching editorial homepage - native anchor to root to avoid RSC fetch */}
@@ -150,7 +157,7 @@ export function PublicHeader() {
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
             >
-              {link.label}
+              {link.menuLabel}
             </a>
           ) : (
             <Link
@@ -158,15 +165,18 @@ export function PublicHeader() {
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
             >
-              {link.label}
+              {link.menuLabel}
             </Link>
           )
         )}
+        <Link href={isBookingPage ? '/my-bookings/' : '/book/'} onClick={() => setMobileMenuOpen(false)}>
+          {isBookingPage ? 'My bookings' : 'Book a court'}
+        </Link>
 
         <div className="editorial-menu__foot">
           <span>Mon–Fri 06:00 AM–11:00 PM · Sat–Sun 06:00 AM–12:00 AM</span>
-          <a href="tel:+919600055623" style={{ color: 'inherit', textDecoration: 'none' }}>
-            +91 96000 55623
+          <a href={CLUB.phoneHref} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {CLUB.phoneDisplay}
           </a>
         </div>
       </div>

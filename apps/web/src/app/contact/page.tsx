@@ -1,180 +1,123 @@
-import { PublicHeader } from '@/components/public/PublicHeader';
-import { PublicFooter } from '@/components/public/PublicFooter';
-import { MapPin, Phone, Mail, Clock, ShieldCheck, Navigation, Car, Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Contact & Directions | The Pavilion Club Mogappair East',
-  description: 'Find The Pavilion Club pickleball arena in Mogappair East, Chennai. Operating hours, location map, front desk phone, and amenities.',
+import type { EnquiryField } from '@/components/public/site/EnquiryForm';
+import {
+  ArrowLink,
+  EnquirySection,
+  GoldButton,
+  Heading,
+  PageHero,
+  SitePage,
+} from '@/components/public/site/SitePage';
+import { CLUB, whatsappUrl } from '@/lib/club';
+
+export const metadata: Metadata = {
+  title: 'Contact & Directions',
+  description:
+    'Find The Pavilion Club on Velammal School Road, Mogappair East, Chennai. Opening hours, directions, front desk phone, WhatsApp and email.',
 };
+
+const FIELDS: readonly EnquiryField[] = [
+  { kind: 'text', name: 'name', label: 'Name', required: true, autoComplete: 'name' },
+  { kind: 'tel', name: 'phone', label: 'Phone / WhatsApp', required: true, autoComplete: 'tel' },
+  { kind: 'email', name: 'email', label: 'Email', autoComplete: 'email' },
+  {
+    kind: 'select',
+    name: 'topic',
+    label: 'About',
+    required: true,
+    options: [
+      'Memberships',
+      'Pickleball Academy',
+      'Tournaments & events',
+      'Court booking',
+      'Franchise & expansion',
+      'Something else',
+    ],
+  },
+  { kind: 'textarea', name: 'message', label: 'Your message', required: true },
+];
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col justify-between">
-      <PublicHeader />
+    <SitePage>
+      <PageHero
+        eyebrow="Contact"
+        lines={['Contact', <><em>&amp;</em> directions.</>]}
+        compact
+        tag="Velammal School Road"
+        lede="Questions about memberships, the Pickleball Academy, events or a court booking? Reach the front desk directly, or send us an enquiry."
+        image="/assets/images/elevation-dusk-angle.jpg"
+        side="Mogappair East · Chennai"
+      >
+        <GoldButton href={CLUB.mapsUrl}>Get directions</GoldButton>
+        <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
+      </PageHero>
 
-      <main className="max-w-5xl mx-auto px-4 py-12 space-y-12 text-sm text-ink leading-relaxed">
-        {/* Page Header */}
-        <div className="space-y-3 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-navy/5 border border-navy/15 text-navy text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-gold" />
-            <span>Mogappair East &bull; Chennai</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-navy">
-            Contact & Directions
-          </h1>
-          <p className="text-ink-soft text-base max-w-2xl">
-            Have questions about court availability, membership coaching, or corporate leagues? 
-            Reach our Mogappair East reception desk directly or visit us on court.
+      <section className="site-visit">
+        <div className="site-visit__media" data-reveal="left" data-cursor="Directions">
+          <img src="/assets/images/elevation-day-wide.jpg" alt="The club's street elevation by day, seen through the trees" loading="lazy" />
+        </div>
+        <div className="site-visit__body">
+          <p className="site-eyebrow" data-fade>
+            Find us
           </p>
-        </div>
-
-        {/* Main Grid: Cards + Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          
-          {/* Left Column: Contact Cards */}
-          <div className="space-y-4">
-            {/* Arena Address */}
-            <div className="p-6 rounded-2xl bg-surface border border-border shadow-xs hover:border-navy/30 transition space-y-3">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-navy/5 text-navy shrink-0">
-                  <MapPin className="w-5 h-5 text-gold" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="font-bold text-navy text-base">Arena Address</h2>
-                  <p className="text-xs text-ink-soft leading-relaxed">
-                    <strong className="text-ink">The Pavilion Club</strong><br />
-                    Plot Nos. 1 &amp; 2, Door Nos. 191/2A2, 191/2A3, 191/2A4,<br />
-                    Velammal School Road, JJ Nagar, TS Krishna Nagar,<br />
-                    Mogappair East, Chennai - 600037<br />
-                    <span className="text-[11px] text-ink-faint">Landmark: Near Velammal School</span>
-                  </p>
-                </div>
+          <Heading lines={['Mogappair', 'East.']} className="mt-7" />
+          <address className="site-visit__addr" data-fade>
+            <b>{CLUB.name}</b>
+            {CLUB.addressLines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+            <span className="site-visit__landmark">Landmark: near Velammal School</span>
+          </address>
+          <dl className="site-visit__hours" data-stagger>
+            {CLUB.hours.map((row) => (
+              <div key={row.days}>
+                <dt>{row.days}</dt>
+                <dd>{row.time}</dd>
               </div>
-              <div className="pt-2 border-t border-border flex items-center justify-between">
-                <a
-                  href="https://maps.google.com/?q=The+Pavilion+Club,+Velammal+School+Road,+Mogappair+East,+Chennai+-+600037"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-gold transition"
-                >
-                  <Navigation className="w-3.5 h-3.5" />
-                  <span>Open in Google Maps &rarr;</span>
-                </a>
-                <span className="text-[11px] text-ink-soft font-mono">13.0067° N, 80.2570° E</span>
-              </div>
+            ))}
+            <div>
+              <dt>Front desk</dt>
+              <dd>
+                <a href={CLUB.phoneHref}>{CLUB.phoneDisplay}</a>
+              </dd>
             </div>
-
-            {/* Front Desk Phone & WhatsApp */}
-            <div className="p-6 rounded-2xl bg-surface border border-border shadow-xs hover:border-navy/30 transition space-y-3">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-navy/5 text-navy shrink-0">
-                  <Phone className="w-5 h-5 text-gold" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="font-bold text-navy text-base">Front Desk &amp; WhatsApp</h2>
-                  <p className="text-xs text-ink-soft leading-relaxed">
-                    Direct Reception: <a href="tel:+919600055623" className="font-semibold text-navy hover:underline">+91 96000 55623</a><br />
-                    WhatsApp Inquiries: <a href="https://wa.me/919600055623" target="_blank" rel="noopener noreferrer" className="font-semibold text-navy hover:underline">+91 96000 55623</a>
-                  </p>
-                  <p className="text-[11px] text-ink-faint">Desk active daily 06:00 AM &ndash; 11:00 PM IST</p>
-                </div>
-              </div>
+            <div>
+              <dt>Email</dt>
+              <dd>
+                <a href={`mailto:${CLUB.email}`}>{CLUB.email}</a>
+              </dd>
             </div>
-
-            {/* Email Support */}
-            <div className="p-6 rounded-2xl bg-surface border border-border shadow-xs hover:border-navy/30 transition space-y-3">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-navy/5 text-navy shrink-0">
-                  <Mail className="w-5 h-5 text-gold" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="font-bold text-navy text-base">Email Contact</h2>
-                  <p className="text-xs text-ink-soft leading-relaxed">
-                    General Inquiries &amp; Bookings: <a href="mailto:hello@thepavilionclub.com" className="text-navy hover:underline font-medium">hello@thepavilionclub.com</a>
-                  </p>
-                </div>
-              </div>
-            </div>
+          </dl>
+          <div className="site-actions mt-10" data-fade>
+            <ArrowLink href={CLUB.mapsUrl}>Open in Google Maps</ArrowLink>
+            <ArrowLink href={whatsappUrl('Hi Pavilion Club!')}>WhatsApp us</ArrowLink>
+            <ArrowLink href="/book/">Book a court</ArrowLink>
           </div>
-
-          {/* Right Column: Timetable, Rates, & Venue Amenities */}
-          <div className="space-y-6">
-            {/* Operating Hours Card */}
-            <div className="p-8 rounded-2xl bg-surface border border-border shadow-xs space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-navy font-bold text-lg">
-                  <Clock className="w-5 h-5 text-gold" />
-                  <h2>Operating Hours &amp; Tariff</h2>
-                </div>
-                <ul className="space-y-3 text-xs divide-y divide-border">
-                  <li className="pt-2 flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-navy block">Monday &ndash; Friday</span>
-                      <span className="text-[11px] text-ink-soft">Weekday Regular</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-ink-soft font-mono block">06:00 AM &ndash; 11:00 PM</span>
-                      <span className="text-navy font-bold">₹800 / hour</span>
-                    </div>
-                  </li>
-                  <li className="pt-3 flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-navy block">Saturday &ndash; Sunday</span>
-                      <span className="text-[11px] text-ink-soft">Weekend Prime</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-ink-soft font-mono block">06:00 AM &ndash; 11:00 PM</span>
-                      <span className="text-gold font-bold">₹1,000 / hour</span>
-                    </div>
-                  </li>
-                  <li className="pt-3 flex items-center justify-between">
-                    <span className="font-semibold text-navy">Payment Method</span>
-                    <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full text-[11px]">
-                      100% Pay at Venue (Cash / UPI)
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Instant Book CTA */}
-              <div className="pt-2">
-                <Link
-                  href="/book/"
-                  className="block w-full text-center py-3.5 rounded-xl bg-navy text-white text-xs font-bold uppercase tracking-wider hover:bg-navy/90 transition shadow-sm"
-                >
-                  Check Live Availability &amp; Book &rarr;
-                </Link>
-              </div>
-            </div>
-
-            {/* Venue Amenities Card */}
-            <div className="p-6 rounded-2xl bg-surface-2 border border-border space-y-4">
-              <div className="flex items-center gap-2 text-navy font-bold text-sm">
-                <ShieldCheck className="w-4 h-4 text-gold shrink-0" />
-                <h3>Club Facilities &amp; Guidelines</h3>
-              </div>
-              <ul className="space-y-2 text-xs text-ink-soft">
-                <li className="flex items-start gap-2">
-                  <Car className="w-3.5 h-3.5 text-navy shrink-0 mt-0.5" />
-                  <span>Free dedicated parking for 4-wheelers &amp; 2-wheelers inside the arena compound.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-1.5"></span>
-                  <span>Hygienic private hot water rain-shower cubicles and changing rooms available for players.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0 mt-1.5"></span>
-                  <span>Non-marking court shoes strictly required on court. Paddle rental and equipment available at desk.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
         </div>
-      </main>
+      </section>
 
-      <PublicFooter />
-    </div>
+      <EnquirySection
+        eyebrow="Enquire"
+        lines={['Send us', <><em>a</em> note.</>]}
+        lede="Tell us what you would like to know and the front desk will come back to you."
+        aside={
+          <ul className="site-ticks max-w-md text-[0.9rem] text-[var(--soft)]">
+            <li>Non-marking court shoes are required on court.</li>
+            <li>Play needs a confirmed booking or an authorised membership session.</li>
+            <li>
+              Read the{' '}
+              <a className="underline" href="/rules/">
+                court rules
+              </a>{' '}
+              before you play.
+            </li>
+          </ul>
+        }
+        subject="General enquiry"
+        fields={FIELDS}
+      />
+    </SitePage>
   );
 }

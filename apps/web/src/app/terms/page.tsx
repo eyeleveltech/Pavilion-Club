@@ -1,43 +1,69 @@
 import type { Metadata } from 'next';
-import { PublicHeader } from '@/components/public/PublicHeader';
-import { PublicFooter } from '@/components/public/PublicFooter';
+
+import { PageHero, PolicyBody, SitePage, type Clause } from '@/components/public/site/SitePage';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'Terms of service, court rules, footwear policy, and booking conditions for The Pavilion Club, Mogappair East, Chennai.',
+  description:
+    'Terms of service, court use, footwear, payment and conduct for The Pavilion Club, Mogappair East, Chennai.',
 };
-﻿
+
+const CLAUSES: readonly Clause[] = [
+  {
+    id: 'court-licence',
+    n: '01',
+    title: 'Court licence and use',
+    body: (
+      <p>
+        Booking a slot at The Pavilion Club grants a temporary, revocable licence to use the designated pickleball court
+        for the reserved time window. Players must wear non-marking court shoes. Barefoot play, running shoes and
+        black-soled footwear are not permitted, to protect the court surface.
+      </p>
+    ),
+  },
+  {
+    id: 'payment',
+    n: '02',
+    title: 'Payment and arrival',
+    body: (
+      <p>
+        For bookings made in &apos;Pay at venue&apos; mode, full payment by cash, UPI or card must be made at the front
+        desk before you go on court. Please arrive at least 10 minutes before your booking.
+      </p>
+    ),
+  },
+  {
+    id: 'conduct',
+    n: '03',
+    title: 'Conduct and safety',
+    body: (
+      <p>
+        Players are responsible for their own fitness and safety. The Pavilion Club accepts no liability for personal
+        injury or lost belongings, except where the law requires otherwise. Abusive behaviour, foul language or
+        deliberate damage to nets and equipment may result in removal from the club and suspension of access. See the{' '}
+        <a href="/rules/">court rules</a>.
+      </p>
+    ),
+  },
+  {
+    id: 'other-policies',
+    n: '04',
+    title: 'Memberships, events and other policies',
+    body: (
+      <p>
+        Memberships are governed by the <a href="/membership/#terms">membership terms</a>; events by their written
+        quotation; cancellations and refunds by the <a href="/cancellation/">cancellation &amp; refund policy</a>; and
+        personal data by the <a href="/privacy/">privacy notice</a>.
+      </p>
+    ),
+  },
+];
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-bg text-ink flex flex-col justify-between">
-      <PublicHeader />
-      <main className="max-w-3xl mx-auto px-4 py-12 space-y-6 text-xs text-ink leading-relaxed">
-        <h1 className="text-2xl font-bold tracking-tight text-navy">Terms of Service</h1>
-        <p className="text-ink-soft">Last updated: September 2026</p>
-
-        <section className="space-y-2">
-          <h2 className="text-sm font-bold text-navy">1. Court Licence & Use</h2>
-          <p>
-            Booking a slot at The Pavilion Club grants a temporary, revocable licence to use the designated pickleball court for the reserved time window. Players must strictly wear non-marking court shoes. Barefoot play, running shoes, or black-soled footwear are strictly prohibited to preserve court surface integrity.
-          </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-sm font-bold text-navy">2. Payment & Arrival</h2>
-          <p>
-            For bookings under &apos;Pay at Venue&apos; mode, full payment via cash, UPI, or card must be cleared at the front desk prior to entering the court. Customers are requested to arrive at least 10 minutes prior to their match time.
-          </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-sm font-bold text-navy">3. Code of Conduct & Safety</h2>
-          <p>
-            Players are responsible for their personal physical fitness and safety. The Pavilion Club accepts no liability for personal injuries or lost belongings. Abusive behavior, foul language, or intentional damage to nets and equipment will result in immediate expulsion and permanent blacklisting.
-          </p>
-        </section>
-      </main>
-      <PublicFooter />
-    </div>
+    <SitePage>
+      <PageHero eyebrow="Policies" lines={['Terms', <><em>of</em> service.</>]} lede="Last updated October 2026" />
+      <PolicyBody clauses={CLAUSES} />
+    </SitePage>
   );
 }

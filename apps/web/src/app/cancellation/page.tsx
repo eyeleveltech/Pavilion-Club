@@ -1,8 +1,8 @@
 import { CancellationPolicyContent } from '@/components/public/CancellationPolicyContent';
 
 export const metadata = {
-  title: 'Cancellation & Refund Policy | The Pavilion Club Mogappair East',
-  description: 'Official cancellation terms, refund procedures, and third-party partner booking policies for The Pavilion Club pickleball arena in Chennai.',
+  title: 'Cancellation & Refund Policy',
+  description: 'How cancellations and refunds work at The Pavilion Club, Mogappair East, Chennai: membership sessions, court bookings, Studio classes, events and partner platform bookings.',
 };
 
 export default function CancellationPolicyPage() {

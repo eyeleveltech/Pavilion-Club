@@ -1,7 +1,7 @@
 {
-  "name": "The Pavilion Club — Badminton Arena",
+  "name": "The Pavilion Club",
   "short_name": "Pavilion Club",
-  "description": "Book BWF badminton courts, view digital match passes, and check live court availability in Adyar, Chennai.",
+  "description": "Book pickleball courts, view your bookings and check live court availability at The Pavilion Club, Mogappair East, Chennai.",
   "start_url": "/book",
   "scope": "/",
   "display": "standalone",

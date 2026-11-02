@@ -220,7 +220,7 @@
     /* ---------- venue + cta media motion ---------- */
     gsap.fromTo('.venue__media img', { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '.venue', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.fromTo('.cta__media', { yPercent: -10 }, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: '.cta', start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.fromTo('.footer__ghost', { yPercent: 60 }, { yPercent: 26, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+    gsap.fromTo('.footer__ghost', { y: 0, yPercent: 60 }, { y: 0, yPercent: 24, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
 
     /* ---------- magnetic buttons + cursor (luxury animated cursor) ---------- */
     $$('.magnetic').forEach(btn => {

@@ -6,7 +6,8 @@
     "dev": "next dev -H 0.0.0.0 -p 3001",
     "build": "pnpm --filter @pavilion/core build && pnpm --filter @pavilion/db build && next build",
     "start": "next start -H 0.0.0.0 -p 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync:home": "node scripts/sync-home-markup.mjs"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.0",

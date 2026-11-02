@@ -1,0 +1,98 @@
+/* ------------------------------------------------------------------
+   THE PAVILION CLUB — home: memberships, academy, events, franchise
+   Loaded after editorial.css by both copies of the home page:
+   public/index.html (live) and EditorialLandingView (dev).
+------------------------------------------------------------------- */
+
+/* --- nav: below 1100px the links move into the menu ---------------- */
+@media (min-width:901px) and (max-width:1099px){
+  .nav{grid-template-columns:1fr auto}
+  .nav .brand{justify-self:start}
+  .nav__links{display:none}
+  .nav__menu{display:inline-flex}
+}
+@media (min-width:1100px) and (max-width:1360px){
+  .nav__links{gap:1.6rem}
+}
+
+/* --- hero ------------------------------------------------------- */
+.hero__tag{font-size:.7rem;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+
+/* gold buttons on ivory fill with midnight on hover, not ivory */
+.on-light .btn::before{background:var(--midnight)}
+.on-light .btn:hover,.on-light .btn:focus-visible{color:var(--ivory);border-color:var(--midnight)}
+
+/* --- memberships: two pathways ---------------------------------- */
+.mship{background-color:var(--midnight-deep);border-top:1px solid var(--gold-line)}
+.mship__head,.events__head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;margin-bottom:clamp(3rem,6vw,4.5rem)}
+.mship__head .eyebrow,.events__head .eyebrow{margin-bottom:2rem}
+.mship__head .lede,.events__head .lede{max-width:26rem;justify-self:end}
+.paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--gold-line);border:1px solid var(--gold-line)}
+.path{display:flex;flex-direction:column;background:var(--midnight-deep)}
+.path__media{aspect-ratio:16/10;margin:0}
+.path__media img{transition:transform 1.2s var(--ease)}
+.path:hover .path__media img{transform:scale(1.04)}
+.path__body{display:flex;flex-direction:column;flex:1;padding:clamp(2rem,3.4vw,3.2rem)}
+.path__kicker{display:flex;align-items:center;gap:.9rem;font-size:.62rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.path__kicker span{color:var(--ivory-45)}
+.path__name{margin-top:1.3rem;font-family:var(--font-serif);font-weight:600;font-size:clamp(2rem,3vw,2.8rem);line-height:1.05;color:var(--ivory)}
+.path__line{margin-top:.7rem;font-size:.95rem;color:var(--ivory-70)}
+.path__price{margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--ivory-line);display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem 1rem;min-height:5.4rem}
+.path__price b{font-family:var(--font-serif);font-size:2.5rem;font-weight:600;line-height:1;color:var(--ivory)}
+.path__price span{font-size:.72rem;letter-spacing:.08em;color:var(--ivory-45)}
+.path__price--soon b{font-family:var(--font-script);font-weight:400;font-size:2.4rem;color:var(--gold)}
+.path__facts{list-style:none;margin:1.4rem 0 2.4rem;padding:0;border-top:1px solid var(--ivory-line)}
+.path__facts li{position:relative;padding:.8rem 0 .8rem 1.4rem;border-bottom:1px solid var(--ivory-line);font-size:.85rem;line-height:1.5;color:var(--ivory-70)}
+.path__facts li::before{content:"";position:absolute;left:0;top:1.35em;width:.6rem;height:1px;background:var(--gold)}
+.path .link-arrow{margin-top:auto;align-self:flex-start;color:var(--ivory);transition:color .3s}
+.path .link-arrow:hover{color:var(--gold)}
+
+/* --- pickleball academy ----------------------------------------- */
+.academy{display:grid;grid-template-columns:5fr 6fr;gap:clamp(2.5rem,7vw,8rem);align-items:center}
+.academy__fig{margin:0}
+.academy__fig .frame{aspect-ratio:4/5}
+.academy__text .eyebrow{margin-bottom:2rem}
+.academy__text .lede{margin-top:2rem;max-width:30rem}
+.academy__cta{display:flex;align-items:center;gap:2.4rem;flex-wrap:wrap;margin-top:2.6rem}
+
+/* --- tournaments & events --------------------------------------- */
+.events{background-color:var(--midnight-deep);border-top:1px solid var(--gold-line)}
+.events__grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--gold-line);border:1px solid var(--gold-line)}
+.events__grid li{display:flex;flex-direction:column;min-height:16rem;padding:clamp(2rem,3vw,2.8rem);background:var(--midnight-deep);transition:background .4s}
+.events__grid li:hover{background:#0d1a28}
+.events__n{font-size:.62rem;font-weight:600;letter-spacing:.3em;color:var(--gold);font-variant-numeric:tabular-nums}
+.events__grid h3{margin-top:1.4rem;font-family:var(--font-serif);font-weight:600;font-size:clamp(1.45rem,1.9vw,1.85rem);line-height:1.12;color:var(--ivory)}
+.events__grid p{margin-top:.9rem;font-size:.85rem;line-height:1.65;color:var(--ivory-70)}
+.events__grid .events__cta{justify-content:flex-end;align-items:flex-start;gap:1.5rem;background:linear-gradient(180deg,rgba(199,162,106,.12),rgba(199,162,106,0) 75%),var(--midnight-deep)}
+.events__grid .events__cta p{margin:0 0 .4rem;font-family:var(--font-serif);font-size:1.5rem;line-height:1.25;color:var(--ivory)}
+.events__cta .link-arrow{color:var(--ivory)}
+
+/* --- our spaces: five names have to fit one line --------------- */
+.facilities .row__name{font-size:clamp(2rem,3.6vw,3.9rem)}
+
+/* --- café & food ------------------------------------------------ */
+.club__aside{display:grid;gap:1.6rem;justify-items:start;max-width:26rem;justify-self:end}
+.club__note{font-size:.62rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.club__aside .link-arrow{color:var(--ivory)}
+
+/* --- franchise -------------------------------------------------- */
+.franchise{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;background-color:#f3eee1}
+.franchise .eyebrow{margin-bottom:2rem}
+.franchise__aside{display:grid;gap:2rem;justify-items:start;max-width:28rem;justify-self:end}
+
+@media (max-width:1100px){
+  .events__grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .mship__head,.events__head,.franchise,.academy{grid-template-columns:1fr;gap:1.5rem}
+  .mship__head .lede,.events__head .lede,.franchise__aside,.club__aside{justify-self:start}
+  .paths{grid-template-columns:minmax(0,1fr)}
+  .path__price{min-height:0}
+  .academy{gap:2.5rem}
+  .academy__fig .frame{aspect-ratio:4/3}
+  .facilities .row__name{font-size:clamp(1.25rem,5.4vw,2.4rem)}
+}
+@media (max-width:640px){
+  .events__grid{grid-template-columns:minmax(0,1fr)}
+  .events__grid li{min-height:0}
+}

@@ -11,16 +11,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Pavilion Club — Pickleball, Mogappair East, Chennai</title>
-<meta name="description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<title>The Pavilion Club — Pickleball, Studio & Events · Mogappair East, Chennai</title>
+<meta name="description" content="Your everyday getaway in Mogappair East, Chennai: three tournament-grade pickleball courts, Pavilion Studio, the Pickleball Academy, and Pavilion Hall for tournaments and celebrations.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://thepavilionclub.com/">
-<meta property="og:title" content="The Pavilion Club · Pickleball Arena, Mogappair East, Chennai">
-<meta property="og:description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta property="og:title" content="The Pavilion Club · Your Everyday Getaway, Mogappair East, Chennai">
+<meta property="og:description" content="Your everyday getaway in Mogappair East, Chennai: three tournament-grade pickleball courts, Pavilion Studio, the Pickleball Academy, and Pavilion Hall for tournaments and celebrations.">
 <meta property="og:image" content="https://thepavilionclub.com/assets/images/courts-hall.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Pavilion Club · Pickleball Arena, Mogappair East, Chennai">
-<meta name="twitter:description" content="Three championship regulation pickleball courts in Mogappair East, Chennai. Book by the hour, pay online, walk in and play.">
+<meta name="twitter:title" content="The Pavilion Club · Your Everyday Getaway, Mogappair East, Chennai">
+<meta name="twitter:description" content="Your everyday getaway in Mogappair East, Chennai: three tournament-grade pickleball courts, Pavilion Studio, the Pickleball Academy, and Pavilion Hall for tournaments and celebrations.">
 <meta name="twitter:image" content="https://thepavilionclub.com/assets/images/courts-hall.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -214,7 +214,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .chapter__img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .chapter__img figcaption{position:absolute;left:2rem;bottom:2rem;font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ivory-70);display:flex;gap:1rem;align-items:center}
 .chapter__img figcaption::before{content:"";width:1.6rem;height:1px;background:var(--gold)}
-.chapters__ghost{position:absolute;left:calc(var(--gutter) - .06em);top:6vh;font-size:clamp(9rem,24vw,24rem);font-weight:800;line-height:1;letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.2);pointer-events:none;z-index:1;font-variant-numeric:tabular-nums}
+.chapters__ghost{position:absolute;left:calc(var(--gutter) - .06em);top:6vh;font-size:clamp(9rem,24vw,24rem);font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--midnight);-webkit-text-stroke:2px rgba(199,162,106,.2);paint-order:stroke fill;pointer-events:none;z-index:0;font-variant-numeric:tabular-nums}
 .chapters__progress{position:absolute;left:var(--gutter);bottom:3rem;display:flex;gap:.7rem;z-index:3}
 .chapters__progress i{display:block;width:3.2rem;height:1px;background:var(--ivory-line);position:relative;overflow:hidden}
 .chapters__progress i::after{content:"";position:absolute;inset:0;background:var(--gold);transform:scaleX(var(--p,0));transform-origin:left}
@@ -423,7 +423,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .footer ul a{transition:color .3s}
 .footer ul a:hover{color:var(--gold)}
 .footer__bottom{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1.8rem 0;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory-45)}
-.footer__ghost{font-size:clamp(4.6rem,19vw,19rem);font-weight:800;line-height:.78;letter-spacing:-.02em;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(199,162,106,.22);text-align:center;transform:translateY(26%);pointer-events:none;user-select:none;white-space:nowrap}
+.footer__ghost{display:block;width:100%;height:auto;margin-top:clamp(.75rem,2vw,1.75rem);overflow:visible;transform:translateY(24%);pointer-events:none;user-select:none}
+.footer__ghost text{font-family:var(--font-sans);font-size:232px;font-weight:800;letter-spacing:-.02em}
+.footer__ghost-line{fill:none;stroke:rgba(199,162,106,.3);stroke-width:2;vector-effect:non-scaling-stroke}
 @media (max-width:900px){
   .footer__top{grid-template-columns:1fr 1fr}
   .footer__top>div:first-child{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:1rem}.footer__top>div:first-child .brand{margin:0 auto}.footer__tag{margin:1.2rem auto 0;text-align:center;max-width:20rem}
@@ -445,92 +447,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
   .chapter:not(:first-of-type) .chapter__body{opacity:1}
 }
 
-/* --- membership section --- */
-/* --- memberships & packs ---------------------------------------- */
-/* An editorial price list, not a wall of cards: one hairline grid, the
-   wordmark's serif for plan names, quiet arrow links and a single gold
-   button for the plan the club recommends. Tabs are the same underlined
-   uppercase labels the booking widget uses. */
-.mship{position:relative;background:var(--midnight-deep);border-top:1px solid var(--gold-line)}
-.mship__head{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,6rem);align-items:end;margin-bottom:clamp(3rem,6vw,4.5rem)}
-.mship__head .eyebrow{margin-bottom:2rem}
-.mship__tabs{display:flex;gap:clamp(1.6rem,4vw,3.4rem);border-bottom:1px solid var(--ivory-line);overflow-x:auto;scrollbar-width:none}
-.mship__tabs::-webkit-scrollbar{display:none}
-.mship__tab{position:relative;flex:0 0 auto;display:inline-flex;align-items:baseline;gap:.8rem;padding:0 0 1.2rem;font-size:.68rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--ivory-45);transition:color .3s}
-.mship__tab span{font-size:.6rem;letter-spacing:.1em;color:var(--gold);font-variant-numeric:tabular-nums}
-.mship__tab::after{content:"";position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
-.mship__tab:hover{color:var(--ivory)}
-.mship__tab[aria-selected="true"]{color:var(--ivory)}
-.mship__tab[aria-selected="true"]::after{transform:scaleX(1)}
-.mship__tab:focus-visible{outline:none;color:var(--ivory)}
-.mship__tab:focus-visible::after{transform:scaleX(1);height:2px}
-.mship__panel[hidden]{display:none}
-.mship__panel.is-in{animation:mshipIn .6s var(--ease) both}
-@keyframes mshipIn{from{opacity:0;transform:translateY(12px)}}
-.mship__plans{list-style:none;margin:2.6rem 0 0;padding:0;display:grid;gap:1px;background:var(--ivory-line);border:1px solid var(--ivory-line)}
-.mship__plans--4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.mship__plans--2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.mship__plan{position:relative;display:flex;flex-direction:column;padding:clamp(2rem,3vw,2.6rem) clamp(1.4rem,2.2vw,2rem);background:var(--midnight-deep);transition:background .4s}
-.mship__plan:hover{background:#0d1a28}
-.mship__plan.is-featured{background:linear-gradient(180deg,rgba(199,162,106,.09),rgba(199,162,106,0) 60%),var(--midnight-deep)}
-.mship__plan.is-featured::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--gold)}
-.mship__top{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:1.3rem;margin-bottom:1.6rem}
-.mship__term{font-size:.6rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
-.mship__flag{font-family:var(--font-script);font-size:1.25rem;line-height:.8;color:var(--gold);white-space:nowrap}
-.mship__name{font-family:var(--font-serif);font-weight:600;font-size:clamp(1.55rem,2vw,1.9rem);line-height:1.1;letter-spacing:-.005em;color:var(--ivory)}
-.mship__desc{margin-top:.8rem;font-size:.8rem;line-height:1.65;color:var(--ivory-70)}
-/* prices start on one line across a row, whatever the description length */
-.mship__plans--4 .mship__desc{min-height:4.95em}
-.mship__plans--2 .mship__desc{min-height:3.3em}
-.mship__price--text{font-family:var(--font-serif);font-size:clamp(1.4rem,1.8vw,1.7rem);font-weight:500;letter-spacing:-.01em;color:var(--ivory);margin-top:1.8rem;line-height:1.2}
-.mship__price{margin-top:1.6rem;display:flex;align-items:baseline;gap:.4rem;font-size:1.15rem;font-weight:600;letter-spacing:.04em;line-height:1.2;color:var(--ivory)}
-.mship__price small{font-size:1.05rem;font-weight:500;color:var(--gold)}
-.mship__per{margin-top:.6rem;font-size:.68rem;letter-spacing:.08em;color:var(--ivory-45);font-variant-numeric:tabular-nums}
-.mship__per b{color:var(--ivory-70);font-weight:600}
-.mship__perks{list-style:none;margin:1.8rem 0 2.2rem;padding:0;border-top:1px solid var(--ivory-line)}
-.mship__perks li{position:relative;padding:.8rem 0 .8rem 1.4rem;border-bottom:1px solid var(--ivory-line);font-size:.8rem;line-height:1.5;color:var(--ivory-70)}
-.mship__perks li::before{content:"";position:absolute;left:0;top:1.35em;width:.6rem;height:1px;background:var(--gold)}
-.mship__cta{margin-top:auto}
-.mship__plan .btn{width:100%;padding:1rem 1.4rem}
-.mship__plan .link-arrow{padding:.9rem 0}
-/* Plans not on sale yet: a quiet label where the button will go. */
-.mship__soon{display:flex;align-items:center;justify-content:center;width:100%;padding:1.05rem 1.4rem;background:var(--gold);color:var(--midnight);border:1px solid var(--gold);font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;cursor:default;user-select:none;transition:background .3s,opacity .3s}
-.mship__soon::before{display:none}
-.mship__plan.is-featured .mship__soon{background:var(--gold);color:var(--midnight);border-color:var(--gold)}
-.mship__foot{display:flex;justify-content:space-between;align-items:center;gap:1.5rem 3rem;flex-wrap:wrap;margin-top:2.4rem;font-size:.78rem;line-height:1.7;color:var(--ivory-45)}
-.mship__foot .link-arrow{color:var(--ivory)}
-@media (max-width:1100px){
-  .mship__plans--4{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:900px){
-  .mship__head{grid-template-columns:1fr;gap:1.5rem}
-}
-@media (max-width:640px){
-  .mship__plans--4,.mship__plans--2{grid-template-columns:minmax(0,1fr)}
-  .mship__plans--4 .mship__desc,.mship__plans--2 .mship__desc{min-height:0}
-  .mship__tabs{margin:0 calc(var(--gutter) * -1);padding:0 var(--gutter)}
-}
-@media (prefers-reduced-motion:reduce){.mship__panel.is-in{animation:none}}
-
-
-
-/* Most popular badge: Luxury gold box border */
-.mship__flag {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: var(--font-script) !important;
-  font-size: 1.18rem !important;
-  line-height: 1 !important;
-  color: var(--gold) !important;
-  padding: 0.54rem 0.75rem 0.42rem !important;
-  border: 1px solid var(--gold) !important;
-  background: rgba(199, 162, 106, 0.08) !important;
-  white-space: nowrap !important;
-  letter-spacing: 0.02em !important;
-}
-
+/* --- memberships, academy, events, franchise: see /assets/css/home.css --- */
 </style>
+<link href="/assets/css/home.css" rel="stylesheet">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -569,12 +488,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <header class="nav" id="nav">
   <a class="brand" href="#top" aria-label="The Pavilion Club, home" style="display:inline-flex;align-items:center;text-decoration:none"><img src="/pavilion_logo_reversed.png" alt="The Pavilion Club" width="160" height="75" style="height:48px;width:auto;display:block;object-fit:contain" /></a>
   <nav class="nav__links" aria-label="Primary">
-    <a href="#courts">Courts</a>
-    <a href="#club">The club</a>
-    <a href="#day">Court-side</a>
-    <a href="#membership">Membership</a>
-    <a href="/book/">Booking</a>
-    <a href="#venue">Find us</a>
+    <a href="/membership/">Memberships</a>
+    <a href="/academy/">Academy</a>
+    <a href="/events/">Events</a>
+    <a href="/franchise/">Franchise</a>
+    <a href="/contact/">Contact</a>
   </nav>
   <div class="nav__right">
     <a class="btn magnetic" href="/book/">Book a court</a>
@@ -582,12 +500,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </header>
 <div class="menu" id="menu">
-  <a href="#courts">Courts</a>
-  <a href="#club">The club</a>
-  <a href="#day">Court-side</a>
-  <a href="#membership">Membership</a>
-  <a href="/book/">Booking</a>
-  <a href="#venue">Find us</a>
+  <a href="/membership/">Memberships</a>
+  <a href="/academy/">Pickleball Academy</a>
+  <a href="/events/">Tournaments &amp; Events</a>
+  <a href="/franchise/">Franchise</a>
+  <a href="/contact/">Contact</a>
+  <a href="/book/">Book a court</a>
   <div class="menu__foot">
     <span>Mon–Fri 06:00 AM – 11:00 PM</span>
     <span>Sat–Sun 06:00 AM – 12:00 AM</span>
@@ -606,6 +524,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="hero__veil"></div>
   <div class="hero__inner">
     <div class="hero__meta">
+      <span>Your everyday getaway</span>
       <span>Mogappair East · Chennai</span>
     </div>
     <h1 class="hero__title display display--xl" data-lines>
@@ -613,10 +532,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="ln"><span><em class="sc">the</em> Net.</span></span>
     </h1>
     <div class="hero__aside">
-      <p class="lede">Three tournament-grade pickleball courts under one pergola roof, lit until midnight. Book by the hour, pay online, walk in and play.</p>
+      <p class="hero__tag">Play. Move. Connect.</p>
+      <p class="lede">Three tournament-grade pickleball courts. A premium club for sport, fitness, food, celebrations and a great time.</p>
       <div class="hero__cta">
-        <a class="btn magnetic" href="/book/">Book a court</a>
-        <a class="link-arrow" href="#courts">See the courts <i></i></a>
+        <a class="btn magnetic" href="#membership">Explore memberships</a>
+        <a class="link-arrow" href="#academy">Pickleball Academy <i></i></a>
       </div>
     </div>
   </div>
@@ -626,8 +546,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ticker -->
 <div class="ticker" aria-hidden="true">
   <div class="ticker__track">
-    <div class="ticker__item"><span>Pickleball</span><span>Three courts</span><span>Mon–Fri 06:00 AM–11:00 PM</span><span>Sat–Sun 06:00 AM–12:00 AM</span><span>Book online, pay online</span><span>Mogappair East, Chennai</span></div>
-    <div class="ticker__item"><span>Pickleball</span><span>Three courts</span><span>Mon–Fri 06:00 AM–11:00 PM</span><span>Sat–Sun 06:00 AM–12:00 AM</span><span>Book online, pay online</span><span>Mogappair East, Chennai</span></div>
+    <div class="ticker__item"><span>Pavilion Courts</span><span>Pavilion Studio</span><span>Pickleball Academy</span><span>Pavilion Hall</span><span>Board Games Lounge</span><span>Gosip café</span><span>Mogappair East, Chennai</span></div>
+    <div class="ticker__item"><span>Pavilion Courts</span><span>Pavilion Studio</span><span>Pickleball Academy</span><span>Pavilion Hall</span><span>Board Games Lounge</span><span>Gosip café</span><span>Mogappair East, Chennai</span></div>
   </div>
 </div>
 
@@ -642,13 +562,104 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </figure>
   <div class="manifesto__text">
     <p class="eyebrow">The club</p>
-    <p class="manifesto__copy">The Pavilion Club is a pickleball club, not a sports complex. Three courts under one roof, and everything around them done <em class="sc">properly</em>: a tournament-grade surface, light that never loses the ball, and a front desk that picks up the phone.</p>
+    <p class="manifesto__copy">The Pavilion Club is your everyday getaway. Three tournament-grade pickleball courts, and everything around them done <em class="sc">properly</em>: a studio to move in, a hall to celebrate in, a lounge to unwind in and a kitchen for after the game.</p>
     <div class="facts">
       <div data-fade><b>Surface</b><p>Tournament-grade acrylic, laid to regulation lines.</p></div>
       <div data-fade><b>Light</b><p>LED lighting under the pergola roof, shielded to keep glare off the ball.</p></div>
       <div data-fade><b>Desk</b><p>Staffed from first serve to last rally, every day from 06:00 AM.</p></div>
     </div>
   </div>
+</section>
+
+<!-- memberships: two pathways -->
+<section class="section has-lines mship" id="membership" aria-labelledby="mship-title">
+  <div class="mship__head">
+    <div>
+      <p class="eyebrow">Memberships</p>
+      <h2 class="display display--l" id="mship-title" data-lines>
+        <span class="ln"><span>Your everyday</span></span>
+        <span class="ln"><span><em class="sc">getaway.</em></span></span>
+      </h2>
+    </div>
+    <p class="lede" data-fade>Join a vibrant community where you can play, move, learn and unwind. Choose the membership that fits your passion: pickleball or studio.</p>
+  </div>
+  <div class="paths">
+    <article class="path" data-fade>
+      <figure class="path__media frame" data-cursor="Courts"><img src="/assets/images/courts-close.jpg" alt="A Pavilion court up close: net, lines and the roof above" loading="lazy"></figure>
+      <div class="path__body">
+        <p class="path__kicker"><span>01</span>Pickleball</p>
+        <h3 class="path__name">Pavilion Courts</h3>
+        <p class="path__line">Play pickleball. Meet people. Stay active.</p>
+        <p class="path__price"><b>₹2,000</b><span>a month + 18% GST · ₹2,360 in total</span></p>
+        <ul class="path__facts">
+          <li>Monday – Friday, 6:00 AM – 3:00 PM</li>
+          <li>Up to 20 one-hour sessions a month</li>
+          <li>Shared play, up to six players per court</li>
+        </ul>
+        <a class="link-arrow" href="/membership/#courts">Explore Pavilion Courts <i></i></a>
+      </div>
+    </article>
+    <article class="path" data-fade>
+      <figure class="path__media frame" data-cursor="Studio"><img src="/assets/images/wellness-b.jpg" alt="Pavilion Studio: a mirrored room with mats laid out" loading="lazy"></figure>
+      <div class="path__body">
+        <p class="path__kicker"><span>02</span>Movement</p>
+        <h3 class="path__name">Pavilion Studio</h3>
+        <p class="path__line">Move better. Feel stronger. Find your flow.</p>
+        <p class="path__price path__price--soon"><b>Coming soon</b><span>Plans and timetable are being finalised</span></p>
+        <ul class="path__facts">
+          <li>Yoga and dance</li>
+          <li>Fitness and gymnastics</li>
+          <li>Scheduled classes to build your routine</li>
+        </ul>
+        <a class="link-arrow" href="/membership/#studio">Explore Pavilion Studio <i></i></a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- pickleball academy -->
+<section class="section on-light has-lines academy" id="academy" aria-labelledby="academy-title">
+  <figure class="academy__fig">
+    <div class="frame" data-reveal="up" data-cursor="Academy"><img style="object-position:20% 82%" src="/assets/images/courts-hall.png" alt="A net and court lines on one of the three courts" loading="lazy"></div>
+  </figure>
+  <div class="academy__text">
+    <p class="eyebrow">Pickleball Academy</p>
+    <h2 class="display display--l" id="academy-title" data-lines>
+      <span class="ln"><span>Learn. Play.</span></span>
+      <span class="ln"><span><em class="sc">Improve.</em></span></span>
+    </h2>
+    <p class="lede" data-fade>Take your next step in pickleball with the Pickleball Academy at The Pavilion Club. Explore available coaching programmes and enquire to find the right option for you.</p>
+    <div class="academy__cta" data-fade>
+      <a class="btn magnetic" href="/academy/">Explore the Academy</a>
+      <a class="link-arrow" href="/academy/#enquire">Enquire about coaching <i></i></a>
+    </div>
+  </div>
+</section>
+
+<!-- tournaments & events -->
+<section class="section has-lines events" id="events" aria-labelledby="events-title">
+  <div class="events__head">
+    <div>
+      <p class="eyebrow">Tournaments &amp; Events</p>
+      <h2 class="display display--l" id="events-title" data-lines>
+        <span class="ln"><span>Make it</span></span>
+        <span class="ln"><span><em class="sc">an</em> event.</span></span>
+      </h2>
+    </div>
+    <p class="lede" data-fade>Host your next celebration, team outing, exhibition or pickleball tournament at The Pavilion Club: a premium setting for play, people and great food.</p>
+  </div>
+  <ol class="events__grid">
+    <li data-fade><span class="events__n">01</span><h3>Private Pickleball Tournaments</h3><p>Court allocation, match formats, scorekeeping, a host or referee, prizes and food packages.</p></li>
+    <li data-fade><span class="events__n">02</span><h3>Corporate Team Building</h3><p>Beginner-friendly games, team challenges and a mini-tournament, with food and drinks if you like.</p></li>
+    <li data-fade><span class="events__n">03</span><h3>Birthday Parties &amp; Celebrations</h3><p>Pickleball games, hosted activities, a reserved gathering area and optional food and decorations.</p></li>
+    <li data-fade><span class="events__n">04</span><h3>Academy Events, Clinics &amp; Social Leagues</h3><p>Skills clinics, beginner introductions, friendly leagues and special coaching sessions.</p></li>
+    <li data-fade><span class="events__n">05</span><h3>Pavilion Hall Events &amp; Exhibitions</h3><p>Celebrations, community gatherings, private events and exhibitions, shaped around your guests.</p></li>
+    <li class="events__cta" data-fade>
+      <p>Tell us the occasion. We will shape the day around it.</p>
+      <a class="btn magnetic" href="/events/#enquire">Plan your event</a>
+      <a class="link-arrow" href="/events/#packages">See packages <i></i></a>
+    </li>
+  </ol>
 </section>
 
 <!-- chapters -->
@@ -681,64 +692,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="chapter__body">
         <span class="chapter__n">03 — The club</span>
         <h3>The<br>Club</h3>
-        <p>Cool down at Rally &amp; Brew, do the strength work in the wellness centre, book the banquet hall upstairs for the tournament after-party. It is a club, not a corridor of courts.</p>
+        <p>Refuel with Gosip, our café and kitchen partner. Join a class in Pavilion Studio, settle into the Board Games Lounge, or book Pavilion Hall for the tournament after-party. It is a club, not a corridor of courts.</p>
       </div>
       <figure class="chapter__img">
-        <img src="/assets/images/rally-and-brew.jpg" alt="Rally and Brew, the club café, tables set under pendant lights" loading="lazy">
-        <figcaption>Rally &amp; Brew, post-match</figcaption>
+        <img src="/assets/images/rally-and-brew.jpg" alt="The club café, tables set under pendant lights" loading="lazy">
+        <figcaption>Gosip, post-match</figcaption>
       </figure>
     </article>
     <div class="chapters__progress" aria-hidden="true"><i style="--p:1"></i><i></i><i></i></div>
-  </div>
-</section>
-
-<!-- facilities -->
-<section class="section has-lines facilities">
-  <div class="facilities__head">
-    <div>
-      <p class="eyebrow" style="margin-bottom:2rem">What's here</p>
-      <h2 class="display display--l" data-lines>
-        <span class="ln"><span>One address.</span></span>
-        <span class="ln"><span><em class="sc">the</em> whole evening.</span></span>
-      </h2>
-    </div>
-    <p class="lede" data-fade>Everything you need before, during and after a session sits under one roof. Only the courts are booked online.</p>
-  </div>
-  <div class="rows">
-    <a class="row" href="/book/" data-img="0" data-cursor="Book">
-      <span class="row__n">01</span>
-      <span class="row__name">Courts</span>
-      <span class="row__desc">Three tournament-grade courts, bookable by the hour</span>
-      <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="The pickleball courts from the player bench" loading="lazy">
-    </a>
-    <a class="row" href="#club" data-img="1" data-cursor="View">
-      <span class="row__n">02</span>
-      <span class="row__name">Wellness centre</span>
-      <span class="row__desc">Strength, mobility and recovery for players and regulars</span>
-      <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="The wellness centre strength and fitness equipment" loading="lazy">
-    </a>
-    <a class="row" href="#club" data-img="2" data-cursor="View">
-      <span class="row__n">03</span>
-      <span class="row__name">Rally &amp; Brew</span>
-      <span class="row__desc">Coffee, fresh food and the match on the screen</span>
-      <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/cafe-wide.jpg" alt="Rally and Brew café seating and viewing lounge" loading="lazy">
-    </a>
-    <a class="row" href="#venue" data-img="3" data-cursor="View">
-      <span class="row__n">04</span>
-      <span class="row__name">Banquet hall</span>
-      <span class="row__desc">Tournament dinners, corporate days and private events</span>
-      <span class="row__arrow" aria-hidden="true"></span>
-      <img class="row__thumb" src="/assets/images/stair-brass.jpg" alt="The brass staircase leading up to the banquet hall" loading="lazy">
-    </a>
-  </div>
-  <div class="float-img" aria-hidden="true">
-    <img src="/assets/images/courts-side.jpg" alt="The pickleball courts from the player bench" loading="lazy">
-    <img src="/assets/images/wellness-b.jpg" alt="The wellness centre strength and fitness equipment" loading="lazy">
-    <img src="/assets/images/cafe-wide.jpg" alt="Rally and Brew café seating and viewing lounge" loading="lazy">
-    <img src="/assets/images/stair-brass.jpg" alt="The brass staircase leading up to the banquet hall" loading="lazy">
   </div>
 </section>
 
@@ -783,37 +744,97 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
-<!-- booking -->
-
-
 <!-- stats -->
 <section class="section on-light stats">
   <svg class="stats__mono" viewBox="0 0 64 104" aria-hidden="true"><use href="#mono"/></svg>
   <div class="stats__grid">
     <div class="stat" data-fade><div class="stat__n"><span data-count="3" data-pad="2">00</span></div><p class="stat__l">Courts, laid to tournament spec</p></div>
     <div class="stat" data-fade><div class="stat__n"><span data-count="17" data-pad="2">00</span><span class="u">hrs</span></div><p class="stat__l">Open every weekday, from six until eleven</p></div>
-    <div class="stat" data-fade><div class="stat__n"><span data-count="1" data-pad="2">00</span></div><p class="stat__l">Sport, and nothing else on the floor</p></div>
-    <div class="stat" data-fade><div class="stat__n"><span data-count="24" data-pad="2">00</span><span class="u">h</span></div><p class="stat__l">Free cancellation window before every slot</p></div>
+    <div class="stat" data-fade><div class="stat__n"><span data-count="5" data-pad="2">00</span></div><p class="stat__l">Spaces under one roof, from court to café</p></div>
+    <div class="stat" data-fade><div class="stat__n"><span data-count="20" data-pad="2">00</span></div><p class="stat__l">Member sessions a month, weekday mornings</p></div>
   </div>
 </section>
 
-<!-- the club -->
-<section class="section has-lines club">
+
+<!-- our spaces -->
+<section class="section has-lines facilities" id="spaces" aria-labelledby="spaces-title">
+  <div class="facilities__head">
+    <div>
+      <p class="eyebrow" style="margin-bottom:2rem">Our spaces</p>
+      <h2 class="display display--l" id="spaces-title" data-lines>
+        <span class="ln"><span>One address.</span></span>
+        <span class="ln"><span><em class="sc">the</em> whole evening.</span></span>
+      </h2>
+    </div>
+    <p class="lede" data-fade>Five spaces under one roof: somewhere to play, move, celebrate, unwind and eat.</p>
+  </div>
+  <div class="rows">
+    <a class="row" href="/book/" data-img="0" data-cursor="Book">
+      <span class="row__n">01</span>
+      <span class="row__name">Pavilion Courts</span>
+      <span class="row__desc">Three pickleball courts for shared play, coaching and court bookings</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="/membership/#studio" data-img="1" data-cursor="View">
+      <span class="row__n">02</span>
+      <span class="row__name">Pavilion Studio</span>
+      <span class="row__desc">Yoga, dance, fitness and gymnastics, with programmes coming soon</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="/events/" data-img="2" data-cursor="Events">
+      <span class="row__n">03</span>
+      <span class="row__name">Pavilion Hall</span>
+      <span class="row__desc">Tournaments, birthday parties, events and exhibitions</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="/assets/images/stair-brass.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="#cafe" data-img="3" data-cursor="View">
+      <span class="row__n">04</span>
+      <span class="row__name">Board Games Lounge</span>
+      <span class="row__desc">A relaxed space for board games and time with friends</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="/assets/images/pavilion-lounge.jpg" alt="" loading="lazy">
+    </a>
+    <a class="row" href="#cafe" data-img="4" data-cursor="View">
+      <span class="row__n">05</span>
+      <span class="row__name">Gosip</span>
+      <span class="row__desc">Our café and kitchen partner, for food and drinks</span>
+      <span class="row__arrow" aria-hidden="true"></span>
+      <img class="row__thumb" src="/assets/images/cafe-wide.jpg" alt="" loading="lazy">
+    </a>
+  </div>
+  <div class="float-img" aria-hidden="true">
+    <img src="/assets/images/courts-side.jpg" alt="" loading="lazy">
+    <img src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
+    <img src="/assets/images/stair-brass.jpg" alt="" loading="lazy">
+    <img src="/assets/images/pavilion-lounge.jpg" alt="" loading="lazy">
+    <img src="/assets/images/cafe-wide.jpg" alt="" loading="lazy">
+  </div>
+</section>
+
+<!-- café & food -->
+<section class="section has-lines club" id="cafe" aria-labelledby="cafe-title">
   <div class="club__head">
     <div>
-      <p class="eyebrow" style="margin-bottom:2rem">More than the court</p>
-      <h2 class="display display--l" data-lines>
+      <p class="eyebrow" style="margin-bottom:2rem">Café &amp; food</p>
+      <h2 class="display display--l" id="cafe-title" data-lines>
         <span class="ln"><span>Stay for</span></span>
         <span class="ln"><span><em class="sc">the</em> evening.</span></span>
       </h2>
     </div>
-    <p class="lede" data-fade>Rally &amp; Brew runs from first serve to last rally. The wellness centre is there for the strength work pickleball quietly demands. The banquet hall, one floor up, hosts tournament dinners, birthdays and the occasional wedding.</p>
+    <div class="club__aside" data-fade>
+      <p class="lede">Gosip is the café and kitchen partner at The Pavilion Club: food and drinks between games, and catering for your event. The Board Games Lounge is next door, for a slower kind of competition.</p>
+      <p class="club__note">Menu coming soon</p>
+      <a class="link-arrow" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%27d%20like%20to%20ask%20about%20food%20and%20catering%20by%20Gosip." target="_blank" rel="noopener">Ask about catering <i></i></a>
+    </div>
   </div>
   <div class="collage">
-    <figure class="frame c1" data-reveal="up" data-cursor="The lounge"><img src="/assets/images/pavilion-lounge.jpg" alt="The Pavilion lounge with the pickleball mural" loading="lazy"></figure>
-    <figure class="frame c2" data-reveal="up" data-cursor="Wellness"><img src="/assets/images/wellness-a.jpg" alt="The wellness studio, mirrored, mats laid out" loading="lazy"></figure>
-    <figure class="frame c3" data-reveal="up" data-cursor="Banquet"><img src="/assets/images/lobby.jpg" alt="The banquet lobby, glass walls and planting" loading="lazy"></figure>
-    <div class="c4" data-fade>Rally &amp; Brew · Wellness centre · Banquet hall · Courts 1–3</div>
+    <figure class="frame c1" data-reveal="up" data-cursor="Gosip"><img src="/assets/images/cafe-wide.jpg" alt="The Gosip café: tables and banquettes under pendant lights" loading="lazy"></figure>
+    <figure class="frame c2" data-reveal="up" data-cursor="Lounge"><img src="/assets/images/pavilion-lounge.jpg" alt="The lounge, with the line-drawn pickleball player on the wall" loading="lazy"></figure>
+    <figure class="frame c3" data-reveal="up" data-cursor="Lounge"><img src="/assets/images/lounge-wall.jpg" alt="The lounge wall reading train, compete, play, recover, belong" loading="lazy"></figure>
+    <div class="c4" data-fade>Gosip · Board Games Lounge · Pavilion Hall · Courts 1–3</div>
   </div>
   <blockquote class="quote">
     <span class="quote__mark" aria-hidden="true">“</span>
@@ -824,153 +845,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </blockquote>
 </section>
 
-
-<!-- membership -->
-<section class="section has-lines mship" id="membership" aria-labelledby="mship-title">
-  <div class="mship__head">
-    <div>
-      <p class="eyebrow">Memberships &amp; Packs</p>
-      <h2 class="display display--l" id="mship-title" data-lines>
-        <span class="ln"><span>Elevate your</span></span>
-        <span class="ln"><span><em class="sc">game.</em></span></span>
-      </h2>
-    </div>
-    <p class="lede" data-fade>Unlimited gym access, tournament-spec court bundles, and dedicated studio batches. Transparent pricing, zero hidden fees, instant activation at the front desk or via WhatsApp concierge.</p>
+<!-- franchise -->
+<section class="section on-light has-lines franchise" id="franchise" aria-labelledby="franchise-title">
+  <div>
+    <p class="eyebrow">Franchise &amp; Expansion</p>
+    <h2 class="display display--m" id="franchise-title" data-lines>
+      <span class="ln"><span>Bring the Pavilion Club</span></span>
+      <span class="ln"><span><em class="sc">to</em> your city.</span></span>
+    </h2>
   </div>
-
-  <div class="mship__tabs" role="tablist" aria-label="Memberships and packs" data-fade>
-    <button type="button" class="mship__tab" role="tab" id="mship-tab-gym" aria-controls="mship-gym" aria-selected="true"><span>01</span>Gym</button>
-    <button type="button" class="mship__tab" role="tab" id="mship-tab-court" aria-controls="mship-court" aria-selected="false" tabindex="-1"><span>02</span>Court packs</button>
-    <button type="button" class="mship__tab" role="tab" id="mship-tab-studio" aria-controls="mship-studio" aria-selected="false" tabindex="-1"><span>03</span>Studio</button>
-  </div>
-
-  <div class="mship__panels" data-fade>
-    <!-- Gym -->
-    <div class="mship__panel" role="tabpanel" id="mship-gym" aria-labelledby="mship-tab-gym" tabindex="0">
-      <ol class="mship__plans mship__plans--4">
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">30 days</p></div>
-          <h3 class="mship__name">1-Month Unlimited</h3>
-          <p class="mship__desc">Daily access to strength zone, cardio floor, lockers and hot showers.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>Unlimited daily gym sessions</li>
-            <li>Premium shower &amp; locker access</li>
-            <li>Floor trainer assistance included</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-        <li class="mship__plan is-featured">
-          <div class="mship__top"><p class="mship__term">90 days</p><p class="mship__flag">Most popular</p></div>
-          <h3 class="mship__name">3-Month Classic</h3>
-          <p class="mship__desc">Our flagship membership. Complete fitness assessment and priority locker.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>Unlimited daily gym sessions</li>
-            <li>Personal fitness assessment</li>
-            <li>Dedicated priority locker</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">180 days</p></div>
-          <h3 class="mship__name">6-Month Pro</h3>
-          <p class="mship__desc">Half-year commitment with complimentary guest day passes and body composition tracking.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>180 days unlimited gym access</li>
-            <li>2 complimentary guest day-passes</li>
-            <li>Quarterly body composition check</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">365 days</p></div>
-          <h3 class="mship__name">Annual VIP</h3>
-          <p class="mship__desc">Full year of elite club access, 15% discount on court bookings &amp; club merch.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>365 days unlimited gym access</li>
-            <li>15% discount on pickleball bookings</li>
-            <li>VIP club merchandise included</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-      </ol>
-    </div>
-
-    <!-- Court packs -->
-    <div class="mship__panel" role="tabpanel" id="mship-court" aria-labelledby="mship-tab-court" tabindex="0" hidden>
-      <ol class="mship__plans mship__plans--2">
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">10 hours · 60 days</p></div>
-          <h3 class="mship__name">10-Hour Starter</h3>
-          <p class="mship__desc">Prepaid court bundle for regular players. Valid across Court 1, 2, and 3 with zero booking fee.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>Exclusive savings vs walk-in hourly rates</li>
-            <li>Valid across all 3 championship courts</li>
-            <li>Automated balance debit with mobile number</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-        <li class="mship__plan is-featured">
-          <div class="mship__top"><p class="mship__term">25 hours · 180 days</p><p class="mship__flag">Best value</p></div>
-          <h3 class="mship__name">25-Hour Champion</h3>
-          <p class="mship__desc">Bulk tournament-tier hours at substantial savings. Priority slot reservation window.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>Maximum savings on bulk court hours</li>
-            <li>180 days generous validity window</li>
-            <li>Priority peak-hour booking access</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-      </ol>
-    </div>
-
-    <!-- Studio -->
-    <div class="mship__panel" role="tabpanel" id="mship-studio" aria-labelledby="mship-tab-studio" tabindex="0" hidden>
-      <ol class="mship__plans mship__plans--2">
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">8 sessions · 30 days</p></div>
-          <h3 class="mship__name">8-Session Batch</h3>
-          <p class="mship__desc">For yoga, pilates, or group functional fitness batches. Acoustic sound system &amp; full mirrored walls.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>Acoustic sound system &amp; full mirrors</li>
-            <li>Dedicated instructor batch scheduling</li>
-            <li>Front-desk check-in assistance for students</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-        <li class="mship__plan">
-          <div class="mship__top"><p class="mship__term">16 sessions · 60 days</p></div>
-          <h3 class="mship__name">16-Session Master Intensive</h3>
-          <p class="mship__desc">Dedicated batch time blocks for certified instructors and coaches with front-desk student check-in.</p>
-          <p class="mship__price" style="font-size:1.05rem;font-weight:600;letter-spacing:0.04em;gap:0.35rem;display:flex;align-items:baseline;margin-top:1.6rem;color:var(--ivory);"><small style="font-size:0.95rem;font-weight:500;color:var(--gold);margin:0;">₹</small>Upcoming</p>
-          <p class="mship__per">Unveiling on opening day</p>
-          <ul class="mship__perks">
-            <li>60 days validity for season batches</li>
-            <li>Full equipment &amp; yoga props included</li>
-            <li>Student reception &amp; parking assistance</li>
-          </ul>
-          <span class="mship__soon mship__cta" aria-disabled="true">Upcoming</span>
-        </li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="mship__foot" data-fade>
-    <p>Memberships and packs open soon. Message us and we will tell you the day they launch.</p>
-    <a class="link-arrow" href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20Please%20let%20me%20know%20when%20memberships%20and%20packs%20launch." target="_blank" rel="noopener">Get notified <i></i></a>
+  <div class="franchise__aside" data-fade>
+    <p class="lede">Build a destination where sport, fitness, food and community come together. We would like to hear from property owners, developers and partners with a suitable space.</p>
+    <a class="link-arrow" href="/franchise/">Explore a franchise <i></i></a>
   </div>
 </section>
 
@@ -995,6 +881,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="venue__links" data-fade>
       <a class="link-arrow" href="https://maps.google.com/?q=The+Pavilion+Club,+Velammal+School+Road,+Mogappair+East,+Chennai+-+600037" target="_blank" rel="noopener" style="color:var(--midnight)">Get directions <i></i></a>
       <a class="link-arrow" href="tel:+919600055623" style="color:var(--midnight)">Call the desk <i></i></a>
+      <a class="link-arrow" href="/contact/" style="color:var(--midnight)">Send an enquiry <i></i></a>
     </div>
   </div>
 </section>
@@ -1008,7 +895,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="ln"><span>Your court.</span></span>
       <span class="ln"><span><em class="sc" style="position:relative;top:-0.1em;display:inline-block;padding-bottom:0.12em;">your</em> hour.</span></span>
     </h2>
-    <p class="lede" data-fade>Three courts. Book the hour, pay online, play tonight.</p>
+    <p class="lede" data-fade>Three courts, open from six every morning. Book your hour and play tonight.</p>
     <div class="cta__actions" data-fade>
       <a class="btn magnetic" href="/book/">Book a court</a>
       <a class="link-arrow" href="tel:+919600055623">Or call +91 96000 55623 <i></i></a>
@@ -1022,15 +909,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="footer__top">
     <div>
       <a class="brand" href="#top" aria-label="The Pavilion Club" style="display:inline-flex;align-items:center;text-decoration:none"><img src="/pavilion_logo_reversed.png" alt="The Pavilion Club" width="160" height="75" style="height:56px;width:auto;display:block;object-fit:contain" /></a>
-      <p class="footer__tag">Three pickleball courts in Mogappair East, run the way a club should be.</p>
+      <p class="footer__tag">Your everyday getaway. Pickleball, studio, events and food in Mogappair East, Chennai.</p>
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="#courts">Courts</a></li><li><a href="#club">The club</a></li><li><a href="#day">Court-side</a></li><li><a href="/book/">Booking</a></li></ul>
+      <ul><li><a href="/membership/">Memberships</a></li><li><a href="/academy/">Pickleball Academy</a></li><li><a href="/events/">Tournaments &amp; Events</a></li><li><a href="#spaces">Our Spaces</a></li><li><a href="#cafe">Café &amp; Food</a></li><li><a href="/franchise/">Franchise</a></li><li><a href="/about/">About</a></li></ul>
     </div>
     <div>
-      <h4>Your bookings</h4>
-      <ul><li><a href="/my-bookings/">My bookings</a></li><li><a href="/cancellation/">Cancellation</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li></ul>
+      <h4>Players</h4>
+      <ul><li><a href="/book/">Book a court</a></li><li><a href="/my-bookings/">My bookings</a></li><li><a href="/rules/">Court rules</a></li><li><a href="/faq/">FAQs</a></li><li><a href="/cancellation/">Cancellation &amp; refunds</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li></ul>
     </div>
     <div>
       <h4>Contact</h4>
@@ -1046,7 +933,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span>© 2026 The Pavilion Club · Chennai</span>
     <span>Architecture and renders by Feel and Bari</span>
   </div>
-  <div class="footer__ghost" aria-hidden="true">Pavilion</div>
+  <!-- outlined wordmark: the stroke is masked by the filled word, so the joins inside P, A and N do not show -->
+  <svg class="footer__ghost" viewBox="0 0 1200 176" aria-hidden="true" focusable="false"><defs><mask id="footer-ghost-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="176"><rect width="1200" height="176" fill="#fff"/><text x="600" y="170" text-anchor="middle" textLength="1180" lengthAdjust="spacing" fill="#000">PAVILION</text></mask></defs><text class="footer__ghost-line" x="600" y="170" text-anchor="middle" textLength="1180" lengthAdjust="spacing" mask="url(#footer-ghost-cut)">PAVILION</text></svg>
 </footer>
 
 <script src="/assets/js/gsap.min.js"></script>
@@ -1275,7 +1163,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     /* ---------- venue + cta media motion ---------- */
     gsap.fromTo('.venue__media img', { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: '.venue', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.fromTo('.cta__media', { yPercent: -10 }, { yPercent: 10, ease: 'none', scrollTrigger: { trigger: '.cta', start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.fromTo('.footer__ghost', { yPercent: 60 }, { yPercent: 26, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+    gsap.fromTo('.footer__ghost', { y: 0, yPercent: 60 }, { y: 0, yPercent: 24, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
 
     /* ---------- magnetic buttons + cursor (luxury animated cursor) ---------- */
     $$('.magnetic').forEach(btn => {
@@ -1419,6 +1307,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 })();
 </script>
-<script src="/assets/js/membership.js"></script>
 </body>
 </html>
