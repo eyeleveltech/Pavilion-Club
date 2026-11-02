@@ -86,16 +86,18 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     return () => clearInterval(timer);
   }, [step, cooldown]);
 
-  // Lock body scroll when modal open
+  // Lock body & html scroll when modal open
   useEffect(() => {
     if (isOpen) {
+      const prevBodyOverflow = document.body.style.overflow;
+      const prevHtmlOverflow = document.documentElement.style.overflow;
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      document.documentElement.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevBodyOverflow;
+        document.documentElement.style.overflow = prevHtmlOverflow;
+      };
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isOpen]);
 
   // Send real email OTP via TurfOS
@@ -298,159 +300,159 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       role="dialog"
       aria-modal="true"
       aria-labelledby="membership-modal-title"
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[200] overflow-y-auto overscroll-contain bg-[#070e17]/85 backdrop-blur-md"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && step === 'success') onClose();
+      }}
     >
-      {/* Dark Luxury Backdrop */}
-      <div
-        className="fixed inset-0 bg-[#070e17]/85 backdrop-blur-md transition-opacity"
-        onClick={step === 'success' ? onClose : undefined}
-      />
-
-      {/* Modal Card Container */}
-      <div className="relative w-full max-w-xl rounded-2xl border border-[#c7a26a]/30 bg-[#0f1e2e] p-6 sm:p-9 text-[#f9f6ed] shadow-2xl shadow-black/60 my-auto z-10 animate-in fade-in zoom-in-95 duration-200">
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 sm:right-6 sm:top-6 rounded-full p-2 text-[#f9f6ed]/60 hover:text-[#c7a26a] hover:bg-white/5 transition-colors"
-          aria-label="Close dialog"
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-5 py-6 sm:py-8">
+        <div
+          className="relative w-full max-w-xl rounded-2xl border border-[#c7a26a]/30 bg-[#0f1e2e] p-5 sm:p-7 text-[#f9f6ed] shadow-2xl shadow-black/60 my-auto z-10 animate-in fade-in zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3.5 top-3.5 sm:right-5 sm:top-5 rounded-full p-2 text-[#f9f6ed]/60 hover:text-[#c7a26a] hover:bg-white/5 transition-colors z-20"
+            aria-label="Close dialog"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
 
-        {/* STEP 1: Registration Form & Pricing Breakdown */}
-        {step === 'form' && (
-          <div>
-            <div className="text-center">
-              <span className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-[#c7a26a]">
-                Join The Club
-              </span>
-              <h2 id="membership-modal-title" className="font-serif text-2xl sm:text-3xl font-semibold mt-1.5 text-[#f9f6ed]">
-                Inaugural Shared-Play Membership
-              </h2>
-              <p className="mt-2 text-xs sm:text-sm text-[#f9f6ed]/75 max-w-md mx-auto">
-                Play up to 20 one-hour sessions a month across our three tournament-grade pickleball courts.
-              </p>
-            </div>
-
-            {/* Price Box */}
-            <div className="mt-6 rounded-xl border border-[#c7a26a]/30 bg-white/5 p-4 sm:p-5">
-              <div className="flex items-baseline justify-between border-b border-white/10 pb-3">
-                <span className="text-xs uppercase tracking-wider text-[#f9f6ed]/70">Monthly Membership</span>
-                <span className="font-mono text-sm font-semibold">₹2,000.00</span>
-              </div>
-              <div className="flex items-baseline justify-between border-b border-white/10 py-2 text-xs text-[#f9f6ed]/70">
-                <span>Applicable GST (18%)</span>
-                <span className="font-mono font-medium">₹360.00</span>
-              </div>
-              <div className="flex items-baseline justify-between pt-3 text-base sm:text-lg font-bold text-[#c7a26a]">
-                <span>Total Payable</span>
-                <span className="font-mono text-xl sm:text-2xl">₹2,360 / mo</span>
-              </div>
-              <p className="mt-2 text-[11px] text-[#f9f6ed]/60">
-                • Mon – Fri, 6:00 AM – 3:00 PM • Up to 20 one-hour sessions a month • Max 1 session/day
-              </p>
-            </div>
-
-            {/* Details Form */}
-            <form onSubmit={handleProceedToOtp} className="mt-6 space-y-4">
-              <div>
-                <label htmlFor="mem-name" className="block text-xs font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1.5">
-                  Full Name *
-                </label>
-                <input
-                  id="mem-name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  placeholder="e.g. Suresh Kumar"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="mem-phone" className="block text-xs font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1.5">
-                    Mobile / WhatsApp *
-                  </label>
-                  <input
-                    id="mem-phone"
-                    type="tel"
-                    required
-                    inputMode="numeric"
-                    autoComplete="tel"
-                    placeholder="10-digit mobile"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="mem-email" className="block text-xs font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1.5">
-                    Email Address *
-                  </label>
-                  <input
-                    id="mem-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    placeholder="name@domain.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full h-11 px-3.5 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
-                  />
-                </div>
-              </div>
-
-              {/* Terms Checkbox */}
-              <div className="pt-2">
-                <label className="flex items-start gap-3 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={agreedTerms}
-                    onChange={(e) => setAgreedTerms(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-white/30 bg-white/5 text-[#c7a26a] focus:ring-[#c7a26a] shrink-0"
-                  />
-                  <span className="text-xs text-[#f9f6ed]/75 leading-relaxed">
-                    I agree to the{' '}
-                    <a href="/terms/" target="_blank" className="text-[#c7a26a] underline">
-                      Membership Terms
-                    </a>{' '}
-                    &amp;{' '}
-                    <a href="/rules/" target="_blank" className="text-[#c7a26a] underline">
-                      Court Rules
-                    </a>
-                    . Valid Mon–Fri (6 AM–3 PM), max 1 hr/day, shared play up to 6 players, 12h cancellation notice, non-transferable.
-                  </span>
-                </label>
-              </div>
-
-              {/* Error Alert */}
-              {formError && (
-                <p role="alert" className="text-xs text-red-300 bg-red-950/40 border border-red-800/60 rounded-lg p-2.5 text-center">
-                  {formError}
+          {/* STEP 1: Registration Form & Pricing Breakdown */}
+          {step === 'form' && (
+            <div>
+              <div className="text-center pr-6 pl-6 sm:px-0">
+                <span className="text-[0.68rem] font-bold uppercase tracking-[0.28em] text-[#c7a26a]">
+                  Join The Club
+                </span>
+                <h2 id="membership-modal-title" className="font-serif text-xl sm:text-2xl font-semibold mt-1 text-[#f9f6ed]">
+                  Inaugural Shared-Play Membership
+                </h2>
+                <p className="mt-1 text-xs text-[#f9f6ed]/75 max-w-md mx-auto">
+                  Play up to 20 one-hour sessions a month across our three tournament-grade pickleball courts.
                 </p>
-              )}
+              </div>
 
-              {/* Submit CTA */}
-              <button
-                type="submit"
-                className="w-full mt-4 flex items-center justify-center gap-2 h-12 rounded-lg bg-[#c7a26a] text-[#0f1e2e] font-bold text-sm tracking-wide uppercase hover:bg-[#d8b57d] active:scale-[0.99] transition-all shadow-lg shadow-[#c7a26a]/20"
-              >
-                <span>Verify Email &amp; Proceed to Payment</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            </form>
-          </div>
-        )}
+              {/* Price Box */}
+              <div className="mt-4 rounded-xl border border-[#c7a26a]/30 bg-white/5 p-3.5 sm:p-4">
+                <div className="flex items-baseline justify-between border-b border-white/10 pb-2 text-xs">
+                  <span className="uppercase tracking-wider text-[#f9f6ed]/70">Monthly Membership</span>
+                  <span className="font-mono font-semibold">₹2,000.00</span>
+                </div>
+                <div className="flex items-baseline justify-between border-b border-white/10 py-1.5 text-xs text-[#f9f6ed]/70">
+                  <span>Applicable GST (18%)</span>
+                  <span className="font-mono font-medium">₹360.00</span>
+                </div>
+                <div className="flex items-baseline justify-between pt-2.5 text-sm sm:text-base font-bold text-[#c7a26a]">
+                  <span>Total Payable</span>
+                  <span className="font-mono text-lg sm:text-xl">₹2,360 / mo</span>
+                </div>
+                <p className="mt-1.5 text-[11px] text-[#f9f6ed]/60">
+                  • Mon – Fri, 6:00 AM – 3:00 PM • Up to 20 one-hour sessions a month • Max 1 session/day
+                </p>
+              </div>
+
+              {/* Details Form */}
+              <form onSubmit={handleProceedToOtp} className="mt-4 space-y-3.5">
+                <div>
+                  <label htmlFor="mem-name" className="block text-[11px] font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    id="mem-name"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    placeholder="e.g. Suresh Kumar"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="mem-phone" className="block text-[11px] font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1">
+                      Mobile / WhatsApp *
+                    </label>
+                    <input
+                      id="mem-phone"
+                      type="tel"
+                      required
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      placeholder="10-digit mobile"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full h-10 px-3 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="mem-email" className="block text-[11px] font-semibold uppercase tracking-wider text-[#f9f6ed]/80 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      id="mem-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      placeholder="name@domain.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-10 px-3 rounded-lg border border-white/20 bg-white/5 text-[#f9f6ed] placeholder-white/30 text-sm focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a]"
+                    />
+                  </div>
+                </div>
+
+                {/* Terms Checkbox */}
+                <div className="pt-1">
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={agreedTerms}
+                      onChange={(e) => setAgreedTerms(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-white/30 bg-white/5 text-[#c7a26a] focus:ring-[#c7a26a] shrink-0"
+                    />
+                    <span className="text-[11px] sm:text-xs text-[#f9f6ed]/75 leading-relaxed">
+                      I agree to the{' '}
+                      <a href="/terms/" target="_blank" className="text-[#c7a26a] underline">
+                        Membership Terms
+                      </a>{' '}
+                      &amp;{' '}
+                      <a href="/rules/" target="_blank" className="text-[#c7a26a] underline">
+                        Court Rules
+                      </a>
+                      . Valid Mon–Fri (6 AM–3 PM), max 1 hr/day, shared play up to 6 players, 12h cancellation notice, non-transferable.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Error Alert */}
+                {formError && (
+                  <p role="alert" className="text-xs text-red-300 bg-red-950/40 border border-red-800/60 rounded-lg p-2 text-center">
+                    {formError}
+                  </p>
+                )}
+
+                {/* Submit CTA */}
+                <button
+                  type="submit"
+                  className="w-full mt-3 flex items-center justify-center gap-2 h-11 rounded-lg bg-[#c7a26a] text-[#0f1e2e] font-bold text-xs sm:text-sm tracking-wide uppercase hover:bg-[#d8b57d] active:scale-[0.99] transition-all shadow-lg shadow-[#c7a26a]/20"
+                >
+                  <span>Verify Email &amp; Proceed to Payment</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+          )}
 
         {/* STEP 2: Email OTP Verification Gate */}
         {step === 'otp' && (
@@ -749,6 +751,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
