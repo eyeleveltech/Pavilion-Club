@@ -20,3 +20,4 @@ task_sheet.md
 out/
 apps/web/out/
 *.zip
+*.pdf
