@@ -161,8 +161,8 @@ export default function MembershipPage() {
 
       {/* Visual interlude */}
       <Figure
-        src="/assets/images/courts-overhead.jpg"
-        alt="Top-down view of tournament-grade pickleball courts at The Pavilion Club"
+        src="/assets/images/courts-hall.png"
+        alt="View of tournament-grade pickleball courts at The Pavilion Club"
         caption="Tournament-grade cushioning, glare-free LED lighting and spectator viewing across all three courts."
       />
 
