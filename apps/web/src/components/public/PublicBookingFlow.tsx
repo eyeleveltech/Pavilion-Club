@@ -156,6 +156,24 @@ export function PublicBookingFlow({ initialDate }: { initialDate: string }) {
   const [showEmailOtpModal, setShowEmailOtpModal] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
+  // Pre-fill member pass credentials if active membership found in local storage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pavilion_member_pass');
+      if (stored) {
+        try {
+          const pass = JSON.parse(stored);
+          if (pass.name) setName(pass.name);
+          if (pass.phone) setPhone(pass.phone);
+          if (pass.email) setEmail(pass.email);
+          setIsEmailVerified(true);
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, []);
+
   const timezone = day?.timezone ?? FALLBACK_TZ;
   /** The venue takes payment at the front desk (a TurfOS setting), so no Razorpay step. */
   const atVenue = day?.payment === 'at_venue';

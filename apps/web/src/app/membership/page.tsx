@@ -17,6 +17,7 @@ import {
   type FaqItem,
 } from '@/components/public/site/SitePage';
 import { CLUB, whatsappUrl } from '@/lib/club';
+import { MembershipCheckoutModalContainer } from '@/components/public/membership/MembershipCheckoutModalContainer';
 
 export const metadata: Metadata = {
   title: 'Memberships · Pavilion Courts & Pavilion Studio',
@@ -148,7 +149,7 @@ export default function MembershipPage() {
                 <li>Shared play, up to six per court</li>
               </ul>
               <div className="mt-9 grid justify-items-start gap-5">
-                <GoldButton href={JOIN_URL}>Enquire to join</GoldButton>
+                <GoldButton href="#join">Enquire to join</GoldButton>
                 <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
               </div>
             </aside>
@@ -291,9 +292,10 @@ export default function MembershipPage() {
         lede="Enquire on WhatsApp or at the front desk, and play your first session this week."
         image="/assets/images/elevation-dusk-angle.jpg"
       >
-        <GoldButton href={JOIN_URL}>Enquire to join</GoldButton>
+        <GoldButton href="#join">Enquire to join</GoldButton>
         <ArrowLink href={CLUB.phoneHref}>Or call {CLUB.phoneDisplay}</ArrowLink>
       </PageCta>
+      <MembershipCheckoutModalContainer />
     </SitePage>
   );
 }
