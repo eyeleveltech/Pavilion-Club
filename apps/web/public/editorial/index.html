@@ -451,8 +451,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <rect x="2" y="2" width="60" height="100" rx="30" style="stroke-dasharray: 270; stroke-dashoffset: 270;"/>
     </svg>
     <video class="loader__video" muted playsinline preload="auto">
-      <source src="/assets/video/monogram_cropped.webm" type="video/webm">
       <source src="/assets/video/monogram_cropped.mp4" type="video/mp4">
+      <source src="/assets/video/monogram_cropped.webm" type="video/webm">
     </video>
   </div>
   <div class="loader__count">000</div>
@@ -882,8 +882,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
       const video = $('.loader__video');
       if (video) {
+        video.muted = true;
         video.currentTime = 0;
-        video.play().catch(() => {});
+        const playVid = () => { video.play().catch(() => {}); };
+        playVid();
+        video.addEventListener('canplay', playVid, { once: true });
       }
       const n = { v: 0 }, cEl = $('.loader__count');
       gsap.timeline()
