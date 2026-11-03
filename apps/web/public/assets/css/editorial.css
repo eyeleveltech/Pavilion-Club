@@ -91,7 +91,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .loader__mono rect,.loader__mono path{stroke-dasharray:270;stroke-dashoffset:270}
 .loader__wrap{position:relative;width:58px;height:94px;display:flex;align-items:center;justify-content:center}
 .loader__wrap .loader__mono{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
-.loader__wrap .loader__video{position:absolute;width:44px;height:66px;object-fit:contain;z-index:1;pointer-events:none}
+.loader__wrap .loader__video{position:absolute;width:44px;height:66px;object-fit:contain;z-index:1;pointer-events:none;background:transparent;mix-blend-mode:screen;-webkit-backface-visibility:hidden;transform:translateZ(0)}
 .loader__count{position:absolute;left:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--gold);font-variant-numeric:tabular-nums}
 .loader__word{position:absolute;right:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--ivory-45);text-transform:uppercase}
 .loader__line{position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:left}
