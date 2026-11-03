@@ -70,7 +70,7 @@ function Notice({
       </p>
       <div className="mt-2 flex flex-wrap items-center justify-center gap-5">
         <Link className={buttonClass('primary')} href="/my-bookings/">My bookings</Link>
-        <Link className={textButtonClass} href="/book/">Book a court</Link>
+        <a className={textButtonClass} href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a>
       </div>
     </Column>
   );

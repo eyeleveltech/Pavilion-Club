@@ -54,8 +54,6 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
     active: !isHomeLink(link.href) && pathname.startsWith(link.href.slice(0, -1)),
   }));
 
-  const isBookingPage = pathname.startsWith('/book');
-
   return (
     <>
       <header
@@ -99,12 +97,14 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
 
         {/* Right CTA Button & Mobile Menu Toggle */}
         <div className="editorial-nav__right">
-          <Link
-            href={isBookingPage ? '/my-bookings/' : '/book/'}
+          <a
+            href="https://turftown.in"
+            target="_blank"
+            rel="noopener noreferrer"
             className="editorial-btn"
           >
-            {isBookingPage ? 'My Bookings' : 'Book a court'}
-          </Link>
+            Book Now
+          </a>
           <button
             type="button"
             className="editorial-nav__menu"
@@ -169,9 +169,14 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
             </Link>
           )
         )}
-        <Link href={isBookingPage ? '/my-bookings/' : '/book/'} onClick={() => setMobileMenuOpen(false)}>
-          {isBookingPage ? 'My bookings' : 'Book a court'}
-        </Link>
+        <a
+          href="https://turftown.in"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Book Now
+        </a>
 
         <div className="editorial-menu__foot">
           <span>Mon–Fri 06:00 AM–11:00 PM · Sat–Sun 06:00 AM–12:00 AM</span>

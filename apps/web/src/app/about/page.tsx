@@ -148,7 +148,7 @@ export default function AboutPage() {
         lede="Three courts, open from six every morning. Book your hour and play tonight."
         image="/assets/images/elevation-dusk-angle.jpg"
       >
-        <GoldButton href="/book/">Book a court</GoldButton>
+        <GoldButton href="https://turftown.in">Book Now</GoldButton>
         <ArrowLink href={CLUB.phoneHref}>Or call {CLUB.phoneDisplay}</ArrowLink>
       </PageCta>
     </SitePage>

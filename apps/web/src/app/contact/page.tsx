@@ -93,7 +93,7 @@ export default function ContactPage() {
           <div className="site-actions mt-10" data-fade>
             <ArrowLink href={CLUB.mapsUrl}>Open in Google Maps</ArrowLink>
             <ArrowLink href={whatsappUrl('Hi Pavilion Club!')}>WhatsApp us</ArrowLink>
-            <ArrowLink href="/book/">Book a court</ArrowLink>
+            <ArrowLink href="https://turftown.in">Book Now</ArrowLink>
           </div>
         </div>
       </section>

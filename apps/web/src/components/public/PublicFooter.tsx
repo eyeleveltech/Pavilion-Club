@@ -34,8 +34,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
         <div>
           <h4>Players</h4>
           <ul>
-            <li><Link href="/book/">Book a court</Link></li>
-            <li><Link href="/my-bookings/">My bookings</Link></li>
+            <li><a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a></li>
             <li><Link href="/rules/">Court rules</Link></li>
             <li><Link href="/faq/">FAQs</Link></li>
             <li><Link href="/cancellation/">Cancellation &amp; refunds</Link></li>
