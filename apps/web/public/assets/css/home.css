@@ -96,3 +96,8 @@
   .events__grid{grid-template-columns:minmax(0,1fr)}
   .events__grid li{min-height:0}
 }
+
+/* Loader monogram & capsule wrap */
+.loader__wrap{position:relative;width:58px;height:94px;display:flex;align-items:center;justify-content:center}
+.loader__wrap .loader__mono{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.loader__wrap .loader__video{position:absolute;width:44px;height:66px;object-fit:contain;z-index:1;pointer-events:none}

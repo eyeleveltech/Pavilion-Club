@@ -117,6 +117,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 /* --- loader ----------------------------------------------------- */
 .loader{position:fixed;inset:0;z-index:1000;background:var(--midnight-deep);display:grid;place-items:center;animation:loaderFallback 0s 9s forwards}
 @keyframes loaderFallback{to{visibility:hidden}}
+.loader__wrap{position:relative;width:58px;height:94px;display:flex;align-items:center;justify-content:center}
+.loader__wrap .loader__mono{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.loader__wrap .loader__video{position:absolute;width:44px;height:66px;object-fit:contain;z-index:1;pointer-events:none}
 .loader__mono{width:58px;height:auto;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round}
 .loader__count{position:absolute;left:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--gold);font-variant-numeric:tabular-nums}
 .loader__word{position:absolute;right:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--ivory-45);text-transform:uppercase}
@@ -1023,14 +1026,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     } else {
       const paths = $$('.loader__mono rect, .loader__mono path');
       paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+      const video = $('.loader__video');
+      if (video) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
       const n = { v: 0 }, cEl = $('.loader__count');
       gsap.timeline()
-        .to(paths, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut', stagger: .12 }, 0)
-        .to(n, { v: 100, duration: 1.7, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
-        .to('.loader__line', { scaleX: 1, duration: 1.7, ease: 'power2.inOut' }, 0)
-        .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.2')
+        .to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0)
+        .to(n, { v: 100, duration: 3.2, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
+        .to('.loader__line', { scaleX: 1, duration: 3.2, ease: 'power2.inOut' }, 0)
+        .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.15')
         .set('.loader', { display: 'none' })
         .add(() => {
+          if (video) video.pause();
           heroIntro.play();
           if (window.location.hash) {
             const hTarget = $(window.location.hash);
