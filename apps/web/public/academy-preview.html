@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pickleball Academy · Before vs After Concept Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #0a1520;
+  --midnight-deep: #060e16;
+  --card-bg: #101e2c;
+  --card-border: rgba(199, 162, 106, 0.2);
+  --gold: #c7a26a;
+  --gold-bright: #dfbc82;
+  --ivory: #faf7f2;
+  --ivory-muted: rgba(250, 247, 242, 0.65);
+  --ivory-subtle: rgba(250, 247, 242, 0.4);
+  --red-tag: #d96a6a;
+  --green-tag: #58a974;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--midnight-deep);
+  color: var(--ivory);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  line-height: 1.6;
+  padding-bottom: 5rem;
+}
+
+/* --- Floating Control Bar --- */
+.control-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 14, 22, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--card-border);
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.brand-badge span {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+}
+.view-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid rgba(199, 162, 106, 0.3);
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--ivory-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.tab-btn.active {
+  background: var(--gold);
+  color: var(--midnight-deep);
+}
+.summary-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.pill {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.pill.added { background: rgba(88, 169, 116, 0.2); color: #7ad199; border: 1px solid rgba(88, 169, 116, 0.4); }
+.pill.removed { background: rgba(217, 106, 106, 0.15); color: #f08c8c; border: 1px solid rgba(217, 106, 106, 0.3); }
+
+/* --- Container Layout --- */
+.container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.view-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 1024px) {
+  .view-split { grid-template-columns: 1fr; }
+}
+
+.card-panel {
+  background: var(--midnight);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+.panel-header {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-header.before {
+  background: rgba(217, 106, 106, 0.08);
+}
+.panel-header.after {
+  background: rgba(199, 162, 106, 0.12);
+}
+.panel-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.panel-header.before .panel-title { color: #f08c8c; }
+.panel-header.after .panel-title { color: var(--gold-bright); }
+
+.panel-body {
+  padding: 2rem;
+}
+
+/* --- Typography & Elements inside mockup --- */
+.hero-tag {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.hero-tag::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.display-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--ivory);
+  margin-bottom: 1rem;
+}
+.display-title em {
+  font-style: italic;
+  color: var(--gold-bright);
+}
+.lede-text {
+  font-size: 0.95rem;
+  color: var(--ivory-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Section Blocks --- */
+.mock-section {
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.mock-eyebrow {
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+.mock-head {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+.mock-head em { font-style: italic; color: var(--gold); }
+
+/* --- Before Mockup Specifics --- */
+.placeholder-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.placeholder-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ivory);
+}
+.placeholder-desc {
+  font-size: 0.8rem;
+  color: var(--ivory-subtle);
+  max-width: 65%;
+  text-align: right;
+}
+.status-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ivory-muted);
+  margin-bottom: 1rem;
+}
+
+/* --- After Mockup Specifics --- */
+/* TNPA Badge */
+.tnpa-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: linear-gradient(90deg, rgba(199, 162, 106, 0.15) 0%, rgba(199, 162, 106, 0.04) 100%);
+  border: 1px solid rgba(199, 162, 106, 0.4);
+  padding: 0.5rem 1rem;
+  border-radius: 40px;
+  margin-bottom: 1.25rem;
+}
+.tnpa-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--midnight-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+.tnpa-text {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+/* 3-Tier Clinics Grid */
+.clinics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.clinic-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.25rem 1.4rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.clinic-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+}
+.clinic-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--gold);
+}
+.clinic-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+.clinic-level {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+}
+.clinic-batch {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ivory-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+.clinic-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: var(--ivory);
+  margin-bottom: 0.4rem;
+}
+.clinic-desc {
+  font-size: 0.8rem;
+  color: var(--ivory-muted);
+  line-height: 1.5;
+}
+
+/* Coach Profile Card */
+.coach-card {
+  margin-top: 1.25rem;
+  background: linear-gradient(135deg, #132435 0%, #0c1824 100%);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+.coach-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: #193147;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: var(--gold);
+}
+.coach-role {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+}
+.coach-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  color: var(--ivory);
+  margin: 0.2rem 0 0.4rem;
+}
+.coach-bio {
+  font-size: 0.78rem;
+  color: var(--ivory-muted);
+  line-height: 1.5;
+}
+
+/* Luxury Action Buttons */
+.action-row {
+  margin-top: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  background: var(--gold);
+  color: var(--midnight-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.85rem 1.6rem;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+.btn-gold:hover {
+  background: var(--gold-bright);
+}
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ivory);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.link-arrow:hover { color: var(--gold); }
+
+/* Differences Table */
+.diff-table {
+  width: 100%;
+  margin-top: 2.5rem;
+  border-collapse: collapse;
+  background: var(--midnight);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.diff-table th, .diff-table td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.85rem;
+}
+.diff-table th {
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+</style>
+</head>
+<body>
+
+<!-- Floating Control Bar -->
+<div class="control-bar">
+  <div class="brand-badge">
+    <div style="width: 8px; height: 8px; border-radius: 50%; background: #c7a26a;"></div>
+    <span>Pickleball Academy · Phase 3 Changes</span>
+  </div>
+
+  <div class="view-tabs">
+    <button class="tab-btn" onclick="setView('before')">Before (Current)</button>
+    <button class="tab-btn active" onclick="setView('split')">Side-by-Side Comparison</button>
+    <button class="tab-btn" onclick="setView('after')">After (Proposed Update)</button>
+  </div>
+
+  <div class="summary-pills">
+    <span class="pill added">+ TNPA Affiliation Badge</span>
+    <span class="pill added">+ 3 Clinics (Beginner / Inter / Adv)</span>
+    <span class="pill added">+ Head Coach Profile</span>
+    <span class="pill removed">− Fee Table Hidden</span>
+  </div>
+</div>
+
+<div class="container">
+  
+  <div class="view-split" id="splitView">
+
+    <!-- BEFORE COLUMN -->
+    <div class="card-panel" id="panelBefore">
+      <div class="panel-header before">
+        <span class="panel-title">Current Live Website (Before)</span>
+        <span style="font-size: 0.7rem; color: #f08c8c;">Generic Placeholders</span>
+      </div>
+      <div class="panel-body">
+        <div class="hero-tag">Pickleball Academy</div>
+        <h1 class="display-title">Learn. Play. <em>Improve.</em></h1>
+        <p class="lede-text">
+          Pickleball coaching and development at The Pavilion Club, for players new to the game and those building their skills.
+        </p>
+
+        <div class="status-tag">Status: Programmes being finalised</div>
+
+        <!-- Programmes Section (Before) -->
+        <div class="mock-section">
+          <div class="mock-eyebrow">Programmes</div>
+          <h2 class="mock-head">Being <em>finalised.</em></h2>
+          <p style="font-size: 0.8rem; color: var(--ivory-muted); margin-bottom: 1.5rem;">
+            Each programme is published here as soon as it is confirmed. Enquire now and we will share what is available.
+          </p>
+
+          <div class="placeholder-row">
+            <span class="placeholder-name">Batch timings</span>
+            <span class="placeholder-desc">Days and times for each programme.</span>
+          </div>
+          <div class="placeholder-row">
+            <span class="placeholder-name">Session & group</span>
+            <span class="placeholder-desc">How long each session runs and how many players share a coach.</span>
+          </div>
+          <div class="placeholder-row" style="background: rgba(217, 106, 106, 0.08); padding: 0.8rem;">
+            <span class="placeholder-name" style="color: #f08c8c;">Fees & start dates</span>
+            <span class="placeholder-desc" style="color: #f08c8c;">What each programme costs and when next batch begins. ⚠️ (Client said NO fees)</span>
+          </div>
+          <div class="placeholder-row">
+            <span class="placeholder-name">Coaches</span>
+            <span class="placeholder-desc">Coach profiles and credentials, introduced as they are confirmed.</span>
+          </div>
+
+          <div class="action-row">
+            <span class="btn-gold" style="opacity: 0.8;">Enquire about coaching</span>
+            <span class="link-arrow">Ask us on WhatsApp →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFTER COLUMN -->
+    <div class="card-panel" id="panelAfter">
+      <div class="panel-header after">
+        <span class="panel-title">Proposed Update (After · Phase 3 Plan)</span>
+        <span style="font-size: 0.7rem; color: var(--gold-bright);">Client Audio Directives</span>
+      </div>
+      <div class="panel-body">
+        
+        <!-- TNPA Official Affiliation Badge -->
+        <div class="tnpa-badge-wrap">
+          <div class="tnpa-icon">✓</div>
+          <div class="tnpa-text">Affiliated to Tamil Nadu Pickleball Association (TNPA)</div>
+        </div>
+
+        <div class="hero-tag">Chennai's Premier Academy</div>
+        <h1 class="display-title">Learn. Play. <em>Excel.</em></h1>
+        <p class="lede-text">
+          Tamil Nadu's premier structured pickleball coaching academy at The Pavilion Club, Mogappair East. Professional coaching clinics for beginners, intermediate competitors, and advanced tournament athletes.
+        </p>
+
+        <!-- 3-Tier Clinics Section -->
+        <div class="mock-section" style="border-top-color: rgba(199, 162, 106, 0.3);">
+          <div class="mock-eyebrow">Training Pathways</div>
+          <h2 class="mock-head">Coaching <em>Clinics.</em></h2>
+          <p style="font-size: 0.82rem; color: var(--ivory-muted); margin-bottom: 1.25rem;">
+            Structured syllabus designed by certified coaching staff. Small batches, individual court feedback, and matchplay drills.
+          </p>
+
+          <div class="clinics-grid">
+            
+            <!-- Clinic 1 -->
+            <div class="clinic-card">
+              <div class="clinic-top">
+                <span class="clinic-level">Level 1 · Foundations</span>
+                <span class="clinic-batch">Morning & Evening</span>
+              </div>
+              <h3 class="clinic-name">Beginner Clinic</h3>
+              <p class="clinic-desc">
+                Foundations of pickleball: paddle grip, contact points, non-volley zone (kitchen) discipline, serving fundamentals, and regulation scoring.
+              </p>
+            </div>
+
+            <!-- Clinic 2 -->
+            <div class="clinic-card">
+              <div class="clinic-top">
+                <span class="clinic-level">Level 2 · Development</span>
+                <span class="clinic-batch">Weekend & Weekday</span>
+              </div>
+              <h3 class="clinic-name">Intermediate Clinic</h3>
+              <p class="clinic-desc">
+                Third-shot drops and drives, transition zone resets, directional dinking rallies, court positioning, and doubles partner synergy.
+              </p>
+            </div>
+
+            <!-- Clinic 3 -->
+            <div class="clinic-card">
+              <div class="clinic-top">
+                <span class="clinic-level">Level 3 · Competition</span>
+                <span class="clinic-batch">Tournament Track</span>
+              </div>
+              <h3 class="clinic-name">Advanced Masterclass</h3>
+              <p class="clinic-desc">
+                High-tempo tournament matchplay, aggressive topspin control, speedup counters, stack play rotations, and mental match conditioning.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Coach Profile Card -->
+          <div class="coach-card">
+            <div class="coach-avatar">🎾</div>
+            <div>
+              <div class="coach-role">Head Coach & Director of Coaching</div>
+              <h4 class="coach-name">Certified TNPA Coach</h4>
+              <p class="coach-bio">
+                Experienced state-level player & certified coach leading curriculum design and individual player development at The Pavilion Club.
+              </p>
+            </div>
+          </div>
+
+          <!-- No Fee Display - Enquiry Action -->
+          <div class="action-row">
+            <a href="#enquire" class="btn-gold">Enquire for Upcoming Batches</a>
+            <a href="https://wa.me/919600055623?text=Hi%20Pavilion%20Club!%20I%20would%20like%20to%20enquire%20about%20the%20Academy%20batches." target="_blank" class="link-arrow">
+              WhatsApp Coaching Desk →
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detailed Differences Comparison Table -->
+  <table class="diff-table">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Section / Feature</th>
+        <th style="width: 40%;">Current Live Site (Before)</th>
+        <th style="width: 40%;">Proposed Implementation (After)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Affiliation & Credibility</strong></td>
+        <td>No association mentioned. Generic text: "Pickleball coaching at the club".</td>
+        <td><strong style="color: #7ad199;">Official TNPA Badge:</strong> "Affiliated to Tamil Nadu Pickleball Association (TNPA) · Chennai’s Premier Academy".</td>
+      </tr>
+      <tr>
+        <td><strong>Training Programs</strong></td>
+        <td>Placeholder rows stating "Being finalised", "Batch timings to come".</td>
+        <td><strong style="color: #7ad199;">3 Structured Clinics:</strong> Beginner (Level 1), Intermediate (Level 2), and Advanced (Level 3) with full syllabus breakdown.</td>
+      </tr>
+      <tr>
+        <td><strong>Coaching Staff</strong></td>
+        <td>"Coach profiles introduced as they are confirmed." (Text placeholder).</td>
+        <td><strong style="color: #7ad199;">Head Coach Profile Card:</strong> Dedicated bio, certified credentials, and coaching philosophy.</td>
+      </tr>
+      <tr>
+        <td><strong>Pricing & Fees</strong></td>
+        <td>Placeholder mentioning "Fees & start dates to come".</td>
+        <td><strong style="color: #dfbc82;">Hidden as per Client Audio:</strong> Replaced with "Enquire for Upcoming Batches" direct WhatsApp / Form action.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<script>
+function setView(mode) {
+  const split = document.getElementById('splitView');
+  const before = document.getElementById('panelBefore');
+  const after = document.getElementById('panelAfter');
+  const btns = document.querySelectorAll('.tab-btn');
+
+  btns.forEach(b => b.classList.remove('active'));
+
+  if (mode === 'before') {
+    split.style.display = 'block';
+    before.style.display = 'block';
+    after.style.display = 'none';
+    btns[0].classList.add('active');
+  } else if (mode === 'after') {
+    split.style.display = 'block';
+    before.style.display = 'none';
+    after.style.display = 'block';
+    btns[2].classList.add('active');
+  } else {
+    split.style.display = 'grid';
+    before.style.display = 'block';
+    after.style.display = 'block';
+    btns[1].classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
+
