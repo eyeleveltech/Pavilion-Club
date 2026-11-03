@@ -3,20 +3,23 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="mono" viewBox="0 0 64 104">
     <rect x="2" y="2" width="60" height="100" rx="30"/>
-    <path d="M30 27v52"/>
-    <path d="M30 27h7a11 11 0 0 1 0 22h-7"/>
-    <path d="M45 42a19 19 0 1 0 0 34"/>
+    <path d="M30 26 L30 78"/>
+    <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46"/>
+    <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73"/>
   </symbol>
 </svg>
 
 <!-- loader -->
 <div class="loader" aria-hidden="true">
-  <svg class="loader__mono" viewBox="0 0 64 104">
-    <rect x="2" y="2" width="60" height="100" rx="30"/>
-    <path d="M30 27v52"/>
-    <path d="M30 27h7a11 11 0 0 1 0 22h-7"/>
-    <path d="M45 42a19 19 0 1 0 0 34"/>
-  </svg>
+  <div class="loader__wrap">
+    <svg class="loader__mono" viewBox="0 0 64 104">
+      <rect x="2" y="2" width="60" height="100" rx="30" style="stroke-dasharray: 270; stroke-dashoffset: 270;"/>
+    </svg>
+    <video class="loader__video" muted playsinline preload="auto">
+      <source src="/assets/video/monogram_cropped.webm" type="video/webm">
+      <source src="/assets/video/monogram_cropped.mp4" type="video/mp4">
+    </video>
+  </div>
   <div class="loader__count">000</div>
   <div class="loader__word">Mogappair East · Chennai</div>
   <div class="loader__line"></div>

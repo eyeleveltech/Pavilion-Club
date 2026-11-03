@@ -75,16 +75,23 @@
       gsap.set(['[data-lines] .ln > span', '[data-fade]', '.hero__media img'], { clearProps: 'all' });
       gsap.set('[data-reveal]', { clipPath: 'inset(0% 0% 0% 0%)' }); gsap.set('[data-reveal] img', { scale: 1 });
     } else {
-      const paths = $$('.loader__mono rect, .loader__mono path');
+      const rawPaths = $$('.loader__mono rect, .loader__mono path');
+      const paths = Array.isArray(rawPaths) ? rawPaths : (rawPaths ? [rawPaths] : []);
       paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+      const video = $('.loader__video');
+      if (video) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
       const n = { v: 0 }, cEl = $('.loader__count');
       gsap.timeline()
-        .to(paths, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut', stagger: .12 }, 0)
-        .to(n, { v: 100, duration: 1.7, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
-        .to('.loader__line', { scaleX: 1, duration: 1.7, ease: 'power2.inOut' }, 0)
-        .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.2')
+        .to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0)
+        .to(n, { v: 100, duration: 3.2, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
+        .to('.loader__line', { scaleX: 1, duration: 3.2, ease: 'power2.inOut' }, 0)
+        .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.15')
         .set('.loader', { display: 'none' })
         .add(() => {
+          if (video) video.pause();
           heroIntro.play();
           if (window.location.hash) {
             const hTarget = $(window.location.hash);

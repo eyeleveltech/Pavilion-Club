@@ -22,3 +22,7 @@ apps/web/out/
 *.zip
 
 *.pdf
+
+# Local Media Briefs & Source Videos (Do Not Commit)
+*.mov
+*.m4a.mp4
