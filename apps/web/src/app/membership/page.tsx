@@ -105,19 +105,19 @@ export default function MembershipPage() {
         image="/assets/images/courts-side.jpg"
         side="Weekdays from 06:00 AM"
       >
-        <GoldButton href="#courts">Pavilion Courts</GoldButton>
-        <ArrowLink href="#studio">Pavilion Studio</ArrowLink>
+        <ArrowLink href="#courts">Pickleball Membership</ArrowLink>
+        <ArrowLink href="#studio">Studio Membership</ArrowLink>
       </PageHero>
 
       <Ticker
-        items={['Pavilion Courts', 'Shared play', '20 sessions a month', 'Pavilion Studio', 'Yoga', 'Dance', 'Fitness', 'Gymnastics']}
+        items={['Pickleball Membership', 'Shared play', '20 sessions a month', 'Pavilion Studio', 'Yoga', 'Dance', 'Fitness', 'Gymnastics']}
       />
 
       {/* A · Pavilion Courts */}
       <section id="courts" className="site-section site-deep site-lines scroll-mt-16">
         <div className="site-wrap">
           <SectionHead
-            eyebrow="A · Pavilion Courts"
+            eyebrow="01 · Pickleball Membership"
             lines={['Play pickleball.', 'Meet people.', <><em>stay</em> active.</>]}
             intro="Make pickleball part of your routine at The Pavilion Club. Join shared-play sessions, meet players and enjoy court time in a welcoming club environment."
           />
@@ -196,7 +196,7 @@ export default function MembershipPage() {
           />
           <div>
             <p className="site-eyebrow" data-fade>
-              B · Pavilion Studio
+              02 · Pavilion Studio
             </p>
             <Heading lines={['Move better.', <>Feel <em>stronger.</em></>, 'Find your flow.']} className="mt-7" />
             <p className="site-lede mt-8 max-w-xl" data-fade>
