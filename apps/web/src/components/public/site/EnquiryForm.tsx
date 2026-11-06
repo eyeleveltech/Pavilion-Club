@@ -5,6 +5,7 @@ import { useRef, useState, type FormEvent } from 'react';
 
 import { cx } from '@/components/public/book/ui';
 import { CLUB, mailtoUrl, whatsappUrl } from '@/lib/club';
+import { GoldButton } from './GoldButton';
 
 type Base = { name: string; label: string; required?: boolean };
 
@@ -90,9 +91,9 @@ export function EnquiryForm({
       </label>
 
       <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-2 sm:col-span-2">
-        <button type="submit" className="editorial-btn focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2">
+        <GoldButton type="submit">
           {submitLabel}
-        </button>
+        </GoldButton>
         <button
           type="button"
           onClick={() => send('email')}

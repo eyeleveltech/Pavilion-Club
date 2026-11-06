@@ -43,7 +43,7 @@ const SPACES = [
   },
   {
     name: 'Pavilion Studio',
-    text: 'Yoga, dance, fitness and gymnastics, with programmes coming soon.',
+    text: 'Dance, dance fitness, fitness, wellness and sports & movement, with programmes coming soon.',
     href: '/membership/#studio',
     image: '/assets/images/wellness-b.jpg',
   },

@@ -18,11 +18,12 @@ import {
 } from '@/components/public/site/SitePage';
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { MembershipCheckoutModalContainer } from '@/components/public/membership/MembershipCheckoutModalContainer';
+import { StudioTimetable } from '@/components/public/studio/StudioTimetable';
 
 export const metadata: Metadata = {
   title: 'Memberships · Pavilion Courts & Pavilion Studio',
   description:
-    'Two ways to join The Pavilion Club in Mogappair East, Chennai: Pavilion Courts shared-play pickleball membership and Pavilion Studio for yoga, dance, fitness and gymnastics.',
+    'Two ways to join The Pavilion Club in Mogappair East, Chennai: Pavilion Courts shared-play pickleball membership and Pavilion Studio for dance, dance fitness, fitness, wellness and sports & movement.',
 };
 
 const JOIN_URL = whatsappUrl("Hi Pavilion Club! I'd like to join the Pavilion Courts shared-play membership.");
@@ -61,7 +62,7 @@ const STEPS = [
   },
 ] as const;
 
-const STUDIO = ['Yoga', 'Dance', 'Fitness', 'Gymnastics'] as const;
+const STUDIO = ['Dance', 'Dance Fitness', 'Fitness', 'Wellness', 'Sports & Movement'] as const;
 
 const FAQS: readonly FaqItem[] = [
   {
@@ -89,7 +90,7 @@ const FAQS: readonly FaqItem[] = [
     ),
   },
   {
-    q: 'Can I book yoga, dance, fitness or gymnastics online?',
+    q: 'Can I book dance, dance fitness, fitness, wellness or sports & movement online?',
     a: 'Not yet. The Studio timetable and how to book will be published here once programmes, class sizes, membership plans and cancellation rules are finalised.',
   },
 ];
@@ -110,7 +111,7 @@ export default function MembershipPage() {
       </PageHero>
 
       <Ticker
-        items={['Pickleball Membership', 'Shared play', '20 sessions a month', 'Pavilion Studio', 'Yoga', 'Dance', 'Fitness', 'Gymnastics']}
+        items={['Pickleball Membership', 'Shared play', '20 sessions a month', 'Pavilion Studio', 'Dance', 'Dance Fitness', 'Fitness', 'Wellness', 'Sports & Movement']}
       />
 
       {/* A · Pavilion Courts */}
@@ -203,7 +204,7 @@ export default function MembershipPage() {
               Discover movement and wellbeing at Pavilion Studio, with scheduled activities designed to help you build a
               routine that fits your lifestyle.
             </p>
-            <ul className="site-words mt-10" data-stagger>
+            <ul className="site-words mt-10">
               {STUDIO.map((activity, i) => (
                 <li key={activity}>
                   <span>0{i + 1}</span>
@@ -211,19 +212,16 @@ export default function MembershipPage() {
                 </li>
               ))}
             </ul>
-            <div className="site-soon mt-10" data-fade>
-              <b>Coming soon</b>
-              <span>
-                The timetable, class lengths, instructors, class sizes and membership plans will be published here once
-                they are finalised.
-              </span>
-            </div>
-            <div className="mt-8" data-fade>
-              <ArrowLink href={whatsappUrl('Hi Pavilion Club! Please let me know when Pavilion Studio opens.')}>
-                Get notified when Studio opens
-              </ArrowLink>
+            <div className="mt-9 grid justify-items-start gap-5" data-fade>
+              <GoldButton href="#studio-enquiry">Enquire to join</GoldButton>
+              <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
             </div>
           </div>
+        </div>
+
+        {/* 7-Day Master Class Schedule & Enquiry */}
+        <div className="site-wrap">
+          <StudioTimetable />
         </div>
       </section>
 

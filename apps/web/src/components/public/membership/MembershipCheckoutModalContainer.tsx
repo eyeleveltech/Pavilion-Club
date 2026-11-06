@@ -12,7 +12,7 @@ export function MembershipCheckoutModalContainer() {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash;
         const params = new URLSearchParams(window.location.search);
-        if (hash === '#join' || params.get('join') === 'true' || params.get('join') === '1') {
+        if (hash === '#join' || hash === '#pass' || params.get('join') === 'true' || params.get('join') === '1' || params.get('pass') === 'preview') {
           setIsOpen(true);
         }
       }

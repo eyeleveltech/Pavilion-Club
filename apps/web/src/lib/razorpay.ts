@@ -8,7 +8,20 @@
 declare global {
   interface Window {
     Razorpay?: new (options: RazorpayOptions) => { open(): void; on(event: string, cb: (r: any) => void): void };
+    __PAVILION_CONFIG__?: {
+      razorpayKeyId?: string;
+    };
   }
+}
+
+export function getRazorpayKeyId(): string {
+  if (typeof window !== 'undefined' && window.__PAVILION_CONFIG__?.razorpayKeyId) {
+    const key = window.__PAVILION_CONFIG__.razorpayKeyId.trim();
+    if (key.length > 0 && !key.includes('PLACEHOLDER') && !key.includes('UNGA_KEY')) {
+      return key;
+    }
+  }
+  return (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
 }
 
 interface RazorpayOptions {

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 import { CLUB, NAV_LINKS, isHomeLink } from '@/lib/club';
+import { GoldButton } from '@/components/public/site/GoldButton';
 
 /**
  * `overlay` lets the bar sit transparent over a full-bleed hero, as on the
@@ -97,14 +98,13 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
 
         {/* Right CTA Button & Mobile Menu Toggle */}
         <div className="editorial-nav__right">
-          <a
+          <GoldButton
             href="https://turftown.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="editorial-btn"
           >
             Book Now
-          </a>
+          </GoldButton>
           <button
             type="button"
             className="editorial-nav__menu"

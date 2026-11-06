@@ -291,9 +291,9 @@ export default function AcademyPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-3 lg:items-end">
-                <a href="#enquire" className="editorial-btn text-center">
+                <GoldButton href="#enquire" className="text-center">
                   Book Coach Assessment
-                </a>
+                </GoldButton>
                 <a
                   href={whatsappUrl('Hi Pavilion Club! I would like to enquire about coaching batches with the Head Coach.')}
                   target="_blank"

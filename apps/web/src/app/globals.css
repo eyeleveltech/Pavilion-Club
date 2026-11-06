@@ -246,7 +246,8 @@ button:focus-visible {
   align-items: center;
 }
 
-.editorial-btn {
+.editorial-btn,
+button.editorial-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -259,29 +260,60 @@ button:focus-visible {
   letter-spacing: 0.26em;
   text-transform: uppercase;
   border: 1px solid var(--gold);
+  border-radius: 0 !important;
   color: var(--midnight);
   background: var(--gold);
   overflow: hidden;
   isolation: isolate;
-  transition: color 0.5s var(--ease), border-color 0.5s;
+  transition: color 0.5s var(--ease), border-color 0.5s, transform 0.15s var(--ease);
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+  line-height: 1.4;
+  box-sizing: border-box;
 }
 
-.editorial-btn::before {
+.editorial-btn::before,
+button.editorial-btn::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--ivory);
+  background: var(--ivory) !important;
   transform: translateY(101%);
   transition: transform 0.6s var(--ease);
-  z-index: -1;
+  z-index: 1 !important;
+  pointer-events: none;
 }
 
 .editorial-btn:hover::before,
-.editorial-btn:focus-visible::before {
-  transform: translateY(0);
+.editorial-btn:focus-visible::before,
+button.editorial-btn:hover::before,
+button.editorial-btn:focus-visible::before {
+  transform: translateY(0) !important;
+}
+
+.editorial-btn > span,
+button.editorial-btn > span {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  pointer-events: none;
+  width: 100%;
+}
+
+.editorial-btn:active,
+button.editorial-btn:active {
+  transform: scale(0.99);
+}
+
+.editorial-btn:disabled,
+button.editorial-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .editorial-nav__menu {
@@ -1766,6 +1798,8 @@ html.lenis body {
   line-height: 1;
   letter-spacing: -0.02em;
   text-transform: uppercase;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 .site-words li span {
   font-size: 0.62rem;
@@ -1953,7 +1987,7 @@ html.lenis body {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 999;
+  z-index: 1000;
   border-radius: 50%;
   pointer-events: none;
   opacity: 0;
@@ -1998,6 +2032,29 @@ body.has-cursor .site-root label {
 }
 body.has-cursor .site-root :is(input, textarea, select) {
   cursor: auto;
+}
+
+/* Hide custom cursor completely inside modal dialogs and restore standard native cursors */
+body:has([role="dialog"]) .site-cursor,
+body:has([role="dialog"]) .site-cursor-ring,
+[role="dialog"] ~ .site-cursor,
+[role="dialog"] ~ .site-cursor-ring {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+body:has([role="dialog"]),
+body:has([role="dialog"]) * {
+  cursor: auto !important;
+}
+body:has([role="dialog"]) a,
+body:has([role="dialog"]) button,
+body:has([role="dialog"]) [role="button"] {
+  cursor: pointer !important;
+}
+body:has([role="dialog"]) input,
+body:has([role="dialog"]) textarea {
+  cursor: text !important;
 }
 
 /* --- smaller section heading (FAQ groups) --- */

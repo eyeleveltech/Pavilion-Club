@@ -84,6 +84,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {children}
         <PwaInstallPrompt />
+        {/* Hostinger / Runtime Club Config (allows safe key setting via /club-config.js in Hostinger public_html) */}
+        <Script id="club-config" src="/club-config.js" strategy="beforeInteractive" />
         <RouteTransitionGuard />
       </body>
     </html>

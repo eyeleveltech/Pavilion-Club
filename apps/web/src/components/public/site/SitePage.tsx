@@ -234,13 +234,7 @@ export function ArrowLink({ href, children }: { href: string; children: ReactNod
   );
 }
 
-export function GoldButton({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <SiteLink href={href} className="editorial-btn">
-      {children}
-    </SiteLink>
-  );
-}
+export { GoldButton, type GoldButtonProps } from './GoldButton';
 
 export type RowItem = {
   name: string;

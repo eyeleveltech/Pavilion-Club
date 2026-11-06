@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 const CONCEPT = [
   { name: 'Pavilion Courts', text: 'Pickleball courts, memberships, coaching and tournaments.', image: '/assets/images/courts-side.jpg' },
-  { name: 'Pavilion Studio', text: 'Yoga, dance, fitness and gymnastics, subject to the confirmed programme.', image: '/assets/images/wellness-b.jpg' },
+  { name: 'Pavilion Studio', text: 'Dance, dance fitness, fitness, wellness and sports & movement, subject to the confirmed programme.', image: '/assets/images/wellness-b.jpg' },
   { name: 'Pavilion Hall', text: 'Tournaments, birthday parties, events and exhibitions.', image: '/assets/images/stair-brass.jpg' },
   { name: 'Board Games Lounge', text: 'A social gaming space.', image: '/assets/images/pavilion-lounge.jpg' },
   {

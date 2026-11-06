@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { requestLoginCode, verifyLoginCode, TurfApiError } from '@/lib/turfos-client';
+import { GoldButton } from '@/components/public/site/GoldButton';
 import { cx } from './ui';
 
 interface EmailOtpModalProps {
@@ -290,11 +291,11 @@ export function EmailOtpModal({
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-3">
-          <button
+          <GoldButton
             type="button"
+            fullWidth
             onClick={() => void verifyCode()}
             disabled={isVerifying || isSending || digits.some((d) => !d)}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-lg bg-[#c7a26a] text-[#0f1e2e] font-semibold text-[15px] hover:bg-[#d8b57d] active:scale-[0.99] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#c7a26a]/20"
           >
             {isVerifying ? (
               <>
@@ -307,7 +308,7 @@ export function EmailOtpModal({
             ) : (
               <span>Verify & Proceed to Payment</span>
             )}
-          </button>
+          </GoldButton>
 
           {/* Resend Timer / Action */}
           <div className="text-center pt-1 text-xs text-[#F9F6ED]/60">

@@ -26,3 +26,11 @@ apps/web/out/
 # Local Media Briefs & Source Videos (Do Not Commit)
 *.mov
 *.m4a.mp4
+
+# Runtime production config (Hostinger keys - Never commit)
+apps/web/public/club-config.js
+club-config.js
+
+# Reference timetable images in root
+/The Dance Studio Weekly Schedule.png
+/The_Studio_Mogappair_Premium_Weekly_Timetable_Corrected.png

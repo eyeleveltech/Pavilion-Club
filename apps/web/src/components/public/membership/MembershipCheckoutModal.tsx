@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { requestLoginCode, verifyLoginCode, TurfApiError } from '@/lib/turfos-client';
-import { openCheckout } from '@/lib/razorpay';
-import { CLUB } from '@/lib/club';
+import { openCheckout, getRazorpayKeyId } from '@/lib/razorpay';
+import { CLUB, whatsappUrl } from '@/lib/club';
+import { GoldButton } from '@/components/public/site/GoldButton';
 
 export interface MembershipCheckoutModalProps {
   isOpen: boolean;
@@ -34,6 +35,224 @@ function generateMemberReference(): string {
   return `PAV-MEM-${year}-${randomPart}`;
 }
 
+
+interface LuxuryMetalPassCardProps {
+  memberPass: MemberPass;
+}
+
+function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    const glareX = (x / rect.width) * 100;
+    const glareY = (y / rect.height) * 100;
+    setTilt({ x: rotateX, y: rotateY, glareX, glareY });
+  };
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
+  };
+
+  const copyNumber = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(memberPass.reference).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  // Format reference as clean spaced ID: e.g., PAV 2026 8492
+  const formattedNumber = memberPass.reference.replace(/-/g, ' ');
+
+  // Format valid thru as MM/YY: e.g. 12/26
+  const untilDate = new Date(memberPass.validUntil);
+  const validThru = isNaN(untilDate.getTime())
+    ? '12/26'
+    : `${String(untilDate.getMonth() + 1).padStart(2, '0')}/${String(untilDate.getFullYear()).slice(-2)}`;
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: isHovered
+          ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`
+          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+        transition: isHovered ? 'transform 0.08s ease-out' : 'transform 0.5s ease-out',
+        aspectRatio: '1.586',
+        background: 'linear-gradient(135deg, #444b58 0%, #2b323e 35%, #181d26 70%, #0d1117 100%)',
+      }}
+      className="relative mx-auto w-full max-w-[400px] rounded-[22px] select-none cursor-pointer overflow-hidden p-4 sm:p-5 flex flex-col justify-between border border-white/15 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.12),inset_0_1px_1.5px_rgba(255,255,255,0.35),inset_0_-1px_1.5px_rgba(0,0,0,0.6)]"
+    >
+      {/* Dynamic Sheen Layer */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-[3]"
+        style={{
+          opacity: isHovered ? 1 : 0.6,
+          background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 40%, transparent 65%)`,
+        }}
+      />
+
+      {/* 3D Debossed Guilloche Rosette Medallion (Top-Right) */}
+      <svg
+        className="absolute -top-[42px] -right-[42px] w-[275px] h-[275px] pointer-events-none z-[1] opacity-90"
+        style={{
+          filter: 'drop-shadow(1px 1px 0px rgba(255, 255, 255, 0.22)) drop-shadow(-1.2px -1.2px 0px rgba(0, 0, 0, 0.85))',
+        }}
+        viewBox="0 0 240 240"
+        fill="none"
+      >
+        <circle cx="170" cy="70" r="130" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
+        <circle cx="170" cy="70" r="130" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+
+        <circle cx="170" cy="70" r="115" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
+        <circle cx="170" cy="70" r="115" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+
+        <circle cx="170" cy="70" r="100" stroke="rgba(0,0,0,0.7)" strokeWidth="2" />
+        <circle cx="170" cy="70" r="100" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+
+        <circle cx="170" cy="70" r="85" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
+        <circle cx="170" cy="70" r="85" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+
+        <circle cx="170" cy="70" r="70" stroke="rgba(0,0,0,0.7)" strokeWidth="2" />
+        <circle cx="170" cy="70" r="70" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
+
+        <circle cx="170" cy="70" r="55" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
+        <circle cx="170" cy="70" r="55" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
+
+        {/* Guilloche Rays */}
+        <g stroke="rgba(255,255,255,0.2)" strokeWidth="1.4" strokeLinecap="round">
+          <line x1="170" y1="-50" x2="170" y2="-25" />
+          <line x1="170" y1="165" x2="170" y2="190" />
+          <line x1="50" y1="70" x2="75" y2="70" />
+          <line x1="265" y1="70" x2="290" y2="70" />
+          <line x1="85" y1="-15" x2="102" y2="2" />
+          <line x1="238" y1="138" x2="255" y2="155" />
+          <line x1="85" y1="155" x2="102" y2="138" />
+          <line x1="238" y1="2" x2="255" y2="-15" />
+        </g>
+
+        {/* 5-Pointed Stars along concentric arc */}
+        <g fill="rgba(255,255,255,0.22)">
+          <polygon points="90,45 93,52 101,52 95,57 97,64 90,60 83,64 85,57 79,52 87,52" />
+          <polygon points="120,5 123,12 131,12 125,17 127,24 120,20 113,24 115,17 109,12 117,12" />
+          <polygon points="80,105 83,112 91,112 85,117 87,124 80,120 73,124 75,117 69,112 77,112" />
+        </g>
+
+        {/* Debossed Center Pavilion P-C Monogram Inside Medallion */}
+        <g transform="translate(138, 20) scale(1.05)">
+          <rect x="2" y="2" width="60" height="96" rx="28" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" fill="none" />
+          <rect x="2" y="2" width="60" height="96" rx="28" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" fill="none" />
+          <path d="M30 26 L30 76" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M30 26 L30 76" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        </g>
+      </svg>
+
+      {/* Floating Action Pills (Top-Right) */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+        <a
+          href="#wallet"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            alert('Pass download prepared for Apple Wallet');
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#090b0e]/90 border border-white/15 text-[10px] sm:text-[11px] font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4)] backdrop-blur-md hover:scale-[1.02] transition-transform"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="shrink-0">
+            <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="2" />
+            <path d="M15 12H18" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M6 9H12" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span>Add to Apple Wallet</span>
+        </a>
+
+        <button
+          type="button"
+          onClick={copyNumber}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-[#090b0e] text-[10px] sm:text-[11px] font-bold shadow-[0_4px_12px_rgba(0,0,0,0.35)] hover:scale-[1.02] transition-transform"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <span>{copied ? 'Copied!' : 'Copy number'}</span>
+        </button>
+      </div>
+
+      {/* Top Left: Official Emblem & Brand Title */}
+      <div className="relative z-10 flex items-center gap-2 max-w-[130px]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/Pavilion_monogram.png"
+          alt="Pavilion Club Monogram"
+          className="w-10 h-10 object-contain shrink-0"
+          style={{
+            filter: 'brightness(1.8) drop-shadow(-1px -1px 0px rgba(0,0,0,0.8)) drop-shadow(1px 1px 0px rgba(255,255,255,0.35))',
+          }}
+        />
+        <div className="flex flex-col overflow-hidden">
+          <span className="font-serif text-[10px] sm:text-[11px] font-bold tracking-[0.14em] uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] leading-tight">
+            The Pavilion Club
+          </span>
+          <span className="text-[7.5px] font-semibold tracking-[0.12em] uppercase text-white/60 mt-0.5 whitespace-nowrap">
+            Mogappair East
+          </span>
+        </div>
+      </div>
+
+      {/* Card Footer Details */}
+      <div className="relative z-10 flex justify-between items-end">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-[10px] font-semibold text-white/70">Inaugural Shared-Play</span>
+            <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white">
+              Founding Member
+            </span>
+          </div>
+          <div className="font-sans text-xl sm:text-2xl font-extrabold tracking-[0.08em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] leading-tight">
+            {formattedNumber}
+          </div>
+          <div className="text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-white/75 mt-1">
+            {memberPass.name || 'Member'}
+          </div>
+        </div>
+
+        <div className="text-right flex flex-col items-end">
+          <span className="text-[8px] font-semibold uppercase tracking-wider text-white/60">
+            Valid Thru
+          </span>
+          <span className="font-mono text-xs sm:text-sm font-bold text-white leading-tight mt-0.5">
+            {validThru}
+          </span>
+          <span className="text-[8px] font-bold tracking-wider uppercase text-white/60 mt-0.5">
+            20 Sessions · Mon–Fri
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutModalProps) {
   const [step, setStep] = useState<Step>('details');
 
@@ -61,6 +280,24 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
   // Load existing pass from storage if any
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('pass') === 'preview' || window.location.hash === '#pass') {
+        const now = new Date();
+        const future = new Date();
+        future.setDate(now.getDate() + 30);
+        setMemberPass({
+          reference: 'PAV-2026-8492',
+          name: 'Suresh Kumar',
+          email: 'suresh.kumar@example.com',
+          phone: '+91 96000 55623',
+          validFrom: now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          validUntil: future.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          totalSessions: 20,
+          amountPaise: 236000,
+                  });
+        setStep('success');
+        return;
+      }
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         try {
@@ -233,7 +470,16 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_placeholder';
+      const keyId = getRazorpayKeyId();
+
+      if (!keyId || keyId === 'rzp_live_placeholder') {
+        setPaymentNotice({
+          tone: 'error',
+          text: 'Razorpay Key ID is not configured. Please add razorpayKeyId in /club-config.js on Hostinger or in .env.local.',
+        });
+        setIsPaying(false);
+        return;
+      }
 
       await openCheckout({
         keyId,
@@ -356,6 +602,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         .animate-check-pop {
           animation: checkPop 220ms ease-out forwards;
         }
+        .modal-body-scroll { overflow-x: hidden !important; }
         .modal-body-scroll::-webkit-scrollbar {
           width: 5px;
         }
@@ -477,7 +724,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           )}
 
           {/* Scrollable Step Body (Guarantees content never gets cut off on any screen) */}
-          <div data-lenis-prevent="true" className="overflow-y-auto overscroll-contain flex-1 py-1 modal-body-scroll pr-0.5">
+          <div data-lenis-prevent="true" className="overflow-y-auto overflow-x-hidden overscroll-contain flex-1 py-1 modal-body-scroll pr-0.5">
             {/* ======================================================== */}
             {/* STEP 1: Personal Credentials Form */}
             {/* ======================================================== */}
@@ -565,16 +812,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                     </p>
                   )}
 
-                  <button
-                    type="submit"
-                    className="w-full mt-1.5 h-10 sm:h-11 rounded-lg bg-gradient-to-r from-[#d4af37] via-[#c7a26a] to-[#b88d48] text-[#0b192c] font-bold text-xs uppercase tracking-[0.18em] hover:brightness-105 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#c7a26a]/20"
-                  >
-                    <span>Next: Review Court Rules</span>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </button>
+                  <GoldButton type="submit" fullWidth className="mt-1.5">Next: Review Court Rules →</GoldButton>
                 </form>
               </div>
             )}
@@ -670,21 +908,8 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2.5 mt-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setStep('details')}
-                    className="h-10 rounded-lg border border-white/20 bg-transparent text-white/75 text-xs font-semibold uppercase tracking-wider hover:border-white/40 hover:text-white active:scale-[0.99] transition-all"
-                  >
-                    ← Edit Details
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleProceedToOtp()}
-                    disabled={!agreedTerms}
-                    className="h-10 rounded-lg bg-gradient-to-r from-[#d4af37] via-[#c7a26a] to-[#b88d48] text-[#0b192c] text-xs font-bold uppercase tracking-wider hover:brightness-105 active:scale-[0.99] disabled:opacity-40 transition-all shadow-lg shadow-[#c7a26a]/20"
-                  >
-                    Verify &amp; Pay →
-                  </button>
+                  <button type="button" onClick={() => setStep('details')} className="h-11 border border-white/20 bg-transparent text-white/75 text-xs font-semibold uppercase tracking-[0.2em] hover:border-white/50 hover:text-white active:scale-[0.99] transition-all rounded-none">← Edit Details</button>
+                  <GoldButton type="button" onClick={() => void handleProceedToOtp()} disabled={!agreedTerms}>Verify &amp; Pay →</GoldButton>
                 </div>
               </div>
             )}
@@ -759,14 +984,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                 </div>
 
                 <div className="mt-5 space-y-2.5">
-                  <button
-                    type="button"
-                    onClick={() => void verifyCode()}
-                    disabled={isVerifyingOtp || isSendingOtp || digits.some((d) => !d)}
-                    className="w-full h-10 sm:h-11 rounded-lg bg-gradient-to-r from-[#d4af37] via-[#c7a26a] to-[#b88d48] text-[#0b192c] font-bold text-xs uppercase tracking-[0.18em] hover:brightness-105 active:scale-[0.99] disabled:opacity-40 transition-all shadow-lg shadow-[#c7a26a]/20 flex items-center justify-center gap-2"
-                  >
-                    {isVerifyingOtp ? 'Verifying Code...' : 'Verify & Launch Razorpay (₹2,360)'}
-                  </button>
+                  <GoldButton type="button" onClick={() => void verifyCode()} disabled={isVerifyingOtp || isSendingOtp || digits.some((d) => !d)} fullWidth>{isVerifyingOtp ? 'Verifying Code...' : 'Verify & Launch Razorpay (₹2,360)'}</GoldButton>
 
                   <div className="text-center text-xs text-[#fbf8f1]/60">
                     {cooldown > 0 ? (
@@ -835,24 +1053,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                 )}
 
                 <div className="mt-4 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => void handleProceedPayment()}
-                    disabled={isPaying}
-                    className="w-full h-10 sm:h-11 rounded-lg bg-gradient-to-r from-[#d4af37] via-[#c7a26a] to-[#b88d48] text-[#0b192c] font-bold text-xs uppercase tracking-[0.18em] hover:brightness-105 active:scale-[0.99] transition-all shadow-lg shadow-[#c7a26a]/20 flex items-center justify-center gap-2"
-                  >
-                    {isPaying ? (
-                      <span>Opening Razorpay Gateway...</span>
-                    ) : (
-                      <>
-                        <span>Pay ₹2,360 &amp; Activate Pass</span>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                          <polyline points="12 5 19 12 12 19" />
-                        </svg>
-                      </>
-                    )}
-                  </button>
+                  <GoldButton type="button" onClick={() => void handleProceedPayment()} disabled={isPaying} fullWidth>{isPaying ? 'Opening Razorpay Gateway...' : 'Pay ₹2,360 & Activate Pass →'}</GoldButton>
                   <p className="text-center text-[10px] text-white/40">
                     🔒 Secured by Razorpay · 256-bit SSL encrypted · Instant digital pass
                   </p>
@@ -865,100 +1066,102 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
             {/* ======================================================== */}
             {step === 'success' && memberPass && (
               <div className="animate-step-in">
+                {/* Header Title with Celebration Badge */}
                 <div className="text-center mb-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                    ✓ Membership Activated
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 shadow-sm">
+                    ✓ Official Digital Pass Issued
                   </span>
                   <h2 className="font-serif text-2xl font-semibold mt-1 text-[#fbf8f1]">
                     Welcome to The Pavilion Club
                   </h2>
                   <p className="text-xs text-white/70 mt-0.5">
-                    Your shared-play membership pass is live and active.
+                    Your luxury digital pass is active for Mon–Fri 6:00 AM – 3:00 PM Shared-Play sessions.
                   </p>
                 </div>
 
-                {/* Digital Pass Card */}
-                <div className="relative rounded-2xl border-2 border-[#c7a26a] bg-gradient-to-br from-[#122338] via-[#0f1e2e] to-[#0a1522] p-4 sm:p-5 shadow-2xl overflow-hidden">
-                  <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none select-none text-[#c7a26a] font-serif text-8xl font-bold">
-                    P
-                  </div>
+                {/* 3D Titanium Metal Pass Card */}
+                <LuxuryMetalPassCard memberPass={memberPass} />
 
-                  <div className="flex items-start justify-between border-b border-[#c7a26a]/30 pb-2.5">
-                    <div>
-                      <p className="font-serif text-sm tracking-[0.2em] font-bold uppercase text-[#c7a26a]">
-                        The Pavilion Club
-                      </p>
-                      <p className="text-[9px] uppercase tracking-widest text-white/60">
-                        Mogappair East · Chennai
-                      </p>
-                    </div>
-                    <span className="rounded bg-[#c7a26a]/20 border border-[#c7a26a] px-2 py-0.5 font-mono text-[10px] font-bold text-[#c7a26a]">
-                      ACTIVE
-                    </span>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-2 gap-2.5 text-xs">
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider text-white/50 block">Member Name</span>
-                      <span className="font-semibold text-white truncate block">{memberPass.name}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider text-white/50 block">Member ID</span>
-                      <span className="font-mono font-bold text-[#c7a26a]">{memberPass.reference}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider text-white/50 block">Phone</span>
-                      <span className="font-mono text-white">{memberPass.phone}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider text-white/50 block">Validity</span>
-                      <span className="text-white text-[11px]">{memberPass.validFrom} – {memberPass.validUntil}</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 rounded-lg bg-[#c7a26a]/15 border border-[#c7a26a]/40 p-2.5 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-medium text-white">Included Sessions</p>
-                      <p className="text-[9px] text-[#c7a26a]">Mon – Fri, 06:00 AM – 03:00 PM</p>
-                    </div>
-                    <span className="font-mono text-sm font-bold text-[#c7a26a]">20 Sessions</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="mt-4 space-y-2">
+                {/* Quick Actions Suite (Matching Reference Image Layout) */}
+                <div className="mt-5 flex justify-center items-center gap-6 sm:gap-8">
+                  {/* 1. Member Hours Access & Rules */}
                   <a
-                    href="https://turftown.in"
+                    href="#hours"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert('Membership Access Hours: Monday to Friday, 6:00 AM – 3:00 PM. Up to 20 Shared-Play sessions per month at The Pavilion Club, Mogappair East.');
+                    }}
+                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
+                      Member Hours
+                    </span>
+                  </a>
+
+                  {/* 2. WhatsApp Concierge */}
+                  <a
+                    href={whatsappUrl(
+                      `Hi Pavilion Club! I have joined the Inaugural Shared-Play Membership. My Member Pass ID is ${memberPass.reference}.`
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={onClose}
-                    className="w-full h-10 sm:h-11 flex items-center justify-center gap-2 rounded-lg bg-[#c7a26a] text-[#0b192c] font-bold text-xs uppercase tracking-wider hover:brightness-105 active:scale-[0.99] transition-all shadow-lg shadow-[#c7a26a]/20"
+                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline"
                   >
-                    <span>Reserve Session on TurfTown</span>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
+                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm.01 18.06c-1.49 0-2.95-.4-4.22-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.13 8.13 0 0 1-1.25-4.28c0-4.5 3.66-8.15 8.16-8.15 2.18 0 4.22.85 5.76 2.39a8.09 8.09 0 0 1 2.39 5.76c0 4.49-3.66 8.15-8.15 8.15zm4.47-6.1c-.24-.12-1.44-.71-1.66-.79-.23-.08-.39-.12-.56.12-.17.25-.64.79-.79.96-.14.16-.29.18-.54.06-.24-.12-1.02-.38-1.95-1.21-.72-.65-1.21-1.45-1.36-1.69-.14-.25-.02-.38.1-.5.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.17.04-.32-.02-.44-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.02 2.6.13.16 1.77 2.71 4.3 3.8.6.26 1.07.42 1.44.53.61.2 1.16.17 1.6.1.49-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.21-.17-.46-.29z" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
+                      WhatsApp
+                    </span>
                   </a>
+
+                  {/* 3. Save Pass */}
                   <button
                     type="button"
-                    onClick={() => {
-                      localStorage.removeItem(STORAGE_KEY);
-                      setMemberPass(null);
-                      setStep('details');
-                    }}
-                    className="w-full py-1 text-[11px] text-[#c7a26a]/80 hover:text-[#c7a26a] underline transition-colors"
+                    onClick={() => window.print()}
+                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline border-none bg-transparent"
                   >
-                    Register Another Pass / New Member
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full py-1.5 text-xs text-white/50 hover:text-white transition-colors"
-                  >
-                    Close Pass Window
+                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </div>
+                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
+                      Save pass
+                    </span>
                   </button>
                 </div>
+
+                  <div className="pt-4 flex items-center justify-between text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.removeItem(STORAGE_KEY);
+                        setMemberPass(null);
+                        setStep('details');
+                      }}
+                      className="text-[#c7a26a]/80 hover:text-[#c7a26a] underline transition-colors"
+                    >
+                      Register New Member
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="text-white/50 hover:text-white transition-colors"
+                    >
+                      Done & Close
+                    </button>
+                  </div>
               </div>
             )}
           </div>

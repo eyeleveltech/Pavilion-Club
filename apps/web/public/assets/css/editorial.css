@@ -67,7 +67,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 @media (max-width:900px){.has-lines{background-image:none !important}}
 
 /* --- buttons ---------------------------------------------------- */
-.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.8rem;padding:1.1rem 2.2rem;font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;border:1px solid var(--gold);color:var(--midnight);background:var(--gold);overflow:hidden;isolation:isolate;transition:color .5s var(--ease),border-color .5s;white-space:nowrap;will-change:transform}
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.8rem;padding:1.1rem 2.2rem;font-size:.68rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;border:1px solid var(--gold);border-radius:0 !important;color:var(--midnight);background:var(--gold);overflow:hidden;isolation:isolate;transition:color .5s var(--ease),border-color .5s;white-space:nowrap;will-change:transform}
 .btn::before{content:"";position:absolute;inset:0;background:var(--ivory);transform:translateY(101%);transition:transform .6s var(--ease);z-index:-1}
 .btn:hover::before,.btn:focus-visible::before{transform:translateY(0)}
 .btn--ghost{background:transparent;color:var(--ivory);border-color:rgba(249,246,237,.35)}

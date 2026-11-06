@@ -37,7 +37,7 @@ const GROUPS: readonly { id: string; title: string; items: readonly FaqItem[] }[
     title: 'Pavilion Studio',
     items: [
       {
-        q: 'Can I book yoga, dance, fitness or gymnastics online?',
+        q: 'Can I book dance, dance fitness, fitness, wellness or sports & movement online?',
         a: 'Not yet. The website will show the Studio timetable and how to book once programmes, class sizes, membership plans and cancellation rules are finalised.',
       },
     ],
