@@ -55,6 +55,24 @@ export function getRazorpayKeyId(): string {
   return '';
 }
 
+/**
+ * Resolves the active Razorpay Key directly from the TurfOS venue engine.
+ * Automatically synchronizes with TurfOS Test/Live mode toggles.
+ */
+export async function resolveRazorpayKeyId(): Promise<string> {
+  try {
+    const { getTurfOSPaymentConfig } = await import('@/lib/turfos-client');
+    const turfConfig = await getTurfOSPaymentConfig();
+    if (turfConfig && turfConfig.keyId) {
+      return turfConfig.keyId;
+    }
+  } catch {
+    // TurfOS offline fallback
+  }
+
+  return getRazorpayKeyId();
+}
+
 interface RazorpayOptions {
   key: string;
   order_id?: string;

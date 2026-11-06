@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { requestLoginCode, verifyLoginCode, TurfApiError } from '@/lib/turfos-client';
-import { openCheckout, getRazorpayKeyId } from '@/lib/razorpay';
+import { openCheckout, getRazorpayKeyId, resolveRazorpayKeyId } from '@/lib/razorpay';
 import { addPickleballEnquiry } from '@/lib/enquiry-store';
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { GoldButton } from '@/components/public/site/GoldButton';
@@ -489,7 +489,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const keyId = getRazorpayKeyId();
+      const keyId = await resolveRazorpayKeyId();
 
       if (!keyId || keyId === 'rzp_live_placeholder') {
         // Local dev / rehearsal simulation fallback
@@ -503,7 +503,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
         setPaymentNotice({
           tone: 'error',
-          text: 'Razorpay Key ID is not configured yet. Please add your razorpayKeyId in /club-config.js on Hostinger to take live payments, or click below to preview the 3D metal pass in simulation mode.',
+          text: 'Unable to connect to TurfOS Razorpay gateway. Please check that payments are switched on in your TurfOS dashboard, or click below to preview in simulation mode.',
         });
         setIsPaying(false);
         return;

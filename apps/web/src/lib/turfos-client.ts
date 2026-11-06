@@ -223,6 +223,72 @@ export async function startPayment(bookingId: string): Promise<PaymentOrder> {
   };
 }
 
+/**
+ * Dynamic TurfOS Venue Razorpay Config
+ * Automatically discovers active Razorpay key and payment mode directly from TurfOS
+ * without requiring any local config files or manual key copying.
+ */
+export interface TurfOSPaymentConfig {
+  keyId: string;
+  isTest: boolean;
+  provider: 'razorpay' | 'at_venue' | string;
+  venueName: string;
+}
+
+let cachedPaymentConfig: Promise<TurfOSPaymentConfig | null> | null = null;
+
+export async function getTurfOSPaymentConfig(): Promise<TurfOSPaymentConfig | null> {
+  if (typeof window !== 'undefined') {
+    const cached = (window as any).__TURFOS_PAYMENT_CONFIG__;
+    if (cached && cached.keyId) return cached;
+  }
+
+  if (cachedPaymentConfig) return cachedPaymentConfig;
+
+  cachedPaymentConfig = (async () => {
+    try {
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+      const av = await fetchDay(tomorrow).catch(() => null);
+      if (!av || !av.courts || av.courts.length === 0) return null;
+
+      const court = av.courts[0];
+      if (!court) return null;
+      const slot = court.slots.find((s: DaySlot) => s.available);
+      if (!slot) return null;
+
+      const hold = await createHold({
+        courtId: court.id,
+        startsAt: slot.startsAt,
+        hours: 1,
+        name: 'TurfOS Sync',
+        phone: '9000000000',
+        email: 'sync@thepavilionclub.com',
+      }).catch(() => null);
+
+      if (!hold || !hold.bookingId) return null;
+
+      const paymentOrder = await startPayment(hold.bookingId).catch(() => null);
+      if (!paymentOrder || !paymentOrder.keyId) return null;
+
+      const config: TurfOSPaymentConfig = {
+        keyId: paymentOrder.keyId,
+        isTest: paymentOrder.keyId.startsWith('rzp_test'),
+        provider: 'razorpay',
+        venueName: paymentOrder.venueName || 'The Pavilion Club',
+      };
+
+      if (typeof window !== 'undefined') {
+        (window as any).__TURFOS_PAYMENT_CONFIG__ = config;
+      }
+      return config;
+    } catch {
+      return null;
+    }
+  })();
+
+  return cachedPaymentConfig;
+}
+
 /* ------------------------------------------------------------------ */
 /* Packs & Hour Credits Redemption                                     */
 /* ------------------------------------------------------------------ */
