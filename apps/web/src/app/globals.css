@@ -278,10 +278,10 @@ button.editorial-btn::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--ivory) !important;
+  background: var(--ivory);
   transform: translateY(101%);
   transition: transform 0.6s var(--ease);
-  z-index: 1 !important;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -987,20 +987,44 @@ html.lenis body {
   align-items: center;
   gap: 1.4rem 2.4rem;
 }
-/* Gold buttons on ivory fill with midnight on hover, not ivory. */
+/* Gold buttons on ivory (site-light, site-cream, site-price) fill with midnight on hover, with crystal-clear ivory text. */
+.site-light .editorial-btn,
+.site-cream .editorial-btn,
+.site-price .editorial-btn {
+  color: var(--midnight) !important;
+  background: var(--gold) !important;
+  border: 1px solid var(--gold) !important;
+}
+
+.site-light .editorial-btn > span,
+.site-cream .editorial-btn > span,
+.site-price .editorial-btn > span {
+  color: var(--midnight) !important;
+}
+
 .site-light .editorial-btn::before,
 .site-cream .editorial-btn::before,
 .site-price .editorial-btn::before {
-  background: var(--midnight);
+  background: var(--midnight) !important;
 }
+
 .site-light .editorial-btn:hover,
 .site-cream .editorial-btn:hover,
 .site-price .editorial-btn:hover,
 .site-light .editorial-btn:focus-visible,
 .site-cream .editorial-btn:focus-visible,
 .site-price .editorial-btn:focus-visible {
-  color: var(--ivory);
-  border-color: var(--midnight);
+  color: var(--ivory) !important;
+  border-color: var(--midnight) !important;
+}
+
+.site-light .editorial-btn:hover > span,
+.site-cream .editorial-btn:hover > span,
+.site-price .editorial-btn:hover > span,
+.site-light .editorial-btn:focus-visible > span,
+.site-cream .editorial-btn:focus-visible > span,
+.site-price .editorial-btn:focus-visible > span {
+  color: var(--ivory) !important;
 }
 .site-root a:focus-visible,
 .site-root button:focus-visible,
