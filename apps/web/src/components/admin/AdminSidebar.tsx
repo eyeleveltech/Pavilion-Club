@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  ClipboardList,
   PlusCircle,
   CalendarDays,
   Users,
@@ -15,6 +16,7 @@ import {
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { label: 'Enquiries', href: '/admin/enquiries', icon: ClipboardList },
   { label: 'Book a slot', href: '/admin/book', icon: PlusCircle },
   { label: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
   { label: 'Customers', href: '/admin/customers', icon: Users },

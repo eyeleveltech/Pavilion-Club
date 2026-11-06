@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { CLUB } from '@/lib/club';
 import { GoldButton } from '@/components/public/site/GoldButton';
+import { addStudioEnquiry } from '@/lib/enquiry-store';
 
 export interface StudioEnquiryData {
   activity?: string;
@@ -49,34 +50,23 @@ export const STUDIO_TARGET_GROUPS = [
 ];
 
 export const STUDIO_DAYS = [
-  { key: 'Mon', label: 'Mon' },
-  { key: 'Tue', label: 'Tue' },
-  { key: 'Wed', label: 'Wed' },
-  { key: 'Thu', label: 'Thu' },
-  { key: 'Fri', label: 'Fri' },
-  { key: 'Sat', label: 'Sat' },
-  { key: 'Sun', label: 'Sun' },
-  { key: 'Mon-Fri', label: 'Mon–Fri' },
-  { key: 'Weekend', label: 'Weekend' },
+  { key: 'Mon', label: 'Monday' },
+  { key: 'Wed', label: 'Wednesday' },
+  { key: 'Fri', label: 'Friday' },
+  { key: 'MWF', label: 'Mon · Wed · Fri (All)' },
 ];
 
 export const STUDIO_TIME_SLOTS = [
-  { value: '06:00 AM – 07:00 AM', label: '06:00 AM – 07:00 AM · Morning Yoga / Fitness' },
-  { value: '07:00 AM – 08:00 AM', label: '07:00 AM – 08:00 AM · Morning Fitness / Yoga' },
-  { value: '08:00 AM – 09:00 AM', label: '08:00 AM – 09:00 AM · PT 1-on-1 / Kids Dance' },
-  { value: '09:00 AM – 10:00 AM', label: '09:00 AM – 10:00 AM · Weekend Kids Dance' },
-  { value: '10:00 AM – 11:00 AM', label: '10:00 AM – 11:00 AM · Weekend Kids Dance / Silambam' },
-  { value: '11:00 AM – 12:00 PM', label: '11:00 AM – 12:00 PM · Weekend Silambam / Boxing' },
-  { value: '12:00 PM – 01:00 PM', label: '12:00 PM – 01:00 PM · Weekend Boxing / Practice' },
-  { value: '01:00 PM – 03:00 PM', label: '01:00 PM – 03:00 PM · Weekend Studio Rental' },
-  { value: '03:00 PM – 04:00 PM', label: '03:00 PM – 04:00 PM · Weekend Kids Dance' },
-  { value: '04:00 PM – 05:00 PM', label: '04:00 PM – 05:00 PM · After-School Kids Dance / Juniors' },
-  { value: '05:00 PM – 06:00 PM', label: '05:00 PM – 06:00 PM · Dance / Silambam / Teen Dance' },
-  { value: '06:00 PM – 07:00 PM', label: '06:00 PM – 07:00 PM · Dance Teens / Boxing / Salsa' },
-  { value: '07:00 PM – 08:00 PM', label: '07:00 PM – 08:00 PM · Dance Fitness / Salsa Adults' },
-  { value: '08:00 PM – 09:00 PM', label: '08:00 PM – 09:00 PM · Boxing / Dance Fitness / Workshop' },
-  { value: '09:00 PM – 10:00 PM', label: '09:00 PM – 10:00 PM · Night PT / Open Practice' },
+  { value: '06:00 AM – 07:00 AM', label: '06:00 AM – 07:00 AM · Yoga / Fitness (Adults)' },
+  { value: '07:00 AM – 08:00 AM', label: '07:00 AM – 08:00 AM · Fitness / Yoga (Adults)' },
+  { value: '08:00 AM – 09:00 AM', label: '08:00 AM – 09:00 AM · Personal Training (1-on-1)' },
   { value: '09:00 AM – 04:00 PM', label: '09:00 AM – 04:00 PM · School / Private Rehearsals / PT' },
+  { value: '04:00 PM – 05:00 PM', label: '04:00 PM – 05:00 PM · Kids Dance (Ages 4–10)' },
+  { value: '05:00 PM – 06:00 PM', label: '05:00 PM – 06:00 PM · Dance (Kids & Juniors)' },
+  { value: '06:00 PM – 07:00 PM', label: '06:00 PM – 07:00 PM · Dance (Teens) / Boxing (Fri Teens)' },
+  { value: '07:00 PM – 08:00 PM', label: '07:00 PM – 08:00 PM · Dance Fitness / Dance (Fri Adults)' },
+  { value: '08:00 PM – 09:00 PM', label: '08:00 PM – 09:00 PM · Boxing / Dance Fitness (Fri Adults)' },
+  { value: '09:00 PM – 10:00 PM', label: '09:00 PM – 10:00 PM · Night Personal Training (Adults)' },
 ];
 
 export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnquiryModalProps) {
@@ -240,6 +230,21 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
     e.preventDefault();
     const newRef = `STU-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     setRefId(newRef);
+
+    // Auto-save to Front Desk Enquiries Console
+    addStudioEnquiry({
+      reference: newRef,
+      name: name.trim(),
+      phone: phone.replace(/\D/g, ''),
+      email: email.trim().toLowerCase(),
+      category,
+      cohort: targetGroup,
+      day: selectedDay,
+      timeSlot,
+      level,
+      notes: notes.trim(),
+    });
+
     setStep(4);
   };
 
@@ -569,14 +574,15 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
                 <div>
                   <label className="block text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/70 mb-1.5 font-sans">
                     Preferred Day <span className="text-[#c7a26a]">*</span>
+                    <span className="text-[10px] text-[#c7a26a] lowercase ml-2 font-normal">(Mon · Wed · Fri sessions)</span>
                   </label>
-                  <div className="grid grid-cols-5 gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {STUDIO_DAYS.map((d) => (
                       <button
                         type="button"
                         key={d.key}
                         onClick={() => setSelectedDay(d.key)}
-                        className={`py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all ${
+                        className={`py-2 px-2 rounded-lg border text-[11px] font-medium transition-all ${
                           selectedDay === d.key
                             ? 'border-[#c7a26a] bg-[#c7a26a]/20 text-[#c7a26a] font-bold shadow-[0_0_10px_rgba(199,162,106,0.15)]'
                             : 'border-white/15 bg-white/[0.02] text-white/60 hover:border-white/25 hover:text-white'

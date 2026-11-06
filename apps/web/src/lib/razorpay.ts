@@ -1,9 +1,7 @@
 // Razorpay Checkout, loaded on demand.
 //
-// Only the PUBLIC key id ever reaches the browser (it comes back from the
-// order the server opened). Opening this widget proves nothing: the booking is
-// confirmed by Razorpay's webhook reaching TurfOS, and the caller polls for
-// that. `onSuccess` therefore means "start waiting", not "you are booked".
+// Only the PUBLIC key id ever reaches the browser.
+// The payment is verified via Razorpay's handler or webhook callback.
 
 declare global {
   interface Window {
@@ -11,22 +9,55 @@ declare global {
     __PAVILION_CONFIG__?: {
       razorpayKeyId?: string;
     };
+    __CLUB_CONFIG__?: {
+      razorpayKeyId?: string;
+      phone?: string;
+      whatsapp?: string;
+    };
   }
 }
 
 export function getRazorpayKeyId(): string {
-  if (typeof window !== 'undefined' && window.__PAVILION_CONFIG__?.razorpayKeyId) {
-    const key = window.__PAVILION_CONFIG__.razorpayKeyId.trim();
-    if (key.length > 0 && !key.includes('PLACEHOLDER') && !key.includes('UNGA_KEY')) {
-      return key;
+  if (typeof window !== 'undefined') {
+    const fromPavilion = window.__PAVILION_CONFIG__?.razorpayKeyId?.trim();
+    if (
+      fromPavilion &&
+      fromPavilion.length > 0 &&
+      !fromPavilion.includes('PLACEHOLDER') &&
+      !fromPavilion.includes('UNGA_KEY') &&
+      !fromPavilion.includes('PASTE_YOUR_KEY')
+    ) {
+      return fromPavilion;
+    }
+
+    const fromClub = window.__CLUB_CONFIG__?.razorpayKeyId?.trim();
+    if (
+      fromClub &&
+      fromClub.length > 0 &&
+      !fromClub.includes('PLACEHOLDER') &&
+      !fromClub.includes('UNGA_KEY') &&
+      !fromClub.includes('PASTE_YOUR_KEY')
+    ) {
+      return fromClub;
     }
   }
-  return (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+
+  const envKey = (process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+  if (
+    envKey &&
+    envKey.length > 0 &&
+    !envKey.includes('placeholder') &&
+    !envKey.includes('PLACEHOLDER')
+  ) {
+    return envKey;
+  }
+
+  return '';
 }
 
 interface RazorpayOptions {
   key: string;
-  order_id: string;
+  order_id?: string;
   amount: number;
   currency: string;
   name: string;
@@ -34,7 +65,7 @@ interface RazorpayOptions {
   prefill?: { name?: string; email?: string; contact?: string };
   theme?: { color?: string };
   modal?: { ondismiss?: () => void; confirm_close?: boolean };
-  handler: (response: { razorpay_payment_id: string; razorpay_order_id: string }) => void;
+  handler: (response: { razorpay_payment_id: string; razorpay_order_id?: string; razorpay_signature?: string }) => void;
 }
 
 const SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -53,7 +84,11 @@ function loadScript(): Promise<void> {
     el.onload = () => resolve();
     el.onerror = () => {
       loading = null;
-      reject(new Error('Could not load the payment window. Check your connection.'));
+      reject(
+        new Error(
+          'Could not load payment gateway. If you are using Brave Shields or an ad-blocker, please disable shields for checkout.razorpay.com.'
+        )
+      );
     };
     document.head.appendChild(el);
   });
@@ -62,36 +97,47 @@ function loadScript(): Promise<void> {
 
 export interface CheckoutInput {
   keyId: string;
-  orderId: string;
+  orderId?: string;
   amountPaise: number;
   currency: string;
   venueName: string;
   description: string;
   prefill: { name: string; email: string; contact: string };
-  onSuccess: () => void;
+  onSuccess: (paymentId?: string) => void;
   onDismiss: () => void;
   onFailure: (reason: string) => void;
 }
 
 export async function openCheckout(input: CheckoutInput): Promise<void> {
   await loadScript();
-  if (!window.Razorpay) throw new Error('The payment window did not load.');
+  if (!window.Razorpay) {
+    throw new Error('The Razorpay checkout script did not load properly.');
+  }
 
-  const checkout = new window.Razorpay({
+  const options: RazorpayOptions = {
     key: input.keyId,
-    order_id: input.orderId,
     amount: input.amountPaise,
-    currency: input.currency,
-    name: input.venueName,
+    currency: input.currency || 'INR',
+    name: input.venueName || 'The Pavilion Club',
     description: input.description,
     prefill: input.prefill,
     theme: { color: '#c7a26a' },
     modal: { ondismiss: input.onDismiss, confirm_close: true },
-    handler: () => input.onSuccess(),
-  });
+    handler: (response) => {
+      input.onSuccess(response?.razorpay_payment_id);
+    },
+  };
 
-  checkout.on('payment.failed', (event) => {
-    input.onFailure(event?.error?.description ?? 'The payment did not go through.');
+  // Crucial: Only attach order_id if non-empty string.
+  // Passing order_id: "" causes Razorpay BAD_REQUEST_ERROR: "The order id does not exist".
+  if (input.orderId && input.orderId.trim().length > 0) {
+    options.order_id = input.orderId.trim();
+  }
+
+  const checkout = new window.Razorpay(options);
+
+  checkout.on('payment.failed', (event: any) => {
+    input.onFailure(event?.error?.description ?? 'The payment could not be processed.');
   });
 
   checkout.open();

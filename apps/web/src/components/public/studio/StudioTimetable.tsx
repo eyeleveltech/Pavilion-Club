@@ -18,6 +18,7 @@ const TARGET_GROUPS: { key: TargetGroup | 'All'; label: string }[] = [
   { key: 'Juniors', label: 'Juniors (Ages 11–14)' },
   { key: 'Teens', label: 'Teens (Ages 15–18)' },
   { key: 'Adults', label: 'Adults (18+)' },
+  { key: 'Individual', label: '1-on-1 PT' },
 ];
 
 export function StudioTimetable() {
@@ -35,7 +36,6 @@ export function StudioTimetable() {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash;
         if (hash === '#studio-enquiry' || hash === '#studio') {
-          // If explicitly navigating to studio enquiry
           if (hash === '#studio-enquiry') {
             setEnquiryData(null);
             setIsModalOpen(true);
@@ -71,7 +71,7 @@ export function StudioTimetable() {
         activity: slot.activity,
         timeSlot: slot.time,
         day: day || activeDay,
-        targetGroup: slot.targetGroup,
+        targetGroup: slot.targetDisplay || slot.targetGroup,
       });
     } else {
       setEnquiryData(null);
@@ -97,25 +97,12 @@ export function StudioTimetable() {
       const matchesGroup =
         selectedGroup === 'All' ||
         slot.targetGroup === selectedGroup ||
-        (selectedGroup === 'Juniors' && slot.targetGroup === 'Juniors') ||
-        (selectedGroup === 'Teens' && slot.targetGroup === 'Teens');
+        (selectedGroup === 'Juniors' && (slot.targetDisplay?.includes('Juniors') || slot.targetGroup === 'Juniors')) ||
+        (selectedGroup === 'Teens' && (slot.targetDisplay?.includes('Teens') || slot.targetGroup === 'Teens')) ||
+        (selectedGroup === 'Adults' && (slot.targetDisplay?.includes('Adults') || slot.targetGroup === 'Adults'));
       return matchesDay && matchesPillar && matchesGroup;
     });
   }, [activeDay, selectedPillar, selectedGroup]);
-
-  // Master time rows for Grid View
-  const GRID_TIME_ROWS = [
-    { label: '6:00 – 7:00 AM', id: '6-7' },
-    { label: '7:00 – 8:00 AM', id: '7-8' },
-    { label: '8:00 – 9:00 AM', id: '8-9' },
-    { label: '9:00 AM – 4:00 PM', id: '9-4', isDaytimeBlock: true },
-    { label: '4:00 – 5:00 PM', id: '4-5' },
-    { label: '5:00 – 6:00 PM', id: '5-6' },
-    { label: '6:00 – 7:00 PM', id: '6-7pm' },
-    { label: '7:00 – 8:00 PM', id: '7-8pm' },
-    { label: '8:00 – 9:00 PM', id: '8-9pm' },
-    { label: '9:00 – 10:00 PM', id: '9-10pm' },
-  ];
 
   return (
     <div className="w-full mt-14 pt-12 border-t border-white/10" id="schedule">
@@ -125,15 +112,14 @@ export function StudioTimetable() {
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#C7A26A] animate-pulse" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#C7A26A]">
-              7-Day Master Class Schedule
+              Mon · Wed · Fri Master Class Schedule
             </span>
           </div>
           <h3 className="mt-2 text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">
             Pavilion Studio Timetable
           </h3>
           <p className="mt-2 text-sm text-white/60 max-w-xl">
-            A clear view of every class from Monday to Sunday. Filter by age group, discipline or switch to the full
-            master matrix.
+            Sessions held exclusively on <span className="text-[#C7A26A] font-semibold">Monday, Wednesday &amp; Friday</span> (6:00 AM – 10:00 PM). Filter by age cohort, discipline, or browse the master matrix.
           </p>
         </div>
 
@@ -163,30 +149,31 @@ export function StudioTimetable() {
               Master Grid Matrix
             </button>
           </div>
-
         </div>
       </div>
 
       {/* CARDS VIEW */}
       {viewMode === 'cards' && (
         <div className="space-y-6">
-          {/* Day Switcher Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+          {/* Day Switcher Tabs (Only Mon, Wed, Fri) */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {DAYS_OF_WEEK.map((d) => (
               <button
                 key={d.key}
                 type="button"
                 onClick={() => setActiveDay(d.key)}
-                className={`flex-1 min-w-[100px] rounded-xl border px-4 py-3 text-center transition-all ${
+                className={`rounded-xl border p-3 sm:p-4 text-center transition-all ${
                   activeDay === d.key
                     ? 'border-[#C7A26A] bg-gradient-to-b from-[#C7A26A]/20 to-[#0A1520] text-white shadow-lg'
                     : 'border-white/10 bg-white/5 text-white/60 hover:border-white/25 hover:text-white'
                 }`}
               >
-                <span className="block text-[10px] uppercase tracking-wider text-[#C7A26A]/80 font-mono">
-                  {d.key === 'Sat' || d.key === 'Sun' ? 'Weekend' : 'Weekday'}
+                <span className="block text-[10px] sm:text-[11px] uppercase tracking-wider text-[#C7A26A]/80 font-mono">
+                  {d.theme}
                 </span>
-                <span className="text-sm font-semibold tracking-wide block mt-0.5">{d.label}</span>
+                <span className="text-sm sm:text-base font-semibold tracking-wide block mt-0.5">
+                  {d.label}
+                </span>
               </button>
             ))}
           </div>
@@ -200,29 +187,29 @@ export function StudioTimetable() {
               </span>
               <select
                 value={selectedPillar}
-                onChange={(e) => setSelectedPillar(e.target.value as any)}
-                aria-label="Filter classes by discipline"
-                className="rounded-lg border border-white/15 bg-[#071018] px-3 py-1.5 text-xs text-white focus:border-[#C7A26A] focus:outline-none"
+                onChange={(e) => setSelectedPillar(e.target.value as StudioPillar | 'All')}
+                aria-label="Filter classes by studio discipline"
+                className="bg-[#071018] border border-white/15 text-white text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#C7A26A]"
               >
-                <option value="All">All 5 Pillars + Rentals</option>
+                <option value="All">All Disciplines</option>
                 {STUDIO_PILLARS.map((p) => (
                   <option key={p.key} value={p.key}>
-                    {p.number} · {p.label}
+                    {p.label}
                   </option>
                 ))}
               </select>
             </div>
 
             {/* Target Group Pills */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
               {TARGET_GROUPS.map((g) => (
                 <button
                   key={g.key}
                   type="button"
                   onClick={() => setSelectedGroup(g.key)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                  className={`rounded-full px-3 py-1 text-[11px] font-medium whitespace-nowrap transition-all ${
                     selectedGroup === g.key
-                      ? 'bg-[#C7A26A] text-black font-semibold'
+                      ? 'bg-white text-black font-semibold'
                       : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -232,56 +219,50 @@ export function StudioTimetable() {
             </div>
           </div>
 
-          {/* Daily Slots List */}
+          {/* Slots List / Grid */}
           {dailySlots.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 py-16 text-center text-sm text-white/50">
-              No classes match the selected filter on this day. Try selecting{' '}
+            <div className="rounded-2xl border border-white/10 bg-[#0A1520]/60 p-12 text-center">
+              <p className="text-white/60 text-sm">No classes match your selected filters on {activeDay}.</p>
               <button
                 type="button"
                 onClick={() => {
                   setSelectedPillar('All');
                   setSelectedGroup('All');
                 }}
-                className="text-[#C7A26A] underline"
+                className="mt-3 text-xs text-[#C7A26A] underline font-semibold"
               >
-                All Disciplines
+                Reset Filters
               </button>
-              .
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {dailySlots.map((slot) => (
                 <div
-                  key={`${slot.id}-${activeDay}`}
-                  onClick={() => openEnquiry(slot, activeDay)}
-                  className="group relative rounded-2xl border border-white/10 bg-[#071018] p-5 hover:border-[#C7A26A]/50 transition-all shadow-md hover:shadow-xl flex flex-col justify-between cursor-pointer"
+                  key={slot.id}
+                  className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-gradient-to-b from-[#0A1520] to-[#060D15] p-5 hover:border-[#C7A26A]/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
                 >
                   <div>
-                    {/* Top Meta: Time + Target Group */}
-                    <div className="flex items-center justify-between gap-3 text-xs mb-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-white/90">
-                        <svg className="w-3.5 h-3.5 text-[#C7A26A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2" />
-                        </svg>
+                    {/* Header Row: Time + Target Group Badge */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="font-mono text-xs font-semibold text-[#C7A26A] bg-[#C7A26A]/10 border border-[#C7A26A]/30 rounded-full px-2.5 py-0.5">
                         {slot.time}
                       </span>
-                      <div className="flex items-center gap-2">
-                        {slot.badge && (
-                          <span className="rounded bg-[#C7A26A]/20 px-2 py-0.5 text-[10px] font-semibold text-[#C7A26A]">
-                            {slot.badge}
-                          </span>
-                        )}
-                        <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white/70">
-                          {slot.targetGroup}
-                        </span>
-                      </div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/70 bg-white/10 px-2 py-0.5 rounded">
+                        {slot.targetDisplay || slot.targetGroup}
+                      </span>
                     </div>
 
                     {/* Activity Title & Pillar */}
-                    <h4 className="text-xl font-bold font-serif text-white group-hover:text-[#C7A26A] transition-colors">
-                      {slot.activity}
-                    </h4>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="text-xl font-bold font-serif text-white group-hover:text-[#C7A26A] transition-colors">
+                        {slot.activity}
+                      </h4>
+                      {slot.badge && (
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C7A26A]/20 text-[#C7A26A] border border-[#C7A26A]/40 shrink-0">
+                          {slot.badge}
+                        </span>
+                      )}
+                    </div>
                     <span className="inline-block text-[11px] font-semibold uppercase tracking-widest text-[#C7A26A]/80 mt-1">
                       {slot.pillar}
                     </span>
@@ -313,468 +294,213 @@ export function StudioTimetable() {
         </div>
       )}
 
-      {/* MASTER GRID VIEW (Matching Client Graphic Sheet) */}
+      {/* MASTER GRID VIEW (Matching Client Graphic Sheet 100%) */}
       {viewMode === 'grid' && (
         <div className="rounded-2xl border border-white/15 bg-[#071018] overflow-hidden shadow-2xl">
-          <div className="p-4 border-b border-white/10 bg-[#0A1520] flex items-center justify-between">
-            <span className="text-xs uppercase tracking-widest font-semibold text-[#C7A26A]">
-              Full 7-Day Matrix View
-            </span>
+          <div className="p-4 border-b border-white/10 bg-[#0A1520] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-xs uppercase tracking-widest font-semibold text-[#C7A26A] block">
+                Master Matrix · Monday · Wednesday · Friday
+              </span>
+              <span className="text-[11px] text-white/50">
+                Suggested Hours: 6:00 AM – 10:00 PM · Move · Perform · Transform
+              </span>
+            </div>
             <span className="text-xs text-white/50">Click any class cell to enquire</span>
           </div>
 
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full border-collapse text-left text-xs min-w-[850px]">
+            <table className="w-full border-collapse text-left text-xs min-w-[700px]">
               <thead>
                 <tr className="border-b border-white/15 bg-[#0d1c2b] text-[11px] uppercase tracking-wider text-[#C7A26A]">
-                  <th className="p-3 w-32 font-semibold">Time</th>
-                  <th className="p-3 font-semibold">Mon</th>
-                  <th className="p-3 font-semibold">Tue</th>
-                  <th className="p-3 font-semibold">Wed</th>
-                  <th className="p-3 font-semibold">Thu</th>
-                  <th className="p-3 font-semibold">Fri</th>
-                  <th className="p-3 font-semibold bg-[#111f30] text-[#d4af37]">Sat</th>
-                  <th className="p-3 font-semibold bg-[#111f30] text-[#d4af37]">Sun</th>
+                  <th className="p-3.5 w-36 font-semibold font-mono">Time</th>
+                  <th className="p-3.5 font-semibold">
+                    <span className="block text-white text-xs">Monday</span>
+                    <span className="text-[10px] text-[#C7A26A]/80 font-normal tracking-normal lowercase">dance + fitness</span>
+                  </th>
+                  <th className="p-3.5 font-semibold">
+                    <span className="block text-white text-xs">Wednesday</span>
+                    <span className="text-[10px] text-[#C7A26A]/80 font-normal tracking-normal lowercase">dance + fitness</span>
+                  </th>
+                  <th className="p-3.5 font-semibold">
+                    <span className="block text-white text-xs">Friday</span>
+                    <span className="text-[10px] text-[#C7A26A]/80 font-normal tracking-normal lowercase">dance + boxing + fitness</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
-                {/* 6-7 AM */}
+                {/* Section Header: MORNING MOVEMENT */}
+                <tr className="bg-[#050B11]/80">
+                  <td colSpan={4} className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C7A26A]/90">
+                    ☀️ Morning Movement
+                  </td>
+                </tr>
+
+                {/* 6:00 – 7:00 AM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">06:00 – 07:00 AM</td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Mon')}>
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">06:00 – 07:00 AM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Yoga', '06:00 AM – 07:00 AM', 'Mon', 'Adults')}>
                     <span className="font-semibold text-white block">Yoga</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Tue')}>
-                    <span className="font-semibold text-white block">Yoga</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[1], 'Wed')}>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Fitness', '06:00 AM – 07:00 AM', 'Wed', 'Adults')}>
                     <span className="font-semibold text-[#C7A26A] block">Fitness</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Thu')}>
-                    <span className="font-semibold text-white block">Yoga</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Fri')}>
-                    <span className="font-semibold text-white block">Yoga</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Sat')}>
-                    <span className="font-semibold text-white block">Yoga</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[0], 'Sun')}>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Yoga', '06:00 AM – 07:00 AM', 'Fri', 'Adults')}>
                     <span className="font-semibold text-white block">Yoga</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
                 </tr>
 
-                {/* 7-8 AM */}
+                {/* 7:00 – 8:00 AM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">07:00 – 08:00 AM</td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Mon')}>
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">07:00 – 08:00 AM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Fitness', '07:00 AM – 08:00 AM', 'Mon', 'Adults')}>
                     <span className="font-semibold text-white block">Fitness</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Tue')}>
-                    <span className="font-semibold text-white block">Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[3], 'Wed')}>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Yoga', '07:00 AM – 08:00 AM', 'Wed', 'Adults')}>
                     <span className="font-semibold text-[#C7A26A] block">Yoga</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Thu')}>
-                    <span className="font-semibold text-white block">Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Fri')}>
-                    <span className="font-semibold text-white block">Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Sat')}>
-                    <span className="font-semibold text-white block">Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/10" onClick={() => openEnquiry(STUDIO_SCHEDULE[2], 'Sun')}>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/10 transition-colors" onClick={() => openEnquiryCell('Fitness', '07:00 AM – 08:00 AM', 'Fri', 'Adults')}>
                     <span className="font-semibold text-white block">Fitness</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
                 </tr>
 
-                {/* 8-9 AM */}
+                {/* 8:00 – 9:00 AM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">08:00 – 09:00 AM</td>
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">08:00 – 09:00 AM</td>
                   <td
-                    colSpan={5}
-                    onClick={() => openEnquiryCell('Fitness (Personal Training)', '08:00 AM – 09:00 AM', 'Mon-Fri', 'Individual')}
-                    className="p-3 text-center bg-[#C7A26A]/5 border-r border-white/10 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
+                    colSpan={3}
+                    onClick={() => openEnquiryCell('Personal Training', '08:00 AM – 09:00 AM', 'MWF', 'Individual')}
+                    className="p-3.5 text-center bg-[#C7A26A]/5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors border-l border-white/10"
                   >
                     <span className="font-semibold text-[#C7A26A] block">Personal Training (1-on-1)</span>
-                    <span className="text-[10px] text-white/50">Mon–Fri Dedicated Individual Coaching</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance (Kids)', '08:00 AM – 09:00 AM', 'Sat', 'Kids')}
-                  >
-                    <span className="font-semibold text-white block">Kids Dance</span>
-                    <span className="text-[10px] text-white/50">Kids</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance (Kids)', '08:00 AM – 09:00 AM', 'Sun', 'Kids')}
-                  >
-                    <span className="font-semibold text-white block">Kids Dance</span>
-                    <span className="text-[10px] text-white/50">Kids</span>
+                    <span className="text-[10px] text-white/50">Mon · Wed · Fri Individual Goal Coaching</span>
                   </td>
                 </tr>
 
-                {/* 9:00 AM – 4:00 PM (Off-Peak / Weekend Morning Blocks) */}
+                {/* Section Header: DAY SLOTS */}
+                <tr className="bg-[#050B11]/80">
+                  <td colSpan={4} className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C7A26A]/90">
+                    💼 Day Slots
+                  </td>
+                </tr>
+
+                {/* 9:00 AM – 4:00 PM */}
                 <tr className="bg-white/[0.01]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">09:00 AM – 04:00 PM</td>
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">09:00 AM – 04:00 PM</td>
                   <td
-                    colSpan={5}
-                    onClick={() => openEnquiryCell('School / Private / PT Slots', '09:00 AM – 04:00 PM', 'Mon-Fri', 'Institutional / Private')}
-                    className="p-3 text-center bg-white/5 border-r border-white/10 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
+                    colSpan={3}
+                    onClick={() => openEnquiryCell('School / Private / PT Slots', '09:00 AM – 04:00 PM', 'MWF', 'School / Private')}
+                    className="p-3.5 text-center bg-white/5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors border-l border-white/10"
                   >
-                    <span className="font-semibold text-white/80 block">School / Private / PT Slots</span>
-                    <span className="text-[10px] text-white/50">Private Rehearsals &amp; Institutional Tie-ups</span>
-                  </td>
-                  <td className="p-2 bg-[#111f30]/40 text-[10px] space-y-1">
-                    <div
-                      onClick={() => openEnquiryCell('Dance (Kids)', '10:00 AM – 11:00 AM', 'Sat', 'Kids')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>10-11 AM:</b> Kids Dance
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Silambam', '11:00 AM – 12:00 PM', 'Sat', 'Kids')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>11-12 PM:</b> Silambam (Kids)
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Boxing', '12:00 PM – 01:00 PM', 'Sat', 'Juniors')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>12-01 PM:</b> Boxing (Juniors)
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Studio Rental', '01:00 PM – 03:00 PM', 'Sat', 'All')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>01-03 PM:</b> Studio Rental
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Dance (Kids)', '03:00 PM – 04:00 PM', 'Sat', 'Kids')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>03-04 PM:</b> Kids Dance
-                    </div>
-                  </td>
-                  <td className="p-2 bg-[#111f30]/40 text-[10px] space-y-1">
-                    <div
-                      onClick={() => openEnquiryCell('Silambam', '10:00 AM – 11:00 AM', 'Sun', 'Kids')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>10-11 AM:</b> Silambam (Kids)
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Boxing', '11:00 AM – 12:00 PM', 'Sun', 'Juniors')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>11-12 PM:</b> Boxing (Juniors)
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Practice / Rehearsal', '12:00 PM – 02:00 PM', 'Sun', 'All')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>12-02 PM:</b> Practice / Rehearsal
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Fitness (Personal Training)', '02:00 PM – 03:00 PM', 'Sun', 'Adults')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>02-03 PM:</b> PT (Adults)
-                    </div>
-                    <div
-                      onClick={() => openEnquiryCell('Dance (Kids)', '03:00 PM – 04:00 PM', 'Sun', 'Kids')}
-                      className="p-1 rounded cursor-pointer hover:bg-[#C7A26A]/20 transition-colors"
-                    >
-                      <b>03-04 PM:</b> Kids Dance
-                    </div>
+                    <span className="font-semibold text-white/90 block">School / Private / PT Slots</span>
+                    <span className="text-[10px] text-white/50">Dedicated Private Studio Rehearsals &amp; Institutional Bookings</span>
                   </td>
                 </tr>
 
-                {/* 4-5 PM */}
-                <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">04:00 – 05:00 PM</td>
-                  <td
-                    colSpan={5}
-                    onClick={() => openEnquiryCell('Dance (Kids Daily Batch)', '04:00 PM – 05:00 PM', 'Mon-Fri', 'Kids')}
-                    className="p-3 text-center bg-[#0d1c2b]/70 border-r border-white/10 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                  >
-                    <span className="font-semibold text-white block">Kids Dance (Daily Batch)</span>
-                    <span className="text-[10px] text-white/50">Ages 4–10 · After-School Movement</span>
+                {/* Section Header: EVENING SESSIONS */}
+                <tr className="bg-[#050B11]/80">
+                  <td colSpan={4} className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#C7A26A]/90">
+                    🌙 Evening Sessions
                   </td>
+                </tr>
+
+                {/* 4:00 – 5:00 PM */}
+                <tr className="hover:bg-white/[0.02]">
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">04:00 – 05:00 PM</td>
                   <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '04:00 PM – 05:00 PM', 'Sat', 'Juniors')}
+                    colSpan={3}
+                    onClick={() => openEnquiryCell('Kids Dance', '04:00 PM – 05:00 PM', 'MWF', 'Kids')}
+                    className="p-3.5 text-center bg-[#0d1c2b]/70 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors border-l border-white/10"
                   >
+                    <span className="font-semibold text-white block">Kids Dance</span>
+                    <span className="text-[10px] text-white/50">Target: Kids (Ages 4–10 Foundation)</span>
+                  </td>
+                </tr>
+
+                {/* 5:00 – 6:00 PM */}
+                <tr className="hover:bg-white/[0.02]">
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">05:00 – 06:00 PM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Mon', 'Kids / Juniors')}>
+                    <span className="font-semibold text-white block">Dance</span>
+                    <span className="text-[10px] text-white/50">Kids / Juniors</span>
+                  </td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Wed', 'Juniors')}>
                     <span className="font-semibold text-white block">Dance</span>
                     <span className="text-[10px] text-white/50">Juniors</span>
                   </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '04:00 PM – 05:00 PM', 'Sun', 'Juniors')}
-                  >
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Fri', 'Juniors')}>
                     <span className="font-semibold text-white block">Dance</span>
                     <span className="text-[10px] text-white/50">Juniors</span>
                   </td>
                 </tr>
 
-                {/* 5-6 PM */}
+                {/* 6:00 – 7:00 PM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">05:00 – 06:00 PM</td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Mon', 'Kids & Juniors')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Kids &amp; Juniors</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Silambam', '05:00 PM – 06:00 PM', 'Tue', 'Kids & Juniors')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Silambam</span>
-                    <span className="text-[10px] text-white/50">Kids &amp; Juniors</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Wed', 'Kids & Juniors')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Kids &amp; Juniors</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Silambam', '05:00 PM – 06:00 PM', 'Thu', 'Kids & Juniors')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Silambam</span>
-                    <span className="text-[10px] text-white/50">Kids &amp; Juniors</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Fri', 'Kids & Juniors')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Kids &amp; Juniors</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Sat', 'Teens')}
-                  >
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">06:00 – 07:00 PM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '06:00 PM – 07:00 PM', 'Mon', 'Teens')}>
                     <span className="font-semibold text-white block">Dance</span>
                     <span className="text-[10px] text-white/50">Teens</span>
                   </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '05:00 PM – 06:00 PM', 'Sun', 'Teens')}
-                  >
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '06:00 PM – 07:00 PM', 'Wed', 'Teens')}>
                     <span className="font-semibold text-white block">Dance</span>
                     <span className="text-[10px] text-white/50">Teens</span>
                   </td>
-                </tr>
-
-                {/* 6-7 PM */}
-                <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">06:00 – 07:00 PM</td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '06:00 PM – 07:00 PM', 'Mon', 'Teens')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Teens</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Boxing', '06:00 PM – 07:00 PM', 'Tue', 'Teens')}
-                  >
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors bg-[#C7A26A]/10 border border-[#C7A26A]/30" onClick={() => openEnquiryCell('Boxing', '06:00 PM – 07:00 PM', 'Fri', 'Teens')}>
                     <span className="font-semibold text-[#C7A26A] block">Boxing</span>
-                    <span className="text-[10px] text-white/50">Teens</span>
+                    <span className="text-[10px] text-white/70">Teens</span>
                   </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '06:00 PM – 07:00 PM', 'Wed', 'Teens')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Teens</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Boxing', '06:00 PM – 07:00 PM', 'Thu', 'Teens')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Boxing</span>
-                    <span className="text-[10px] text-white/50">Teens</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance', '06:00 PM – 07:00 PM', 'Fri', 'Teens')}
-                  >
-                    <span className="font-semibold text-white block">Dance</span>
-                    <span className="text-[10px] text-white/50">Teens</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness (Salsa)', '06:00 PM – 07:00 PM', 'Sat', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Salsa</span>
+                </tr>
+
+                {/* 7:00 – 8:00 PM */}
+                <tr className="hover:bg-white/[0.02]">
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">07:00 – 08:00 PM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Mon', 'Adults')}>
+                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness (Salsa)', '06:00 PM – 07:00 PM', 'Sun', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Salsa</span>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Wed', 'Adults')}>
+                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
+                    <span className="text-[10px] text-white/50">Adults</span>
+                  </td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance', '07:00 PM – 08:00 PM', 'Fri', 'Adults')}>
+                    <span className="font-semibold text-white block">Dance</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
                 </tr>
 
-                {/* 7-8 PM */}
+                {/* 8:00 – 9:00 PM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">07:00 – 08:00 PM</td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Mon', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness (Salsa)', '07:00 PM – 08:00 PM', 'Tue', 'Adults')}
-                  >
-                    <span className="font-semibold text-white block">Salsa</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Wed', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness (Salsa)', '07:00 PM – 08:00 PM', 'Thu', 'Adults')}
-                  >
-                    <span className="font-semibold text-white block">Salsa</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Fri', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Sat', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '07:00 PM – 08:00 PM', 'Sun', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                </tr>
-
-                {/* 8-9 PM */}
-                <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">08:00 – 09:00 PM</td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Boxing', '08:00 PM – 09:00 PM', 'Mon', 'Teens / Adults')}
-                  >
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">08:00 – 09:00 PM</td>
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Boxing', '08:00 PM – 09:00 PM', 'Mon', 'Teens / Adults')}>
                     <span className="font-semibold text-white block">Boxing</span>
                     <span className="text-[10px] text-white/50">Teens / Adults</span>
                   </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '08:00 PM – 09:00 PM', 'Tue', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Boxing', '08:00 PM – 09:00 PM', 'Wed', 'Adults')}
-                  >
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Boxing', '08:00 PM – 09:00 PM', 'Wed', 'Adults')}>
                     <span className="font-semibold text-white block">Boxing</span>
                     <span className="text-[10px] text-white/50">Adults</span>
                   </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '08:00 PM – 09:00 PM', 'Thu', 'Adults')}
-                  >
+                  <td className="p-3.5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors" onClick={() => openEnquiryCell('Dance Fitness', '08:00 PM – 09:00 PM', 'Fri', 'Adults')}>
                     <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
                     <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Dance Fitness', '08:00 PM – 09:00 PM', 'Fri', 'Adults')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">Dance Fitness</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Boxing', '08:00 PM – 09:00 PM', 'Sat', 'Adults')}
-                  >
-                    <span className="font-semibold text-white block">Boxing</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#C7A26A]/20 border border-[#C7A26A]/40 cursor-pointer hover:bg-[#C7A26A]/30 transition-colors"
-                    onClick={() => openEnquiryCell('Special Workshop', '08:00 PM – 09:00 PM', 'Sun', 'All')}
-                  >
-                    <span className="font-semibold text-[#C7A26A] block">★ Workshop</span>
-                    <span className="text-[10px] text-white/70">Special (All)</span>
                   </td>
                 </tr>
 
-                {/* 9-10 PM */}
+                {/* 9:00 – 10:00 PM */}
                 <tr className="hover:bg-white/[0.02]">
-                  <td className="p-3 font-mono font-medium text-white/70 whitespace-nowrap">09:00 – 10:00 PM</td>
+                  <td className="p-3.5 font-mono font-medium text-white/70 whitespace-nowrap">09:00 – 10:00 PM</td>
                   <td
-                    colSpan={5}
-                    onClick={() => openEnquiryCell('Fitness (Personal Training)', '09:00 PM – 10:00 PM', 'Mon-Fri', 'Adults')}
-                    className="p-3 text-center bg-white/5 border-r border-white/10 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
+                    colSpan={3}
+                    onClick={() => openEnquiryCell('Personal Training', '09:00 PM – 10:00 PM', 'MWF', 'Adults')}
+                    className="p-3.5 text-center bg-white/5 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors border-l border-white/10"
                   >
                     <span className="font-semibold text-white/80 block">Personal Training (Adults)</span>
-                    <span className="text-[10px] text-white/50">1-on-1 Night Conditioning &amp; Recovery</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Open Practice / PT', '09:00 PM – 10:00 PM', 'Sat', 'Adults')}
-                  >
-                    <span className="font-semibold text-white block">Open Practice</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
-                  </td>
-                  <td
-                    className="p-3 bg-[#111f30]/40 cursor-pointer hover:bg-[#C7A26A]/15 transition-colors"
-                    onClick={() => openEnquiryCell('Open Practice / PT', '09:00 PM – 10:00 PM', 'Sun', 'Adults')}
-                  >
-                    <span className="font-semibold text-white block">Open Practice</span>
-                    <span className="text-[10px] text-white/50">Adults</span>
+                    <span className="text-[10px] text-white/50">Mon · Wed · Fri 1-on-1 Night Conditioning &amp; Recovery</span>
                   </td>
                 </tr>
               </tbody>

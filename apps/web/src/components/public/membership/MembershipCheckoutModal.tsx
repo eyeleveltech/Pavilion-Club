@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { requestLoginCode, verifyLoginCode, TurfApiError } from '@/lib/turfos-client';
 import { openCheckout, getRazorpayKeyId } from '@/lib/razorpay';
+import { addPickleballEnquiry } from '@/lib/enquiry-store';
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { GoldButton } from '@/components/public/site/GoldButton';
 
@@ -441,23 +442,40 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     const now = new Date();
     const validUntilDate = new Date();
     validUntilDate.setDate(now.getDate() + 30);
+    const ref = generateMemberReference();
+    const cleanPhone = phone.replace(/\D/g, '');
+    const cleanEmail = email.trim().toLowerCase();
+    const finalPaymentId = paymentId || `pay_${Date.now().toString(36)}`;
 
     const pass: MemberPass = {
-      reference: generateMemberReference(),
+      reference: ref,
       name: name.trim(),
-      phone: phone.replace(/\D/g, ''),
-      email: email.trim().toLowerCase(),
+      phone: cleanPhone,
+      email: cleanEmail,
       validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       validUntil: validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       totalSessions: 20,
       amountPaise: MEMBERSHIP_PRICE_PAISE,
-      paymentId: paymentId || 'PAID_ONLINE',
+      paymentId: finalPaymentId,
     };
 
     setMemberPass(pass);
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(pass));
     }
+
+    // Auto-save to Front Desk Enquiries Console
+    addPickleballEnquiry({
+      reference: ref,
+      name: name.trim(),
+      phone: cleanPhone,
+      email: cleanEmail,
+      plan: 'Inaugural Shared-Play Membership (20 Sessions)',
+      sessions: 20,
+      amountPaise: MEMBERSHIP_PRICE_PAISE,
+      paymentId: finalPaymentId,
+    });
+
     setStep('success');
   };
 
@@ -466,16 +484,26 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     setIsPaying(true);
     setPaymentNotice(null);
 
-    const normPhone = phone.replace(/\D/g, '');
+    const rawDigits = phone.replace(/\D/g, '');
+    const normPhone = rawDigits.length === 12 && rawDigits.startsWith('91') ? rawDigits.slice(2) : rawDigits.slice(-10);
     const cleanEmail = email.trim().toLowerCase();
 
     try {
       const keyId = getRazorpayKeyId();
 
       if (!keyId || keyId === 'rzp_live_placeholder') {
+        // Local dev / rehearsal simulation fallback
+        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          setTimeout(() => {
+            setIsPaying(false);
+            activateMembership('TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase());
+          }, 600);
+          return;
+        }
+
         setPaymentNotice({
           tone: 'error',
-          text: 'Razorpay Key ID is not configured. Please add razorpayKeyId in /club-config.js on Hostinger or in .env.local.',
+          text: 'Razorpay Key ID is not configured. Please add razorpayKeyId in /club-config.js on Hostinger or NEXT_PUBLIC_RAZORPAY_KEY_ID in .env.local.',
         });
         setIsPaying(false);
         return;
@@ -483,7 +511,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
       await openCheckout({
         keyId,
-        orderId: '',
         amountPaise: MEMBERSHIP_PRICE_PAISE,
         currency: 'INR',
         venueName: 'The Pavilion Club',
@@ -493,9 +520,9 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           email: cleanEmail,
           contact: normPhone,
         },
-        onSuccess: () => {
+        onSuccess: (paymentId) => {
           setIsPaying(false);
-          activateMembership('rzp_pay_' + Date.now());
+          activateMembership(paymentId || ('pay_' + Date.now().toString(36)));
         },
         onDismiss: () => {
           setIsPaying(false);
@@ -512,10 +539,17 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           });
         },
       });
-    } catch {
-      // Rehearsal fallback for local development without live merchant key
-      activateMembership('DEMO_CONFIRMED_' + Date.now().toString().slice(-6));
+    } catch (err: unknown) {
       setIsPaying(false);
+      // Fallback only for local development on localhost
+      if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        activateMembership('TEST_CONFIRMED_' + Date.now().toString().slice(-6));
+        return;
+      }
+      setPaymentNotice({
+        tone: 'error',
+        text: err instanceof Error ? err.message : 'Could not launch payment gateway. If using an ad-blocker, please disable it for Razorpay and retry.',
+      });
     }
   };
 

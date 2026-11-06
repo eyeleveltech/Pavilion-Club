@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  ClipboardList,
   PlusCircle,
   CalendarDays,
   Users,
@@ -12,6 +13,7 @@ import {
 
 const MOBILE_TABS = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { label: 'Enquiries', href: '/admin/enquiries', icon: ClipboardList },
   { label: 'Book', href: '/admin/book', icon: PlusCircle },
   { label: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
   { label: 'Players', href: '/admin/customers', icon: Users },

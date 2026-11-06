@@ -361,6 +361,8 @@ function runMotion(root: HTMLElement): () => void {
     /* ---------- magnetic buttons ---------- */
     if (fine) {
       $$('.editorial-btn').forEach((btn) => {
+        if ((btn as any).__hasMagnetic) return;
+        (btn as any).__hasMagnetic = true;
         const bx = gsap.quickTo(btn, 'x', { duration: 0.6, ease: 'power3' });
         const by = gsap.quickTo(btn, 'y', { duration: 0.6, ease: 'power3' });
         on(btn, 'mousemove', (e) => {
