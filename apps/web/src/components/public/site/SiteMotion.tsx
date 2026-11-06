@@ -421,9 +421,8 @@ function mountCursor(gsap: any, on: Listen): () => void {
     if (ring.textContent !== label) ring.textContent = label;
     ring.classList.toggle('is-label', Boolean(label));
     ring.classList.toggle('is-link', !label && Boolean(el?.closest('a, button, summary, label')));
-    const inModal = Boolean(el?.closest('[role="dialog"], .studio-modal-scroll'));
     const isFormInput = Boolean(el?.closest('input, textarea, select'));
-    const show = !inModal && !isFormInput;
+    const show = !isFormInput;
     if (show !== shown) {
       shown = show;
       gsap.to([dot, ring], { opacity: show ? 1 : 0, duration: 0.25, overwrite: 'auto' });

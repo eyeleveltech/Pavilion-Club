@@ -9,6 +9,8 @@ export interface PickleballEnquiry {
   email: string;
   plan: string;
   sessions: number;
+  sessionsUsed: number;
+  lastCheckIn?: string;
   amountPaise: number;
   amountDisplay: string;
   paymentId: string;
@@ -50,6 +52,8 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     email: 'karthik.narayanan@gmail.com',
     plan: 'Inaugural Shared-Play Membership',
     sessions: 20,
+    sessionsUsed: 2,
+    lastCheckIn: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     amountPaise: 236000,
     amountDisplay: '₹2,360.00',
     paymentId: 'pay_P192837461',
@@ -66,6 +70,8 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     email: 'ananya.sundaram@outlook.com',
     plan: 'Inaugural Shared-Play Membership',
     sessions: 20,
+    sessionsUsed: 5,
+    lastCheckIn: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
     amountPaise: 236000,
     amountDisplay: '₹2,360.00',
     paymentId: 'pay_P284759302',
@@ -82,6 +88,7 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     email: 'vikram.c@gmail.com',
     plan: 'Inaugural Shared-Play Membership',
     sessions: 20,
+    sessionsUsed: 0,
     amountPaise: 236000,
     amountDisplay: '₹2,360.00',
     paymentId: 'pay_P394857201',
@@ -206,6 +213,7 @@ export function addPickleballEnquiry(data: {
     email: data.email,
     plan: data.plan || 'Inaugural Shared-Play Membership',
     sessions: data.sessions || 20,
+    sessionsUsed: 0,
     amountPaise: data.amountPaise || 236000,
     amountDisplay: '₹2,360.00',
     paymentId: data.paymentId || `pay_${Date.now().toString(36)}`,
@@ -220,6 +228,47 @@ export function addPickleballEnquiry(data: {
     notifyEnquiryUpdate();
   }
   return newEntry;
+}
+
+export function checkInMember(id: string): { success: boolean; message: string; used?: number; remaining?: number } {
+  const current = getPickleballEnquiries();
+  const member = current.find((m) => m.id === id);
+  if (!member) return { success: false, message: 'Member not found.' };
+
+  const used = member.sessionsUsed || 0;
+  if (used >= member.sessions) {
+    return { success: false, message: 'Quota exhausted: all 20 sessions have been completed this month.' };
+  }
+
+  const now = new Date();
+  const todayYMD = now.toISOString().slice(0, 10);
+  if (member.lastCheckIn && member.lastCheckIn.slice(0, 10) === todayYMD) {
+    return { success: false, message: 'Member has already checked in for today (Max 1 session/day).' };
+  }
+
+  const newUsed = used + 1;
+  const remaining = member.sessions - newUsed;
+  const updated = current.map((m) => {
+    if (m.id === id) {
+      return {
+        ...m,
+        sessionsUsed: newUsed,
+        lastCheckIn: now.toISOString(),
+      };
+    }
+    return m;
+  });
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY_PICKLEBALL, JSON.stringify(updated));
+    notifyEnquiryUpdate();
+  }
+  return {
+    success: true,
+    message: `Checked-in ${member.name}! Session ${newUsed}/20 recorded (${remaining} sessions remaining).`,
+    used: newUsed,
+    remaining,
+  };
 }
 
 // -------------------------------------------------------------------

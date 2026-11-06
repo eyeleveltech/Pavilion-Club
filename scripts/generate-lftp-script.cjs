@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 
 const server = process.env.FTP_SERVER;
 const user = process.env.FTP_USERNAME;
@@ -27,13 +27,13 @@ const lines = [
   'ls -la index.html',
   'set cmd:fail-exit true',
   'echo "=== Mirroring Production Build to thepavilionclub.com ==="',
-  'mirror --reverse --delete --verbose=1 --parallel=4 ./apps/web/out/ .',
+  'mirror --reverse --delete --exclude-glob club-config.js --exclude-glob club-config.example.js --verbose=1 --parallel=4 ./apps/web/out/ .',
   'echo "=== Verifying thepavilionclub.com Uploaded Files ==="',
   'ls -la index.html',
   'set cmd:fail-exit false',
   'echo "=== Also Mirroring to Root public_html for Consistency ==="',
   'cd /public_html',
-  'mirror --reverse --delete --verbose=1 --parallel=4 ./apps/web/out/ .',
+  'mirror --reverse --delete --exclude-glob club-config.js --exclude-glob club-config.example.js --verbose=1 --parallel=4 ./apps/web/out/ .',
   'echo "=== All Targets Successfully Deployed! ==="',
   'bye'
 ];

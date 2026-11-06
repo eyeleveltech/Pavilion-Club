@@ -2011,7 +2011,7 @@ html.lenis body {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 1000;
+  z-index: 999999 !important;
   border-radius: 50%;
   pointer-events: none;
   opacity: 0;
@@ -2051,33 +2051,17 @@ body.has-cursor .site-root,
 body.has-cursor .site-root a,
 body.has-cursor .site-root button,
 body.has-cursor .site-root summary,
-body.has-cursor .site-root label {
-  cursor: none;
+body.has-cursor .site-root label,
+body.has-cursor [role="dialog"],
+body.has-cursor [role="dialog"] a,
+body.has-cursor [role="dialog"] button,
+body.has-cursor [role="dialog"] summary,
+body.has-cursor [role="dialog"] label,
+body.has-cursor [role="dialog"] [role="button"] {
+  cursor: none !important;
 }
-body.has-cursor .site-root :is(input, textarea, select) {
-  cursor: auto;
-}
-
-/* Hide custom cursor completely inside modal dialogs and restore standard native cursors */
-body:has([role="dialog"]) .site-cursor,
-body:has([role="dialog"]) .site-cursor-ring,
-[role="dialog"] ~ .site-cursor,
-[role="dialog"] ~ .site-cursor-ring {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-body:has([role="dialog"]),
-body:has([role="dialog"]) * {
-  cursor: auto !important;
-}
-body:has([role="dialog"]) a,
-body:has([role="dialog"]) button,
-body:has([role="dialog"]) [role="button"] {
-  cursor: pointer !important;
-}
-body:has([role="dialog"]) input,
-body:has([role="dialog"]) textarea {
+body.has-cursor .site-root :is(input, textarea, select),
+body.has-cursor [role="dialog"] :is(input, textarea, select) {
   cursor: text !important;
 }
 

@@ -29,36 +29,36 @@ export const metadata: Metadata = {
 const JOIN_URL = whatsappUrl("Hi Pavilion Club! I'd like to join the Pavilion Courts shared-play membership.");
 
 const COURTS_FACTS = [
-  { label: 'Access', value: 'Monday – Friday, 6:00 AM – 3:00 PM.' },
+  { label: 'Access', value: 'Monday – Friday, 6:00 AM – 3:00 PM (excluding public holidays).' },
   { label: 'Included play', value: 'Up to 20 one-hour sessions per membership month; at most one session a day.' },
   { label: 'Format', value: 'An individual membership for shared play, not a private or exclusive court booking.' },
   { label: 'Capacity', value: 'Up to six players assigned to a court per session; rotations may be used.' },
-  { label: 'Booking', value: 'Reserve each session in advance, subject to availability.' },
+  { label: 'Access mode', value: 'Direct walk-in access — present your digital pass at the front desk between 6:00 AM – 3:00 PM (Mon – Fri). No advance slot booking required.' },
 ] as const;
 
 const STATS = [
   { n: 20, label: 'One-hour sessions a membership month' },
   { n: 9, unit: 'hrs', label: 'Weekday window, 6 AM to 3 PM' },
   { n: 6, label: 'Players at most on a court' },
-  { n: 12, unit: 'hrs', label: 'Notice to cancel a session' },
+  { n: 1, unit: 'hr', label: 'Daily active play allowance' },
 ] as const;
 
 const STEPS = [
   {
-    title: 'Join',
-    text: 'Enquire on WhatsApp or at the front desk. Payment is due in full before your membership is activated.',
+    title: 'Join & activate',
+    text: 'Activate your shared-play membership online via Razorpay or at the front desk. Your digital metal pass is issued instantly.',
   },
   {
-    title: 'Book',
-    text: 'Reserve each session in advance through the front desk. Your booking must be confirmed before you arrive.',
+    title: 'Walk in anytime',
+    text: 'Arrive anytime between 6:00 AM – 3:00 PM (Monday to Friday). Simply present your digital pass at the front desk for instant entry.',
   },
   {
-    title: 'Arrive on time',
-    text: 'Sessions start and finish inside the 6:00 AM – 3:00 PM window. Arriving late does not extend your session.',
+    title: 'Play 1 hour daily',
+    text: 'Join the shared-play court rotation with up to six players per court. Sessions run for 60 minutes of active pickleball.',
   },
   {
-    title: 'Cancel early',
-    text: 'Cancel at least 12 hours before. Later cancellations and no-shows usually count as a used session.',
+    title: 'Fair play quota',
+    text: 'Enjoy up to 20 weekday sessions per month. No advance slot booking needed—quota is deducted when you check in at the desk.',
   },
 ] as const;
 
@@ -239,14 +239,14 @@ export default function MembershipPage() {
                 Shared-play membership sessions
               </h3>
               <ul className="site-ticks mt-6 text-[0.95rem] text-[var(--soft)]" data-stagger>
-                <li>Book in advance through the club&apos;s booking system or the front desk; confirmation is required before you arrive.</li>
-                <li>One session per day and no more than 20 sessions per membership month.</li>
-                <li>Sessions are valid Monday – Friday, 6:00 AM – 3:00 PM, and must start and finish within this window.</li>
-                <li>Sessions are personal and non-transferable. Unused sessions do not roll over.</li>
-                <li>Cancel at least 12 hours before the scheduled session.</li>
-                <li>Cancellations made less than 12 hours before the session, and no-shows, ordinarily count as a used session.</li>
-                <li>Late arrival does not extend the session. If the club cancels a confirmed session, your session balance is restored or an equivalent rescheduling option is offered.</li>
-                <li>Bookings are subject to availability, skill-group schedules, maintenance, private events, tournaments and club closures.</li>
+                <li>Direct walk-in access — no advance slot reservation required. Present your digital pass at the front desk for instant entry.</li>
+                <li>One session per day (up to 60 minutes) and up to 20 sessions per membership month.</li>
+                <li>Sessions are valid Monday – Friday, 6:00 AM – 3:00 PM (excluding public holidays and tournaments).</li>
+                <li>Sessions are personal, tied to your digital pass, and non-transferable. Unused sessions do not roll over.</li>
+                <li>Front desk check-in: your daily session quota is logged and deducted only upon arrival at the desk.</li>
+                <li>Shared play format with court rotation up to six players per court to ensure everyone active game time.</li>
+                <li>Sessions start and finish inside the 6:00 AM – 3:00 PM window.</li>
+                <li>Court access is subject to court availability, regular maintenance, clinics and club closures.</li>
               </ul>
             </div>
             <div>

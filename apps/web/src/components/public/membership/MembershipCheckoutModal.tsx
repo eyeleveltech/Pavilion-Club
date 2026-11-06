@@ -503,7 +503,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
         setPaymentNotice({
           tone: 'error',
-          text: 'Razorpay Key ID is not configured. Please add razorpayKeyId in /club-config.js on Hostinger or NEXT_PUBLIC_RAZORPAY_KEY_ID in .env.local.',
+          text: 'Razorpay Key ID is not configured yet. Please add your razorpayKeyId in /club-config.js on Hostinger to take live payments, or click below to preview the 3D metal pass in simulation mode.',
         });
         setIsPaying(false);
         return;
@@ -895,14 +895,14 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
                   <div className="flex items-start gap-2.5 py-2 px-3">
                     <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
-                      🔄
+                      🎾
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-xs text-white">12-Hour Cancellation Notice</span>
-                        <span className="text-[10px] text-white/60 font-mono">Non-transferable</span>
+                        <span className="font-semibold text-xs text-white">Direct Walk-In Access</span>
+                        <span className="text-[10px] text-[#c7a26a] font-mono font-bold">No Slot Booking</span>
                       </div>
-                      <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Cancel at least 12h ahead to preserve your quota balance.</p>
+                      <p className="text-[10px] text-white/50 mt-0.5 leading-tight">No advance booking needed. Present digital pass at front desk for instant entry.</p>
                     </div>
                   </div>
                 </div>
@@ -1074,7 +1074,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                 </div>
 
                 {paymentNotice && (
-                  <p
+                  <div
                     role="alert"
                     className={`mt-3.5 text-xs rounded-lg p-2.5 text-center animate-step-in ${
                       paymentNotice.tone === 'error'
@@ -1082,8 +1082,23 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                         : 'text-amber-200 bg-amber-950/40 border border-amber-800/60'
                     }`}
                   >
-                    {paymentNotice.text}
-                  </p>
+                    <p>{paymentNotice.text}</p>
+                    {(!getRazorpayKeyId() || getRazorpayKeyId() === 'rzp_live_placeholder') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPaying(true);
+                          setTimeout(() => {
+                            setIsPaying(false);
+                            activateMembership('TEST_PASS_' + Math.random().toString(36).substring(2, 9).toUpperCase());
+                          }, 500);
+                        }}
+                        className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#c7a26a]/20 hover:bg-[#c7a26a]/30 border border-[#c7a26a]/50 text-[#c7a26a] text-[11px] font-semibold transition-all active:scale-[0.98]"
+                      >
+                        ⚡ Preview 3D Digital Metal Pass (Simulation Mode) →
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <div className="mt-4 space-y-2">
@@ -1115,6 +1130,16 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
                 {/* 3D Titanium Metal Pass Card */}
                 <LuxuryMetalPassCard memberPass={memberPass} />
+
+                {/* Direct Walk-in Guidance Banner */}
+                <div className="mt-4 p-3 rounded-xl border border-[#c7a26a]/30 bg-[#c7a26a]/10 text-center">
+                  <p className="text-[11px] font-semibold text-[#c7a26a] tracking-wide uppercase">
+                    🎾 Direct Walk-In Court Access
+                  </p>
+                  <p className="text-xs text-white/90 mt-1 leading-relaxed">
+                    No advance slot booking required. Simply present this digital pass on your phone at the front desk between <b>6:00 AM – 3:00 PM (Mon – Fri)</b> to play your daily 1-hour session.
+                  </p>
+                </div>
 
                 {/* Quick Actions Suite (Matching Reference Image Layout) */}
                 <div className="mt-5 flex justify-center items-center gap-6 sm:gap-8">

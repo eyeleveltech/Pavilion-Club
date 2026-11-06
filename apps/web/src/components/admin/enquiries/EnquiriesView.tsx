@@ -20,6 +20,7 @@ import {
   getPickleballEnquiries,
   getStudioEnquiries,
   updateStudioEnquiryStatus,
+  checkInMember,
   deleteEnquiry,
   ENQUIRY_UPDATE_EVENT,
   type PickleballEnquiry,
@@ -34,12 +35,25 @@ export function EnquiriesView() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [lastRefreshed, setLastRefreshed] = useState<string>('Just now');
+  const [checkInNotice, setCheckInNotice] = useState<{ tone: 'success' | 'warn'; text: string } | null>(null);
 
   // Load enquiries from storage and bind live sync listeners
   const refreshData = () => {
     setPickleballList(getPickleballEnquiries());
     setStudioList(getStudioEnquiries());
     setLastRefreshed(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  };
+
+  const handleCheckIn = (id: string) => {
+    const res = checkInMember(id);
+    setCheckInNotice({
+      tone: res.success ? 'success' : 'warn',
+      text: res.message,
+    });
+    refreshData();
+    setTimeout(() => {
+      setCheckInNotice(null);
+    }, 4000);
   };
 
   useEffect(() => {
@@ -212,6 +226,27 @@ export function EnquiriesView() {
         </button>
       </div>
 
+      {/* Check-In Notice Banner */}
+      {checkInNotice && (
+        <div
+          role="alert"
+          className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between transition-all ${
+            checkInNotice.tone === 'success'
+              ? 'border-emerald-500/40 bg-emerald-950/50 text-emerald-300'
+              : 'border-amber-500/40 bg-amber-950/50 text-amber-200'
+          }`}
+        >
+          <span>{checkInNotice.text}</span>
+          <button
+            type="button"
+            onClick={() => setCheckInNotice(null)}
+            className="text-white/60 hover:text-white ml-2 text-sm"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0c1622] p-3 rounded-xl border border-white/10">
         <div className="relative w-full sm:w-80">
@@ -302,9 +337,23 @@ export function EnquiriesView() {
                       </td>
                       <td className="p-3.5">
                         <div className="font-medium text-white/90">{item.plan}</div>
-                        <span className="inline-block mt-0.5 text-[10px] font-mono text-[#c7a26a] bg-[#c7a26a]/10 px-2 py-0.5 rounded border border-[#c7a26a]/30">
-                          {item.sessions} Weekday Sessions
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] font-mono text-[#c7a26a] bg-[#c7a26a]/10 px-2 py-0.5 rounded border border-[#c7a26a]/30">
+                            {item.sessionsUsed || 0} / {item.sessions} Used
+                          </span>
+                          <span className="text-[10px] text-emerald-400 font-semibold font-mono">
+                            {item.sessions - (item.sessionsUsed || 0)} left
+                          </span>
+                        </div>
+                        {/* Mini attendance progress */}
+                        <div className="w-24 h-1.5 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-[#c7a26a] to-emerald-400 transition-all duration-300"
+                            style={{
+                              width: `${Math.min(100, (((item.sessionsUsed || 0) / item.sessions) * 100))}%`,
+                            }}
+                          />
+                        </div>
                       </td>
                       <td className="p-3.5">
                         <div className="font-mono font-bold text-white">
@@ -324,7 +373,39 @@ export function EnquiriesView() {
                         {item.createdDisplay}
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-2">
+                          {/* 1-Click Member Check-In */}
+                          {(() => {
+                            const todayYMD = new Date().toISOString().slice(0, 10);
+                            const checkedInToday = item.lastCheckIn && item.lastCheckIn.slice(0, 10) === todayYMD;
+                            const isExhausted = (item.sessionsUsed || 0) >= item.sessions;
+
+                            if (checkedInToday) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 rounded-lg">
+                                  ✓ In Today
+                                </span>
+                              );
+                            }
+                            if (isExhausted) {
+                              return (
+                                <span className="inline-flex items-center px-2 py-1 text-[10px] font-semibold text-white/40 bg-white/5 border border-white/10 rounded-lg">
+                                  20/20 Done
+                                </span>
+                              );
+                            }
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => handleCheckIn(item.id)}
+                                className="px-2.5 py-1 text-[11px] font-bold text-black bg-[#c7a26a] hover:bg-[#d9b882] rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
+                                title="Check-in member for today's 1-hour session"
+                              >
+                                🎾 Check-In (1 Hr)
+                              </button>
+                            );
+                          })()}
+
                           {/* 1-Click WhatsApp Button */}
                           <a
                             href={`https://wa.me/91${item.phone}?text=${encodeURIComponent(
