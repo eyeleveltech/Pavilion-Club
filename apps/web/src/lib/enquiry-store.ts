@@ -1,5 +1,7 @@
 'use client';
 
+import { submitEnquiry } from './turfos-client';
+
 export interface PickleballEnquiry {
   id: string;
   type: 'pickleball';
@@ -227,6 +229,17 @@ export function addPickleballEnquiry(data: {
     localStorage.setItem(STORAGE_KEY_PICKLEBALL, JSON.stringify(updated));
     notifyEnquiryUpdate();
   }
+
+  // Forward to Turf-OS Central Platform
+  submitEnquiry({
+    type: 'pickleball',
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    category: data.plan || 'Pickleball Shared-Play',
+    notes: `Enquiry ref ${data.reference} (${data.sessions || 20} sessions). Status: Paid & Active`,
+  }).catch(() => null);
+
   return newEntry;
 }
 
@@ -325,6 +338,23 @@ export function addStudioEnquiry(data: {
     localStorage.setItem(STORAGE_KEY_STUDIO, JSON.stringify(updated));
     notifyEnquiryUpdate();
   }
+
+  // Forward to Turf-OS Central Platform
+  submitEnquiry({
+    type: 'studio',
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    category: data.category,
+    notes: `Studio Enquiry: ${data.cohort} · ${data.day} ${data.timeSlot} · Level: ${data.level || 'Beginner'}. Notes: ${data.notes || 'None'}`,
+    details: {
+      cohort: data.cohort,
+      day: data.day,
+      timeSlot: data.timeSlot,
+      level: data.level,
+    },
+  }).catch(() => null);
+
   return newEntry;
 }
 

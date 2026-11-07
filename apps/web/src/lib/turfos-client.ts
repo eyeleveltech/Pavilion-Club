@@ -15,10 +15,12 @@ function sanitizeVenueName(name?: string | null): string {
 // A booking only becomes "confirmed" when Razorpay's webhook reaches TurfOS.
 // The browser's payment callback is a cue to start polling, never proof.
 
-const base = (process.env.NEXT_PUBLIC_TURFOS_API_URL ?? 'http://localhost:3000').replace(
-  /\/+$/,
-  '',
-);
+const base = (
+  process.env.NEXT_PUBLIC_TURFOS_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    ? 'https://clubops.theeyelevelstudio.com'
+    : 'http://localhost:3000')
+).replace(/\/+$/, '');
 
 export class TurfApiError extends Error {
   constructor(
@@ -344,6 +346,123 @@ export async function redeemPackBooking(
   return call<RedeemPackResult>(`/bookings/${encodeURIComponent(bookingId)}/redeem-pack`, {
     method: 'POST',
     body: JSON.stringify({ pack_id: packId }),
+  });
+}
+
+export interface PackProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  credits: number;
+  pricePaise: number;
+  validityDays: number | null;
+  sportType: string | null;
+}
+
+export async function fetchPackProducts(): Promise<{ packs: PackProduct[] }> {
+  return call<{ packs: PackProduct[] }>('/packs');
+}
+
+export interface PackPurchaseOrder {
+  simulate: boolean;
+  orderId?: string | undefined;
+  keyId?: string | undefined;
+  amountPaise: number;
+  currency?: string | undefined;
+  venueName?: string | undefined;
+  pack: { id: string; name: string; credits: number };
+  prefill: { name: string; email: string; contact: string };
+}
+
+export async function purchasePack(input: {
+  productId?: string | undefined;
+  name: string;
+  phone: string;
+  email: string;
+}): Promise<PackPurchaseOrder> {
+  const wire = await call<{
+    simulate?: boolean;
+    order_id?: string;
+    key_id?: string;
+    amount_paise: number;
+    currency?: string;
+    venue_name?: string;
+    pack: { id: string; name: string; credits: number };
+    prefill: { name: string; email: string; contact: string };
+  }>('/packs/purchase', {
+    method: 'POST',
+    body: JSON.stringify({
+      productId: input.productId,
+      name: input.name,
+      phone: input.phone,
+      email: input.email,
+    }),
+  });
+
+  return {
+    simulate: Boolean(wire.simulate),
+    orderId: wire.order_id,
+    keyId: wire.key_id,
+    amountPaise: wire.amount_paise,
+    currency: wire.currency ?? 'INR',
+    venueName: sanitizeVenueName(wire.venue_name),
+    pack: wire.pack,
+    prefill: wire.prefill,
+  };
+}
+
+export interface PackConfirmResult {
+  ok: boolean;
+  reference: string;
+  pack: {
+    id: string;
+    name: string;
+    creditsTotal: number;
+    creditsRemaining: number;
+    validityDays: number | null;
+    expiresAt: string | null;
+    sportType: string | null;
+  };
+  customer: {
+    name: string | null;
+    phone: string;
+    email: string | null;
+  };
+  message: string;
+}
+
+export async function confirmPackPayment(input: {
+  productId?: string | undefined;
+  phone: string;
+  name?: string | undefined;
+  email?: string | undefined;
+  paymentId?: string | undefined;
+  orderId?: string | undefined;
+}): Promise<PackConfirmResult> {
+  return call<PackConfirmResult>('/packs/confirm', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Central Enquiries                                                   */
+/* ------------------------------------------------------------------ */
+
+export interface EnquiryInput {
+  type: 'studio' | 'academy' | 'franchise' | 'general' | 'membership' | 'pickleball';
+  name: string;
+  phone: string;
+  email?: string | undefined;
+  category?: string | undefined;
+  notes?: string | undefined;
+  details?: Record<string, unknown> | undefined;
+}
+
+export async function submitEnquiry(input: EnquiryInput): Promise<{ ok: boolean; message: string }> {
+  return call<{ ok: boolean; message: string }>('/enquiries', {
+    method: 'POST',
+    body: JSON.stringify(input),
   });
 }
 

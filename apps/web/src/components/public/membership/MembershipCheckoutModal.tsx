@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { requestLoginCode, verifyLoginCode, TurfApiError } from '@/lib/turfos-client';
+import {
+  requestLoginCode,
+  verifyLoginCode,
+  purchasePack,
+  confirmPackPayment,
+  submitEnquiry,
+  TurfApiError,
+} from '@/lib/turfos-client';
 import { openCheckout, getRazorpayKeyId, resolveRazorpayKeyId } from '@/lib/razorpay';
 import { addPickleballEnquiry } from '@/lib/enquiry-store';
 import { CLUB, whatsappUrl } from '@/lib/club';
@@ -437,12 +444,16 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     }
   };
 
-  // Complete membership activation
-  const activateMembership = (paymentId?: string) => {
+  // Complete membership activation backed by central Turf-OS
+  const activateMembership = (
+    officialReference?: string,
+    expiresAtDate?: string | null,
+    totalCredits = 20,
+    paymentId?: string,
+  ) => {
     const now = new Date();
-    const validUntilDate = new Date();
-    validUntilDate.setDate(now.getDate() + 30);
-    const ref = generateMemberReference();
+    const validUntilDate = expiresAtDate ? new Date(expiresAtDate) : new Date(now.getTime() + 30 * 86400000);
+    const ref = officialReference || generateMemberReference();
     const cleanPhone = phone.replace(/\D/g, '');
     const cleanEmail = email.trim().toLowerCase();
     const finalPaymentId = paymentId || `pay_${Date.now().toString(36)}`;
@@ -454,7 +465,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       email: cleanEmail,
       validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       validUntil: validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      totalSessions: 20,
+      totalSessions: totalCredits,
       amountPaise: MEMBERSHIP_PRICE_PAISE,
       paymentId: finalPaymentId,
     };
@@ -464,14 +475,24 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       localStorage.setItem(STORAGE_KEY, JSON.stringify(pass));
     }
 
-    // Auto-save to Front Desk Enquiries Console
+    // 1. Send direct to Turf-OS Central Enquiries
+    submitEnquiry({
+      type: 'membership',
+      name: name.trim(),
+      phone: cleanPhone,
+      email: cleanEmail,
+      category: 'Pickleball Shared-Play',
+      notes: `Activated Inaugural Shared-Play Membership (${totalCredits} credits). Ref: ${ref}. Payment: ${finalPaymentId}`,
+    }).catch(() => null);
+
+    // 2. Auto-save to local front desk cache
     addPickleballEnquiry({
       reference: ref,
       name: name.trim(),
       phone: cleanPhone,
       email: cleanEmail,
       plan: 'Inaugural Shared-Play Membership (20 Sessions)',
-      sessions: 20,
+      sessions: totalCredits,
       amountPaise: MEMBERSHIP_PRICE_PAISE,
       paymentId: finalPaymentId,
     });
@@ -479,7 +500,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     setStep('success');
   };
 
-  // Proceed to Razorpay payment
+  // Proceed to Razorpay payment with Turf-OS Central Engine
   const handleProceedPayment = async () => {
     setIsPaying(true);
     setPaymentNotice(null);
@@ -489,21 +510,60 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     const cleanEmail = email.trim().toLowerCase();
 
     try {
-      const keyId = await resolveRazorpayKeyId();
+      // 1. Order initiated directly with Turf-OS
+      const packOrder = await purchasePack({
+        name: name.trim(),
+        phone: normPhone,
+        email: cleanEmail,
+      }).catch((err) => {
+        console.warn('Turf-OS pack order error, attempting fallback checkout:', err);
+        return null;
+      });
+
+      if (packOrder?.simulate) {
+        // Simulation mode in Turf-OS
+        const confirmRes = await confirmPackPayment({
+          phone: normPhone,
+          name: name.trim(),
+          email: cleanEmail,
+          paymentId: 'TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+        }).catch(() => null);
+
+        setIsPaying(false);
+        activateMembership(
+          confirmRes?.reference,
+          confirmRes?.pack?.expiresAt,
+          confirmRes?.pack?.creditsTotal || 20,
+        );
+        return;
+      }
+
+      const keyId = packOrder?.keyId || (await resolveRazorpayKeyId());
 
       if (!keyId || keyId === 'rzp_live_placeholder') {
         // Local dev / rehearsal simulation fallback
         if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          const confirmRes = await confirmPackPayment({
+            phone: normPhone,
+            name: name.trim(),
+            email: cleanEmail,
+            paymentId: 'TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+          }).catch(() => null);
+
           setTimeout(() => {
             setIsPaying(false);
-            activateMembership('TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase());
+            activateMembership(
+              confirmRes?.reference,
+              confirmRes?.pack?.expiresAt,
+              confirmRes?.pack?.creditsTotal || 20,
+            );
           }, 600);
           return;
         }
 
         setPaymentNotice({
           tone: 'error',
-          text: 'Unable to connect to TurfOS Razorpay gateway. Please check that payments are switched on in your TurfOS dashboard, or click below to preview in simulation mode.',
+          text: 'Unable to connect to TurfOS Razorpay gateway. Please check that payments are switched on in your TurfOS dashboard.',
         });
         setIsPaying(false);
         return;
@@ -511,18 +571,36 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
       await openCheckout({
         keyId,
-        amountPaise: MEMBERSHIP_PRICE_PAISE,
+        orderId: packOrder?.orderId,
+        amountPaise: packOrder?.amountPaise || MEMBERSHIP_PRICE_PAISE,
         currency: 'INR',
-        venueName: 'The Pavilion Club',
+        venueName: packOrder?.venueName || 'The Pavilion Club',
         description: 'Inaugural Shared-Play Membership (20 Sessions)',
         prefill: {
           name: name.trim(),
           email: cleanEmail,
           contact: normPhone,
         },
-        onSuccess: (paymentId) => {
-          setIsPaying(false);
-          activateMembership(paymentId || ('pay_' + Date.now().toString(36)));
+        onSuccess: async (paymentId) => {
+          try {
+            const confirmRes = await confirmPackPayment({
+              phone: normPhone,
+              name: name.trim(),
+              email: cleanEmail,
+              paymentId: paymentId || ('pay_' + Date.now().toString(36)),
+              orderId: packOrder?.orderId,
+            });
+            setIsPaying(false);
+            activateMembership(
+              confirmRes.reference,
+              confirmRes.pack.expiresAt,
+              confirmRes.pack.creditsTotal,
+              paymentId,
+            );
+          } catch {
+            setIsPaying(false);
+            activateMembership(undefined, undefined, 20, paymentId);
+          }
         },
         onDismiss: () => {
           setIsPaying(false);
@@ -541,14 +619,9 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       });
     } catch (err: unknown) {
       setIsPaying(false);
-      // Fallback only for local development on localhost
-      if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        activateMembership('TEST_CONFIRMED_' + Date.now().toString().slice(-6));
-        return;
-      }
       setPaymentNotice({
         tone: 'error',
-        text: err instanceof Error ? err.message : 'Could not launch payment gateway. If using an ad-blocker, please disable it for Razorpay and retry.',
+        text: err instanceof Error ? err.message : 'Something went wrong during checkout. Please try again.',
       });
     }
   };

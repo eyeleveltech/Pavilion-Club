@@ -115,13 +115,13 @@ function loadScript(): Promise<void> {
 
 export interface CheckoutInput {
   keyId: string;
-  orderId?: string;
+  orderId?: string | undefined;
   amountPaise: number;
   currency: string;
   venueName: string;
   description: string;
   prefill: { name: string; email: string; contact: string };
-  onSuccess: (paymentId?: string) => void;
+  onSuccess: (paymentId?: string | undefined) => void;
   onDismiss: () => void;
   onFailure: (reason: string) => void;
 }
