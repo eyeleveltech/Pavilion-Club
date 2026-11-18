@@ -74,7 +74,6 @@ export function PublicFooter({ className = '' }: { className?: string }) {
       </div>
       <div className="footer__bottom">
         <span>© 2026 The Pavilion Club · Chennai</span>
-        <span>Architecture and renders by Feel and Bari</span>
       </div>
       <FooterGhost />
     </footer>
