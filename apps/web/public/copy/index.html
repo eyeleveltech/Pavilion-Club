@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Login Code · The Pavilion Club</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #060D17;
+      color: #FFFFFF;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: #0B192C;
+      border: 1px solid #C9A96E;
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(201, 169, 110, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #C9A96E, #E5C378, #C9A96E, transparent);
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 16px;
+      max-width: 160px;
+      height: auto;
+    }
+    .gold-divider {
+      width: 60px;
+      height: 1px;
+      background: #C9A96E;
+      margin: 0 auto 20px;
+      opacity: 0.7;
+    }
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #C9A96E;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #8E9BAE;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .code-box {
+      background: #060C14;
+      border: 1px solid rgba(201, 169, 110, 0.6);
+      border-radius: 14px;
+      padding: 22px 20px;
+      margin: 0 auto 16px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6), 0 0 28px rgba(201, 169, 110, 0.16);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .code-box:hover, .code-box:active {
+      border-color: #E5C378;
+      box-shadow: 0 0 32px rgba(201, 169, 110, 0.28);
+      transform: translateY(-1px);
+    }
+    .code-digits {
+      font-family: monospace;
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      color: #E5C378;
+      margin-left: 12px;
+      text-shadow: 0 0 16px rgba(229, 195, 120, 0.45);
+      user-select: all;
+      -webkit-user-select: all;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4ADE80;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+    .badge.copying {
+      background: rgba(201, 169, 110, 0.15);
+      border-color: rgba(201, 169, 110, 0.4);
+      color: #E5C378;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .btn-primary {
+      display: inline-block;
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #E5C378 0%, #C9A96E 100%);
+      color: #0B192C;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(201, 169, 110, 0.35);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(201, 169, 110, 0.45);
+    }
+    .btn-secondary {
+      display: inline-block;
+      width: 100%;
+      padding: 12px 24px;
+      background: rgba(201, 169, 110, 0.08);
+      color: #C9A96E;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(201, 169, 110, 0.16);
+      border-color: #C9A96E;
+    }
+    .footer-note {
+      margin-top: 24px;
+      font-size: 11px;
+      color: #5A6B7C;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="/" style="display:inline-block;text-decoration:none;">
+      <img src="/pavilion_logo_reversed.png" alt="The Pavilion Club" class="logo" />
+    </a>
+    <div class="gold-divider"></div>
+    
+    <div class="eyebrow">SINGLE-USE PASSCODE</div>
+    <h1>Access Code</h1>
+    <p class="subtitle">Use this passcode to sign in on your login screen.</p>
+    
+    <div class="code-box" id="codeBox" title="Click to copy again">
+      <span class="code-digits" id="codeText">------</span>
+    </div>
+    
+    <div class="badge" id="statusBadge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="statusText">Code copied to clipboard!</span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-primary" id="copyBtn">
+        📋 Copy Again
+      </button>
+      <a href="/" class="btn-secondary">
+        Go to The Pavilion Club ⟶
+      </a>
+    </div>
+
+    <p class="footer-note">
+      Paste this code into the verification input.<br>
+      The Pavilion Club · Mogappair East, Chennai
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get('code') || '').trim();
+      const codeText = document.getElementById('codeText');
+      const statusBadge = document.getElementById('statusBadge');
+      const statusText = document.getElementById('statusText');
+      const copyBtn = document.getElementById('copyBtn');
+      const codeBox = document.getElementById('codeBox');
+
+      if (code) {
+        codeText.textContent = code;
+        copyToClipboard(code);
+      } else {
+        codeText.textContent = '218176';
+        statusText.textContent = 'Tap to copy code';
+      }
+
+      function copyToClipboard(text) {
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showCopied).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
+      }
+
+      function fallbackCopy() {
+        try {
+          const input = document.createElement('input');
+          input.value = codeText.textContent;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+          showCopied();
+        } catch (e) {
+          statusText.textContent = 'Please copy code manually';
+        }
+      }
+
+      function showCopied() {
+        statusBadge.classList.remove('copying');
+        statusText.textContent = '✓ Code ' + codeText.textContent + ' copied to clipboard!';
+        statusBadge.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+          statusBadge.style.transform = 'scale(1)';
+        }, 200);
+      }
+
+      copyBtn.addEventListener('click', function () {
+        copyToClipboard(codeText.textContent);
+      });
+
+      codeBox.addEventListener('click', function () {
+        copyToClipboard(codeText.textContent);
+      });
+    })();
+  </script>
+</body>
+</html>
