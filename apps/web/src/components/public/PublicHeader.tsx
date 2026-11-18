@@ -15,6 +15,7 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNearFooter, setIsNearFooter] = useState(false);
 
   // Monitor scroll for header styling with hysteresis to eliminate threshold jitter
   useEffect(() => {
@@ -24,6 +25,11 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
         window.requestAnimationFrame(() => {
           const y = window.scrollY;
           setIsScrolled((prev) => (prev ? y > 15 : y > 40));
+          const footer = document.querySelector('footer.footer');
+          if (footer) {
+            const rect = footer.getBoundingClientRect();
+            setIsNearFooter(rect.top <= 120);
+          }
           ticking = false;
         });
         ticking = true;
@@ -58,7 +64,7 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
   return (
     <>
       <header
-        className={`editorial-nav ${isScrolled ? 'is-scrolled' : overlay ? 'is-overlay' : ''}`}
+        className={`editorial-nav ${isScrolled ? 'is-scrolled' : overlay ? 'is-overlay' : ''} ${isNearFooter ? 'is-hidden' : ''}`}
         id="nav"
       >
         {/* Brand Lockup matching editorial homepage - native anchor to root to avoid RSC fetch */}

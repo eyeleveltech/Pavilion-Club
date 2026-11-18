@@ -54,6 +54,28 @@
   /* ---------- nav state ---------- */
   ScrollTrigger.create({ start: 60, end: 'max', toggleClass: { targets: '#nav', className: 'is-scrolled' } });
 
+  // Hide nav when footer reaches top to prevent overlap with footer brand and menu
+  ScrollTrigger.create({
+    trigger: '.footer',
+    start: 'top 120px',
+    end: 'bottom bottom',
+    toggleClass: { targets: '#nav', className: 'is-hidden' }
+  });
+
+  const checkNavFooter = () => {
+    const footer = $('.footer');
+    const nav = $('#nav');
+    if (!footer || !nav) return;
+    const rect = footer.getBoundingClientRect();
+    if (rect.top <= 120) {
+      nav.classList.add('is-hidden');
+    } else {
+      nav.classList.remove('is-hidden');
+    }
+  };
+  if (window.lenis) lenis.on('scroll', checkNavFooter);
+  window.addEventListener('scroll', checkNavFooter, { passive: true });
+
   /* ---------- initial states ---------- */
   gsap.set('[data-lines] .ln > span', { yPercent: 112 });
   gsap.set('[data-fade]', { autoAlpha: 0, y: 26 });

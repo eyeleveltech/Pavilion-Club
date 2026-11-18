@@ -137,12 +137,18 @@ button:focus-visible {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--gold-line);
-  transition: background 0.35s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease), transform 0.45s var(--ease), opacity 0.4s ease;
 }
 
 .editorial-nav.is-scrolled {
   background: rgba(15, 30, 46, 0.96);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.editorial-nav.is-hidden {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .editorial-brand {
