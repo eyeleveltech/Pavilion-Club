@@ -9,6 +9,12 @@ export const CLUB = {
   phoneDisplay: '+91 96000 55623',
   phoneHref: 'tel:+919600055623',
   whatsappNumber: '919600055623',
+  /** Pavilion Studio has its own desk for classes and floor hire. */
+  studioPhoneDisplay: '+91 98843 73336',
+  studioPhoneHref: 'tel:+919884373336',
+  studioWhatsappNumber: '919884373336',
+  /** Court bookings by the hour are taken on TurfTown. */
+  bookingUrl: 'https://turftown.in',
   email: 'hello@thepavilionclub.com',
   instagram: 'https://www.instagram.com/thepavilion.club/',
   addressLines: [
@@ -24,8 +30,8 @@ export const CLUB = {
   ],
 } as const;
 
-export function whatsappUrl(text: string): string {
-  return `https://wa.me/${CLUB.whatsappNumber}?text=${encodeURIComponent(text)}`;
+export function whatsappUrl(text: string, number: string = CLUB.whatsappNumber): string {
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
 
 export function mailtoUrl(subject: string, body: string): string {
