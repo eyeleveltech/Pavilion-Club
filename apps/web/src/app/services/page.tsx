@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 
-import { ArrowLink, GoldButton, PageCta, PageHero, SiteLink, SitePage } from '@/components/public/site/SitePage';
+import { ArrowLink, GoldButton, PageCta, PageHero, SiteLink, SitePage, Ticker } from '@/components/public/site/SitePage';
 import { CLUB, whatsappUrl } from '@/lib/club';
 
 export const metadata: Metadata = {
@@ -247,6 +247,19 @@ export default function ServicesPage() {
         <GoldButton href="#services">See all services</GoldButton>
         <ArrowLink href="#how-to-book">How to book</ArrowLink>
       </PageHero>
+
+      {/* Marquee ticker ribbon */}
+      <Ticker
+        items={[
+          'Pavilion Courts',
+          'Pavilion Studio',
+          'Pickleball Academy',
+          'Pavilion Hall',
+          'Board Games Lounge',
+          'Café & kitchen',
+          'Mogappair East, Chennai',
+        ]}
+      />
 
       {/* "I want to…": one tile per visitor goal, jumping to its group */}
       <section id="services" className="svc-chooser scroll-mt-16" aria-labelledby="svc-chooser-title">
