@@ -435,15 +435,15 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
   .footer__top>div:first-child{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:1rem}.footer__top>div:first-child .brand{margin:0 auto}.footer__tag{margin:1.2rem auto 0;text-align:center;max-width:20rem}
 }
 
-/* --- cursor ----------------------------------------------------- */
-.cursor,.cursor-ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999;border-radius:50%;will-change:transform;opacity:0}
-.cursor{width:6px;height:6px;background:var(--gold)}
-.cursor-ring{width:34px;height:34px;border:1px solid rgba(199,162,106,.55);display:flex;align-items:center;justify-content:center;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--midnight);transition:width .45s var(--ease),height .45s var(--ease),background .45s,border-color .45s;font-weight:700}
-.cursor-ring.is-link{width:52px;height:52px;border-color:var(--gold)}
-.cursor-ring.is-hover{width:86px;height:86px;background:var(--gold);border-color:var(--gold)}
+/* --- luxury round cursor --- */
+.cursor,.cursor-ring{position:fixed;left:0;top:0;pointer-events:none;z-index:999999;border-radius:50%;will-change:transform;opacity:0}
+.cursor{width:6px;height:6px;background:var(--gold);box-shadow:0 0 6px rgba(201,169,110,.4)}
+.cursor-ring{width:36px;height:36px;border:1.5px solid rgba(199,162,106,.65);background:transparent;transition:width .3s cubic-bezier(0.16,1,0.3,1),height .3s cubic-bezier(0.16,1,0.3,1),border-color .3s,background-color .3s}
+.cursor-ring.is-link{width:50px;height:50px;border-color:rgba(201,169,110,.95);background:rgba(201,169,110,.08);box-shadow:0 0 16px rgba(201,169,110,.18)}
+body.has-cursor,body.has-cursor a,body.has-cursor button{cursor:none}
 @media (max-width:1024px), (hover:none), (pointer:coarse){
-  .cursor, .cursor-ring { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-  body, body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: auto !important; }
+  .cursor, .cursor-ring { display: none !important; }
+  body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: auto !important; }
 }
 @media (prefers-reduced-motion:reduce){
   .loader{display:none}
@@ -499,6 +499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="/academy/">Academy</a>
     <a href="/events/">Events</a>
     <a href="/franchise/">Franchise</a>
+    <a href="/services/">Services</a>
     <a href="/contact/">Contact</a>
   </nav>
   <div class="nav__right">
@@ -511,6 +512,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="/academy/">Pickleball Academy</a>
   <a href="/events/">Tournaments &amp; Events</a>
   <a href="/franchise/">Franchise</a>
+  <a href="/services/">Club Services</a>
   <a href="/contact/">Contact</a>
   <a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a>
   <div class="menu__foot">
@@ -613,13 +615,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="path__kicker"><span>02</span>Movement</p>
         <h3 class="path__name">Pavilion Studio</h3>
         <p class="path__line">Move better. Feel stronger. Find your flow.</p>
-        <p class="path__price path__price--soon"><b>Coming soon</b><span>Plans and timetable are being finalised</span></p>
+        <p class="path__price"><b>From ₹2,000</b><span>a month + GST · 5 active programmes</span></p>
         <ul class="path__facts">
-          <li>Dance and dance fitness</li>
-          <li>Fitness, wellness, sports & movement</li>
-          <li>Scheduled classes to build your routine</li>
+          <li>Dance (Hip Hop, Bollywood, Kids) &amp; Salsa</li>
+          <li>Gymnastics, Boxing &amp; Morning Yoga</li>
+          <li>Weekday &amp; weekend batches from ₹2,000/mo</li>
         </ul>
-        <a class="link-arrow" href="/membership/#studio">Explore Pavilion Studio <i></i></a>
+        <a class="link-arrow" href="/membership/#studio">Explore Studio Rate Card <i></i></a>
       </div>
     </article>
   </div>
@@ -921,7 +923,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="/membership/">Memberships</a></li><li><a href="/academy/">Pickleball Academy</a></li><li><a href="/events/">Tournaments &amp; Events</a></li><li><a href="#spaces">Our Spaces</a></li><li><a href="#cafe">Café &amp; Food</a></li><li><a href="/franchise/">Franchise</a></li><li><a href="/about/">About</a></li></ul>
+      <ul><li><a href="/membership/">Memberships</a></li><li><a href="/academy/">Pickleball Academy</a></li><li><a href="/events/">Tournaments &amp; Events</a></li><li><a href="#spaces">Our Spaces</a></li><li><a href="#cafe">Café &amp; Food</a></li><li><a href="/franchise/">Franchise</a></li><li><a href="/services/">Services</a></li><li><a href="/about/">About</a></li></ul>
     </div>
     <div>
       <h4>Players</h4>

@@ -18,7 +18,9 @@ import {
 } from '@/components/public/site/SitePage';
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { MembershipCheckoutModalContainer } from '@/components/public/membership/MembershipCheckoutModalContainer';
+import { MembershipJoinButton } from '@/components/public/membership/MembershipJoinButton';
 import { StudioTimetable } from '@/components/public/studio/StudioTimetable';
+import { StudioRateCard } from '@/components/public/studio/StudioRateCard';
 
 export const metadata: Metadata = {
   title: 'Memberships · Pavilion Courts & Pavilion Studio',
@@ -150,7 +152,7 @@ export default function MembershipPage() {
                 <li>Shared play, up to six per court</li>
               </ul>
               <div className="mt-9 grid justify-items-start gap-5">
-                <GoldButton href="#join">Enquire to join</GoldButton>
+                <MembershipJoinButton>Enquire to join</MembershipJoinButton>
                 <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
               </div>
             </aside>
@@ -219,8 +221,9 @@ export default function MembershipPage() {
           </div>
         </div>
 
-        {/* 7-Day Master Class Schedule & Enquiry */}
+        {/* Official Programme Rate Card & 7-Day Master Class Schedule */}
         <div className="site-wrap">
+          <StudioRateCard />
           <StudioTimetable />
         </div>
       </section>
@@ -290,7 +293,7 @@ export default function MembershipPage() {
         lede="Enquire on WhatsApp or at the front desk, and play your first session this week."
         image="/assets/images/elevation-dusk-angle.jpg"
       >
-        <GoldButton href="#join">Enquire to join</GoldButton>
+        <MembershipJoinButton>Enquire to join</MembershipJoinButton>
         <ArrowLink href={CLUB.phoneHref}>Or call {CLUB.phoneDisplay}</ArrowLink>
       </PageCta>
       <MembershipCheckoutModalContainer />

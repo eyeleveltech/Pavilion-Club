@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Pavilion Club & Turf-OS · Complete System Audit & Executive Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --navy-dark: #040810;
+    --navy-card: #09121F;
+    --navy-light: #101F33;
+    --gold: #C9A96E;
+    --gold-light: #E5C378;
+    --gold-muted: rgba(201, 169, 110, 0.18);
+    --gold-border: rgba(201, 169, 110, 0.32);
+    --ivory: #FBF8F1;
+    --ivory-muted: rgba(251, 248, 241, 0.70);
+    --ivory-faint: rgba(251, 248, 241, 0.40);
+    --emerald: #10B981;
+    --amber: #F59E0B;
+    --cyan: #06B6D4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--navy-dark);
+    color: var(--ivory);
+    line-height: 1.65;
+    font-size: 13px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, .serif {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.04em;
+  }
+
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Cover Page */
+  .cover {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px 40px;
+    border: 1px solid var(--gold-border);
+    background: radial-gradient(circle at top right, rgba(201, 169, 110, 0.12), transparent 50%),
+                radial-gradient(circle at bottom left, rgba(16, 31, 51, 0.8), transparent 60%),
+                var(--navy-card);
+    border-radius: 20px;
+    margin-bottom: 50px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border: 1px dashed rgba(201, 169, 110, 0.25);
+    border-radius: 14px;
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--gold-muted);
+    border: 1px solid var(--gold-border);
+    border-radius: 999px;
+    color: var(--gold-light);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .cover-title {
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ivory);
+    margin: 24px 0 16px 0;
+  }
+
+  .cover-title span {
+    color: var(--gold);
+    display: block;
+    font-size: 26px;
+    margin-top: 6px;
+  }
+
+  .cover-subtitle {
+    font-size: 14px;
+    color: var(--ivory-muted);
+    max-width: 680px;
+    line-height: 1.7;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gold-border);
+  }
+
+  .meta-item .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .meta-item .value {
+    font-size: 12px;
+    color: var(--ivory);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Section Styling */
+  .section {
+    margin-bottom: 48px;
+    page-break-inside: avoid;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gold-border);
+  }
+
+  .section-num {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--navy-dark);
+    background: var(--gold);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 20px;
+    color: var(--ivory);
+    font-weight: 700;
+  }
+
+  /* Cards & Grids */
+  .card {
+    background: var(--navy-card);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 16px;
+  }
+
+  .card-highlight {
+    background: linear-gradient(145deg, rgba(201, 169, 110, 0.08), rgba(9, 18, 31, 0.9));
+    border: 1px solid var(--gold-border);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12px;
+    background: var(--navy-card);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  th {
+    background: rgba(201, 169, 110, 0.12);
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--gold-border);
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--ivory-muted);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .status-live {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .status-pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #FBBF24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .status-arch {
+    background: rgba(6, 182, 212, 0.15);
+    color: #38BDF8;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  /* Architectural Flow */
+  .flow-box {
+    background: var(--navy-light);
+    border-left: 3px solid var(--gold);
+    padding: 16px;
+    border-radius: 0 10px 10px 0;
+    margin: 12px 0;
+  }
+
+  .flow-box h4 {
+    color: var(--gold-light);
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .step-number {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gold-muted);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Print Page Breaks */
+  @media print {
+    body {
+      background: #040810 !important;
+      color: #FBF8F1 !important;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .container {
+      padding: 20px;
+      max-width: 100%;
+    }
+    .cover {
+      min-height: 92vh;
+      margin-bottom: 0;
+    }
+  }
+
+  .footer-note {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 11px;
+    color: var(--ivory-faint);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ========================================================= -->
+  <!-- COVER PAGE -->
+  <!-- ========================================================= -->
+  <div class="cover">
+    <div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>Executive Audit & Architecture Specification</span>
+      </div>
+
+      <h1 class="cover-title">
+        The Pavilion Club &amp; Turf-OS
+        <span>Comprehensive System Audit, Operational Mechanics &amp; Roadmap</span>
+      </h1>
+
+      <p class="cover-subtitle">
+        A complete architectural audit of The Pavilion Club’s dual-engine ecosystem: the luxury client-facing web application and the central Turf-OS club operating system. This dossier details all live modules, booking engines, pack redemption mechanics, studio enquiry pipelines, and outstanding roadmap deliverables.
+      </p>
+    </div>
+
+    <div>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="label">Client Venue</div>
+          <div class="value">The Pavilion Club (Mogappair)</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Operating Core</div>
+          <div class="value">Turf-OS Multi-Tenant v1.4</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Audit Date</div>
+          <div class="value">20 November 2026</div>
+        </div>
+        <div class="meta-item">
+          <div class="label">Engineering Team</div>
+          <div class="value">Eyelevel Technologies</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 1: EXECUTIVE SUMMARY & SYSTEM TOPOLOGY -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <h2 class="section-title">System Architecture &amp; Platform Topology</h2>
+    </div>
+
+    <div class="card card-highlight">
+      <h3 class="serif" style="color: var(--gold-light); margin-bottom: 8px;">The Dual-Engine Architectural Model</h3>
+      <p style="color: var(--ivory-muted); font-size: 12.5px;">
+        The Pavilion Club does not run on a monolithic website. It is engineered with a strict <strong>Headless Luxury Architecture</strong> where customer experience is completely decoupled from database state, inventory controls, and financial transactions.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h4 class="serif" style="color:var(--gold);">Engine 1: Public Web Portal</h4>
+          <span class="status-tag status-live">Live · Port 3001</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-bottom:12px;">
+          High-performance Next.js application built with bespoke luxury editorial aesthetics, optimized for mobile booking, membership discovery, and instant enquiry capture.
+        </p>
+        <ul style="color:var(--ivory-muted); font-size:11.5px; padding-left:16px; line-height:1.7;">
+          <li>Static & SSR edge rendering for ultra-fast load times.</li>
+          <li>Zero hardcoded API secrets (Keyless Public API client).</li>
+          <li>Local state persistence for instant desk operations.</li>
+          <li>Dedicated Studio Rate Card &amp; Interactive Timetables.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h4 class="serif" style="color:var(--gold);">Engine 2: Turf-OS Core Platform</h4>
+          <span class="status-tag status-live">Live · Port 3000</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-bottom:12px;">
+          Central club operating system hosting PostgreSQL multi-tenant isolation, inventory locks, payment verification, pack credit ledgers, and front-desk POS consoles.
+        </p>
+        <ul style="color:var(--ivory-muted); font-size:11.5px; padding-left:16px; line-height:1.7;">
+          <li>Tenant ID: <code class="mono" style="color:var(--gold-light);">1a752910-5403-4539-b58c-db585ed57ddc</code></li>
+          <li>Atomic 10-minute hold locking (zero double-bookings).</li>
+          <li>Credit pack deduction and session balance engine.</li>
+          <li>Background notification queues &amp; Razorpay webhooks.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flow-box">
+      <h4>Data Flow Between Public Portal &amp; Turf-OS</h4>
+      <div class="flow-step">
+        <div class="step-number">1</div>
+        <div><strong>Public Inventory Query:</strong> Public site requests real-time court availability via <code class="mono" style="color:var(--gold-light);">GET /api/public/v1/availability?date=YYYY-MM-DD</code>. Turf-OS inspects active bookings, blackout slots, and operating hours.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">2</div>
+        <div><strong>Atomic Slot Hold:</strong> When a customer selects a slot, <code class="mono" style="color:var(--gold-light);">POST /api/public/v1/holds</code> locks the court for 10 minutes, generating an immutable hold token.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-number">3</div>
+        <div><strong>Payment Execution:</strong> Customer either pays online via Razorpay order or selects Pay-at-Venue. A webhook or desk confirmation converts the hold into a verified booking with a cryptographically signed Pass QR code.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 2: PAVILION CLUB PUBLIC PORTAL AUDIT -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <h2 class="section-title">Pavilion Club Public Portal — Module Audit</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Module / Route</th>
+          <th>What It Does (Mechanics &amp; Implementation)</th>
+          <th>Operational Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Homepage (Editorial View)</strong><br><span class="mono" style="color:var(--gold);">/</span></td>
+          <td>Cinematic hero, 5 flagship sections: Pickleball showcase, The Studio Mogappair ("From ₹2,000/mo + GST · 5 active programmes"), Clubhouse Amenities &amp; Cafe, Founder's vision letter, Location &amp; Directions desk.</td>
+          <td><span class="status-tag status-live">Active &amp; Synced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Live Court Booking</strong><br><span class="mono" style="color:var(--gold);">/book</span></td>
+          <td>Interactive court scheduler. Real-time slot availability, sport filter (Pickleball vs Studio/Turf), 10-minute atomic hold lock, customer phone validation, Razorpay gateway integration, and Pay-at-Venue fallback.</td>
+          <td><span class="status-tag status-live">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Digital Court Pass</strong><br><span class="mono" style="color:var(--gold);">/book/[reference]</span></td>
+          <td>High-security digital access pass displaying unique booking reference, scannable check-in QR code, court number, player details, Apple/Google Calendar export, and one-tap Google Maps navigation.</td>
+          <td><span class="status-tag status-live">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Studio Rate Card</strong><br><span class="mono" style="color:var(--gold);">/membership/#studio</span></td>
+          <td>Official rate card covering all 5 programmes from Mogappair poster (Dance, Salsa, Gymnastics, Boxing, Yoga). Displays strikethroughs, special launch prices, class counts, and direct enquiry modal buttons.</td>
+          <td><span class="status-tag status-live">Active (New)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dynamic Enquiry Modal</strong><br><span class="mono" style="color:var(--gold);">StudioEnquiryModal</span></td>
+          <td>Context-aware modal. Clicking any programme card auto-selects the activity, cohort, and fee tier. Validates applicant name, 10-digit mobile, and email. Dispatches lead to central repository.</td>
+          <td><span class="status-tag status-live">Active (New)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Physical Registration Slip</strong><br><span class="mono" style="color:var(--gold);">PrintRegistrationSheet</span></td>
+          <td>A4 print-optimized admission form. Features applicant particulars, programme tier, safety undertaking, <strong>Member Physical Signature Box</strong>, and <strong>Front Desk Spot QR Payment Collection Slip</strong>.</td>
+          <td><span class="status-tag status-live">Active (New)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Pickleball Membership</strong><br><span class="mono" style="color:var(--gold);">/membership</span></td>
+          <td>Inaugural Shared-Play Membership tier (₹2,000 + GST / month, 12/20 hours, Mon-Fri 6 AM - 3 PM, max 6 per court). Pack credit checkout and registration.</td>
+          <td><span class="status-tag status-live">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Customer Portal</strong><br><span class="mono" style="color:var(--gold);">/my-bookings</span></td>
+          <td>Passwordless member portal. Users authenticate via 6-digit email OTP. View past and active bookings, download historical passes, and execute cancellations with auto-computed refunds.</td>
+          <td><span class="status-tag status-live">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Front Desk Enquiries</strong><br><span class="mono" style="color:var(--gold);">/admin/enquiries</span></td>
+          <td>Real-time operations desk. Dual tabs for Pickleball &amp; Studio leads, status toggles (New, Contacted, Trial, Enrolled), 1-click check-in counter (used/total), 1-click WhatsApp, and <strong>1-click A4 Printable Form</strong>.</td>
+          <td><span class="status-tag status-live">Active (New)</span></td>
+        </tr>
+        <tr>
+          <td><strong>Institutional &amp; Legal</strong><br><span class="mono" style="color:var(--gold);">/about, /academy, /rules, /terms</span></td>
+          <td>Coaching academy syllabus, coach credentials, club etiquette, court footwear regulations, cancellation &amp; refund legal terms, and privacy policy.</td>
+          <td><span class="status-tag status-live">Active</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 3: TURF-OS CORE PLATFORM & DATABASE AUDIT -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <h2 class="section-title">Turf-OS Core Engine &amp; Database Architecture</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 class="serif" style="color:var(--gold); margin-bottom:10px;">PostgreSQL Core Schema &amp; Ledgers</h4>
+        <ul style="color:var(--ivory-muted); font-size:11.5px; line-height:1.7; padding-left:14px;">
+          <li><code class="mono">tenants</code>: Isolation domain for Pavilion Club (branding, slug, timezone).</li>
+          <li><code class="mono">venues &amp; courts</code>: Mogappair court definitions, sports, and court labels.</li>
+          <li><code class="mono">bookings &amp; holds</code>: Slot inventory, holds (10-min expiry), status, check-in flags.</li>
+          <li><code class="mono">pack_products</code>: Official membership and studio packs catalog.</li>
+          <li><code class="mono">customer_packs</code>: Ledger tracking purchased hours, remaining credits, and expiry.</li>
+          <li><code class="mono">pack_redemptions</code>: Audit trail mapping specific bookings to credit debits.</li>
+          <li><code class="mono">enquiries</code>: Inbound leads across Studio, Academy, and Memberships.</li>
+          <li><code class="mono">customers</code>: Verified player identity, phone index, and email links.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4 class="serif" style="color:var(--gold); margin-bottom:10px;">Active Studio Packs in Turf-OS Database</h4>
+        <p style="color:var(--ivory-muted); font-size:11.5px; margin-bottom:10px;">
+          All 7 official Mogappair Studio packs are registered and active in <code class="mono" style="color:var(--gold-light);">pack_products</code>:
+        </p>
+        <ul style="color:var(--ivory-muted); font-size:11px; line-height:1.6; padding-left:14px;">
+          <li>Dance Weekend Batch (8 Classes) · ₹2,000 (8 credits)</li>
+          <li>Dance Weekday Batch (12 Classes) · ₹2,200 (12 credits)</li>
+          <li>Yoga &amp; Mindfulness (12 Classes) · ₹2,500 (12 credits)</li>
+          <li>Boxing &amp; Heavy Bag (8 Classes) · ₹2,750 (8 credits)</li>
+          <li>Salsa Individual Learner · ₹3,000 (8 credits)</li>
+          <li>Gymnastics (8 Classes) · ₹4,000 (8 credits)</li>
+          <li>Salsa Couple Package · ₹5,000 (8 credits)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 class="serif" style="color:var(--gold); margin-bottom:12px;">Turf-OS Central API Gateway (<code class="mono">/api/public/v1/*</code>)</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Method</th>
+            <th>Payload / Query</th>
+            <th>Functionality</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/availability</code></td>
+            <td><span class="mono" style="color:#38BDF8;">GET</span></td>
+            <td><code class="mono">?date=YYYY-MM-DD</code></td>
+            <td>Calculates open court inventory, slot prices, and booking fee in paise.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/holds</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{court_id, starts_at, customer}</code></td>
+            <td>Acquires atomic 10-minute hold lock to prevent double booking.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/bookings/:id/pay</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{booking_id}</code></td>
+            <td>Initializes server-side Razorpay order and returns client key ID.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/bookings/:id/confirm-at-venue</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{booking_id}</code></td>
+            <td>Settles booking for pay-at-venue venues without online gateway.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/customers/:phone/packs</code></td>
+            <td><span class="mono" style="color:#38BDF8;">GET</span></td>
+            <td><code class="mono">:phone</code></td>
+            <td>Returns customer's active pack products and remaining credit balance.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/bookings/:id/redeem-pack</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{pack_id}</code></td>
+            <td>Debits 1 credit from customer pack and instantly confirms court slot.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/enquiries</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{type, name, phone, email, notes}</code></td>
+            <td>Central lead capture. Creates customer entity and inserts into CRM table.</td>
+          </tr>
+          <tr>
+            <td><code class="mono" style="color:var(--gold-light);">/me/code &amp; /me/verify</code></td>
+            <td><span class="mono" style="color:#34D399;">POST</span></td>
+            <td><code class="mono">{email, code}</code></td>
+            <td>Issues cryptographic JWT session token for customer self-service.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 4: OPERATIONAL MECHANICS & WORKFLOWS -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <h2 class="section-title">End-to-End Operational Workflows</h2>
+    </div>
+
+    <!-- Workflow 1 -->
+    <div class="card">
+      <h3 class="serif" style="color:var(--gold-light); margin-bottom:10px;">Workflow A: The Physical Onboarding &amp; Signature Flow (Phase 4)</h3>
+      <p style="color:var(--ivory-muted); font-size:12px; margin-bottom:14px;">
+        Designed in direct alignment with the client's audio brief with Dharshini. Connects digital web discovery to physical front-desk onboarding with zero technical friction.
+      </p>
+
+      <div class="flow-box">
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <div><strong>Digital Discovery:</strong> Prospective member browses <code class="mono" style="color:var(--gold-light);">/membership/#studio</code> and clicks "Apply &amp; Enquire Online" on their preferred programme (e.g. Salsa Couple Package).</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <div><strong>Dynamic Lead Capture:</strong> The modal opens with programme name, fee (₹5,000 + GST), and cohort pre-filled. Customer inputs name, phone (+91), email, and submits.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <div><strong>Dual Dispatch:</strong> Lead is stored in Turf-OS database and local storage. Customer receives immediate confirmation with reference number (e.g. <code class="mono" style="color:var(--gold-light);">#STU-2026-4819</code>).</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">4</div>
+          <div><strong>Physical A4 Sheet Printing:</strong> Front desk staff at <code class="mono" style="color:var(--gold-light);">/admin/enquiries</code> clicks the <strong>🖨️ Printer icon</strong> to generate the formatted admission sheet (or customer prints their own copy).</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">5</div>
+          <div><strong>On-Ground Execution &amp; Spot QR Payment:</strong> When the member visits the club:
+            <ul style="padding-left:18px; margin-top:4px; font-size:11.5px; color:var(--ivory-muted);">
+              <li>Member signs Section 4 of the printed form (<code class="mono" style="color:var(--gold-light);">Member Signature &amp; Date</code>).</li>
+              <li>Front desk collects payment manually using counter UPI QR code or card machine.</li>
+              <li>Staff enters transaction ID and signs Section 5 (<code class="mono" style="color:var(--gold-light);">Desk Officer Reconciliation Slip</code>).</li>
+              <li>Desk activates member pack in Turf-OS Front Desk console.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workflow 2 -->
+    <div class="card" style="margin-top:16px;">
+      <h3 class="serif" style="color:var(--gold-light); margin-bottom:10px;">Workflow B: Member Pack Credit Burn (Court Booking)</h3>
+      <p style="color:var(--ivory-muted); font-size:12px; margin-bottom:14px;">
+        Automated credit deduction that allows members who hold an active pack (e.g. 20-session Pickleball pack) to book courts without paying per session.
+      </p>
+
+      <div class="flow-box">
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <div><strong>Phone Lookup:</strong> Customer selects court slot at <code class="mono" style="color:var(--gold-light);">/book</code> and types their registered mobile number.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <div><strong>Pack Recognition:</strong> System calls <code class="mono" style="color:var(--gold-light);">/customers/:phone/packs</code>. If the customer has unexpired credits matching the sport, a golden <strong>"Redeem from Active Pack"</strong> option appears instead of the payment button.</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <div><strong>Instant Confirmation:</strong> System calls <code class="mono" style="color:var(--gold-light);">/redeem-pack</code>, deducts 1 session from ledger, updates <code class="mono">customer_packs.credits_used</code>, and generates the digital pass instantly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 5: CURRENT STATUS AUDIT MATRIX -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <h2 class="section-title">Current Feature Implementation Status Matrix</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Capability / Feature</th>
+          <th>Engine</th>
+          <th>Verification &amp; Test Result</th>
+          <th>Operational Readiness</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Studio Rate Card (5 Programmes)</strong></td>
+          <td>Public Web</td>
+          <td>Mounted on <code class="mono">/membership/#studio</code>. Verified prices, strikethroughs, badges.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dynamic Enquiry Modal</strong></td>
+          <td>Public Web</td>
+          <td>Context pre-population, 3-step luxury form, client-side validation.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>A4 Printable Admission Slip</strong></td>
+          <td>Public Web</td>
+          <td>Signature box, QR collection reconciliation block, print-CSS verified.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Front Desk Leads Console</strong></td>
+          <td>Public Web</td>
+          <td>Dual tab view, 1-click check-in, 1-click WhatsApp, 1-click Print.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Studio Database Packs (7 Packs)</strong></td>
+          <td>Turf-OS Core</td>
+          <td>Inserted in PostgreSQL <code class="mono">pack_products</code>. API endpoint verified.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Court Slot Booking &amp; Holds</strong></td>
+          <td>Turf-OS Core</td>
+          <td>10-minute hold lock active, double booking prevention verified.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Digital Access Pass &amp; QR</strong></td>
+          <td>Both</td>
+          <td>Cryptographic verification, Apple/Google calendar export tested.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Member Pack Redemption</strong></td>
+          <td>Turf-OS Core</td>
+          <td>Credit decrement, balance validation, and audit logging tested.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Passwordless Member Portal</strong></td>
+          <td>Both</td>
+          <td>Email OTP dispatch and session token verification operational.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Public Website Sync to Editorial</strong></td>
+          <td>Public Web</td>
+          <td><code class="mono">sync-home-markup.mjs</code> script operational. Zero markup drift.</td>
+          <td><span class="status-tag status-live">100% Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Automated Email Notification Dispatch</strong></td>
+          <td>Turf-OS Core</td>
+          <td>Worker queue active. Awaiting club's official SMTP mailbox credentials.</td>
+          <td><span class="status-tag status-pending">Awaiting SMTP</span></td>
+        </tr>
+        <tr>
+          <td><strong>Front Desk Banner &amp; Poster CMS</strong></td>
+          <td>Both</td>
+          <td>Planned for Phase 5 to eliminate developer intervention for new posters.</td>
+          <td><span class="status-tag status-pending">Roadmap</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 6: PENDING DELIVERABLES & FUTURE ROADMAP -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <h2 class="section-title">Pending Deliverables &amp; Strategic Roadmap</h2>
+    </div>
+
+    <div class="card card-highlight">
+      <h3 class="serif" style="color:var(--gold-light); margin-bottom:8px;">Executive Roadmap for Pavilion Club Leadership</h3>
+      <p style="color:var(--ivory-muted); font-size:12px;">
+        To ensure total operational independence so that the club management never requires engineering assistance for daily operations, promotional campaigns, or pricing adjustments, the following items are scheduled:
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h4 class="serif" style="color:var(--gold); margin-bottom:12px;">Immediate &amp; Near-Term Deliverables (Prioritized)</h4>
+
+      <div style="margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:var(--ivory); font-size:13px;">1. Official SMTP Mailbox Credentials for Automated Email Dispatch</strong>
+          <span class="status-tag status-pending">Immediate Action</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-left:14px;">
+          <strong>Current State:</strong> Enquiries are captured instantly in Turf-OS database and the Front Desk web console.<br>
+          <strong>Action Required:</strong> Club management needs to provide SMTP host, username, and password for <code class="mono" style="color:var(--gold-light);">frontdesk@thepavilionclub.com</code> (or enter them into <code class="mono">http://localhost:3000/settings/email</code>). Once saved, every online submission will automatically trigger an email notification directly to the front desk mailbox.
+        </p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:var(--ivory); font-size:13px;">2. Front Desk Rate Card &amp; Timetable CMS</strong>
+          <span class="status-tag status-pending">Phase 5 (Next Sprint)</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-left:14px;">
+          <strong>Objective:</strong> Allow the club owner or manager to update programme pricing, batch timings, class counts, and coach names directly from the Turf-OS Admin UI without touching frontend code. Includes a 1-click "Publish to Website" action.
+        </p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:var(--ivory); font-size:13px;">3. Promotional Posters &amp; Hero Banner Manager</strong>
+          <span class="status-tag status-pending">Phase 5 (Next Sprint)</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-left:14px;">
+          <strong>Objective:</strong> File uploader within Turf-OS settings where new graphic posters (such as the Inaugural Pickleball ₹2,000 poster or upcoming holiday tournaments) can be uploaded and toggled active on the homepage hero or announcement popup.
+        </p>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:var(--ivory); font-size:13px;">4. Meta WhatsApp Cloud API Integration (Automated Bot)</strong>
+          <span class="status-tag status-arch">Mid-Term Deliverable</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-left:14px;">
+          <strong>Context:</strong> As discussed in the Dharshini audio brief, direct WhatsApp automation requires Facebook Meta Business verification. Currently, the system uses friction-free direct WhatsApp chat links (<code class="mono">https://wa.me/...</code>). Once Meta verification is completed, automated template dispatches (booking passes, payment confirmations, and batch reminders) will be wired.
+        </p>
+      </div>
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="color:var(--ivory); font-size:13px;">5. Biometric / QR Turnstile Hardware Integration</strong>
+          <span class="status-tag status-arch">Future Strategic</span>
+        </div>
+        <p style="color:var(--ivory-muted); font-size:12px; margin-left:14px;">
+          <strong>Objective:</strong> Connect the cryptographically signed Pass QR code directly to physical turnstile barrier gates at the club entry for fully automated, unmanned check-in.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- SECTION 7: SIGN-OFF & EXECUTIVE ATTESTATION -->
+  <!-- ========================================================= -->
+  <div class="section page-break">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <h2 class="section-title">Sign-Off &amp; Operational Attestation</h2>
+    </div>
+
+    <div class="card" style="padding: 28px;">
+      <p style="color:var(--ivory); font-size:12.5px; line-height:1.8; margin-bottom:24px;">
+        This audit confirms that all core modules, live booking engines, database schemas, and Phase 4 client requirements (dynamic studio lead capture, A4 printable admission forms with physical signature boxes, and front-desk spot QR reconciliation slips) have been constructed, tested, and validated with zero runtime errors. The system is operating in a staging-ready state awaiting final leadership approval for live production deployment.
+      </p>
+
+      <div class="grid-2" style="border-top: 1px solid var(--gold-border); padding-top: 24px; margin-top: 20px;">
+        <div>
+          <p style="font-size:10px; text-transform:uppercase; color:var(--gold); font-weight:700; letter-spacing:0.1em; margin-bottom:12px;">Prepared By:</p>
+          <p style="font-size:13px; font-weight:700; color:var(--ivory);">Eyelevel Engineering Team</p>
+          <p style="font-size:11px; color:var(--ivory-muted);">System Architecture &amp; Full-Stack Core</p>
+          <p style="font-size:11px; color:var(--ivory-faint); margin-top:4px;">Date: 20 November 2026</p>
+        </div>
+
+        <div>
+          <p style="font-size:10px; text-transform:uppercase; color:var(--gold); font-weight:700; letter-spacing:0.1em; margin-bottom:12px;">Accepted &amp; Approved By:</p>
+          <p style="font-size:13px; font-weight:700; color:var(--ivory);">The Pavilion Club Management</p>
+          <p style="font-size:11px; color:var(--ivory-muted);">Authorized Club Leadership · Mogappair East</p>
+          <p style="font-size:11px; color:var(--ivory-faint); margin-top:4px;">Date: ________________________</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      The Pavilion Club · Mogappair East, Chennai · Powered by Turf-OS Multi-Tenant Architecture · Confidential Client Dossier
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

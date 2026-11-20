@@ -289,6 +289,13 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      // If triggered via #join or explicit enquiry, ALWAYS open the registration form
+      if (window.location.hash === '#join' || params.get('join') === 'true' || params.get('join') === '1') {
+        setStep('details');
+        setFormError(null);
+        return;
+      }
+
       if (params.get('pass') === 'preview' || window.location.hash === '#pass') {
         const now = new Date();
         const future = new Date();
@@ -302,10 +309,11 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           validUntil: future.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
           totalSessions: 20,
           amountPaise: 236000,
-                  });
+        });
         setStep('success');
         return;
       }
+
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         try {
@@ -313,11 +321,15 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           if (new Date(parsed.validUntil) > new Date()) {
             setMemberPass(parsed);
             setStep('success');
+            return;
           }
         } catch {
           // ignore
         }
       }
+
+      setStep('details');
+      setFormError(null);
     }
   }, [isOpen]);
 

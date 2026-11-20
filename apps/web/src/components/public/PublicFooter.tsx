@@ -28,6 +28,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
             <li><a href="/#spaces">Our Spaces</a></li>
             <li><a href="/#cafe">Café &amp; Food</a></li>
             <li><Link href="/franchise/">Franchise</Link></li>
+            <li><Link href="/services/">Services</Link></li>
             <li><Link href="/about/">About</Link></li>
           </ul>
         </div>

@@ -258,7 +258,6 @@ export function Rows({ items }: { items: readonly RowItem[] }) {
         {items.map((item, i) => {
           const attrs: DataAttributes = {};
           if (item.image) attrs['data-img'] = String(images.indexOf(item.image));
-          if (item.href) attrs['data-cursor'] = item.cursor ?? 'View';
           const inner = (
             <>
               <span className="site-row__n">{pad(i + 1)}</span>

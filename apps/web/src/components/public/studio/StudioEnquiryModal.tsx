@@ -4,12 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { CLUB } from '@/lib/club';
 import { GoldButton } from '@/components/public/site/GoldButton';
 import { addStudioEnquiry } from '@/lib/enquiry-store';
+import { PrintRegistrationSheet } from './PrintRegistrationSheet';
 
 export interface StudioEnquiryData {
-  activity?: string;
-  timeSlot?: string;
-  day?: string;
-  targetGroup?: string;
+  activity?: string | undefined;
+  timeSlot?: string | undefined;
+  day?: string | undefined;
+  targetGroup?: string | undefined;
+  programmeTitle?: string | undefined;
+  pricingLabel?: string | undefined;
+  amountDisplay?: string | undefined;
 }
 
 export interface StudioEnquiryModalProps {
@@ -33,9 +37,10 @@ export const STUDIO_CATEGORIES: StudioCategoryOption[] = [
   { id: 'yoga', num: '04', title: 'Yoga & Mindful Movement', desc: 'Hatha Flow, Alignment, Breathwork & Morning Reset', defaultTarget: 'Adults (18+)' },
   { id: 'silambam', num: '05', title: 'Silambam (Martial Arts)', desc: 'Traditional Stick Rotation, Discipline & Footwork', defaultTarget: 'Kids (Ages 4–10)' },
   { id: 'boxing', num: '06', title: 'Boxing & Combat', desc: 'Punch Power, Heavy Bags, Stance & Pad Drills', defaultTarget: 'Teens (Ages 14–18)' },
-  { id: 'pt', num: '07', title: 'Personal Training (1-on-1)', desc: 'Dedicated Individual Coaching & Custom Programming', defaultTarget: 'Adults (18+)' },
-  { id: 'workshop', num: '08', title: 'Special Workshop', desc: 'Curated Guest Masterclasses & Weekend Labs', defaultTarget: 'All Ages' },
-  { id: 'rental', num: '09', title: 'Studio Rental & Practice', desc: 'Private Floor Rehearsals & Production Bookings', defaultTarget: 'All Ages' },
+  { id: 'gymnastics', num: '07', title: 'Gymnastics & Acrobatics', desc: 'Flexibility, Handstands, Core Conditioning & Tumbling', defaultTarget: 'Adults (18+)' },
+  { id: 'pt', num: '08', title: 'Personal Training (1-on-1)', desc: 'Dedicated Individual Coaching & Custom Programming', defaultTarget: 'Adults (18+)' },
+  { id: 'workshop', num: '09', title: 'Special Workshop', desc: 'Curated Guest Masterclasses & Weekend Labs', defaultTarget: 'All Ages' },
+  { id: 'rental', num: '10', title: 'Studio Rental & Practice', desc: 'Private Floor Rehearsals & Production Bookings', defaultTarget: 'All Ages' },
 ];
 
 // Alias for backward compatibility if imported elsewhere
@@ -91,14 +96,17 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
   // Validation & Reference State
   const [formError, setFormError] = useState('');
   const [refId, setRefId] = useState('');
+  const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
 
   // Sync initialData if triggered from timetable cell or card
   useEffect(() => {
     if (!initialData) return;
 
-    // 1. Map Activity to specific Category
-    const act = (initialData.activity || '').toLowerCase();
-    if (act.includes('salsa')) {
+    // 1. Map Activity or Programme to specific Category
+    const act = (initialData.programmeTitle || initialData.activity || '').toLowerCase();
+    if (act.includes('gymnastic')) {
+      setCategory('Gymnastics & Acrobatics');
+    } else if (act.includes('salsa')) {
       setCategory('Salsa & Latin Social');
     } else if (act.includes('silambam')) {
       setCategory('Silambam (Martial Arts)');
@@ -116,6 +124,11 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
       setCategory('Studio Rental & Practice');
     } else if (act.includes('dance')) {
       setCategory('Dance');
+    }
+
+    if (initialData.pricingLabel || initialData.amountDisplay) {
+      const extra = [initialData.pricingLabel, initialData.amountDisplay].filter(Boolean).join(' · ');
+      setNotes((prev) => (prev ? `${prev}\nInterested in: ${extra}` : `Interested in: ${extra}`));
     }
 
     // 2. Map Target Group / Cohort
@@ -725,13 +738,23 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
                 Our Studio Desk will communicate batch schedule and trial availability. Immediate desk: <strong className="text-white">{CLUB.phoneDisplay}</strong>.
               </p>
 
-              <button
-                type="button"
-                onClick={handleReset}
-                className="w-full h-[46px] rounded-none border border-white/20 hover:border-white/40 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-all active:scale-95"
-              >
-                Done &amp; Close
-              </button>
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPrintSheetOpen(true)}
+                  className="w-full py-3 px-4 rounded-lg bg-[#c7a26a] hover:bg-[#d9b882] text-[#09131e] text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md active:scale-95"
+                >
+                  <span>🖨️ Print Application Sheet (Physical Signature Form)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="w-full h-10 rounded-lg border border-white/20 hover:border-white/40 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-all active:scale-95"
+                >
+                  Done &amp; Close
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -741,6 +764,24 @@ export function StudioEnquiryModal({ isOpen, onClose, initialData }: StudioEnqui
           Pavilion Studio · The Pavilion Club · Mogappair East, Chennai · Desk {CLUB.phoneDisplay}
         </div>
       </div>
+
+      {/* Printable Sheet for Physical Signature */}
+      <PrintRegistrationSheet
+        isOpen={isPrintSheetOpen}
+        onClose={() => setIsPrintSheetOpen(false)}
+        data={{
+          reference: refId,
+          name,
+          phone,
+          email,
+          category,
+          cohort: targetGroup,
+          day: selectedDay,
+          timeSlot,
+          level,
+          notes,
+        }}
+      />
     </div>
   );
 }

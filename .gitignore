@@ -25,6 +25,7 @@ apps/web/out/
 
 # Local Media Briefs & Source Videos (Do Not Commit)
 *.mov
+*.mp4
 *.m4a.mp4
 
 # Reference timetable images in root

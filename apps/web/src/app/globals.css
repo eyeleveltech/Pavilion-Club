@@ -2011,7 +2011,7 @@ html.lenis body {
   }
 }
 
-/* --- the gold cursor (fine pointers only; SiteMotion adds it) --- */
+/* --- The Signature Pavilion Club Luxury Round Cursor --- */
 .site-cursor,
 .site-cursor-ring {
   position: fixed;
@@ -2026,33 +2026,30 @@ html.lenis body {
 .site-cursor {
   width: 6px;
   height: 6px;
-  background: var(--gold);
+  background: var(--gold, #C9A96E);
+  box-shadow: 0 0 6px rgba(201, 169, 110, 0.4);
 }
 .site-cursor-ring {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1.5px solid rgba(199, 162, 106, 0.55);
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--midnight);
-  transition: width 0.45s var(--ease), height 0.45s var(--ease), background 0.45s, border-color 0.45s;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid rgba(201, 169, 110, 0.65);
+  background: transparent;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease,
+              background-color 0.3s ease;
 }
 .site-cursor-ring.is-link {
-  width: 52px;
-  height: 52px;
-  border-color: var(--gold);
+  width: 50px;
+  height: 50px;
+  border-color: rgba(201, 169, 110, 0.95);
+  background: rgba(201, 169, 110, 0.08);
+  box-shadow: 0 0 16px rgba(201, 169, 110, 0.18);
 }
-.site-cursor-ring.is-label {
-  width: 84px;
-  height: 84px;
-  background: var(--gold);
-  border-color: var(--gold);
-}
+body.has-cursor,
 body.has-cursor .site-root,
 body.has-cursor .site-root a,
 body.has-cursor .site-root button,
@@ -2060,15 +2057,26 @@ body.has-cursor .site-root summary,
 body.has-cursor .site-root label,
 body.has-cursor [role="dialog"],
 body.has-cursor [role="dialog"] a,
-body.has-cursor [role="dialog"] button,
-body.has-cursor [role="dialog"] summary,
-body.has-cursor [role="dialog"] label,
-body.has-cursor [role="dialog"] [role="button"] {
+body.has-cursor [role="dialog"] button {
   cursor: none !important;
 }
-body.has-cursor .site-root :is(input, textarea, select),
-body.has-cursor [role="dialog"] :is(input, textarea, select) {
+body.has-cursor input,
+body.has-cursor textarea,
+body.has-cursor select,
+body.has-cursor [contenteditable="true"] {
   cursor: text !important;
+}
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  .site-cursor,
+  .site-cursor-ring {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+  body.has-cursor,
+  body.has-cursor * {
+    cursor: auto !important;
+  }
 }
 
 /* --- smaller section heading (FAQ groups) --- */

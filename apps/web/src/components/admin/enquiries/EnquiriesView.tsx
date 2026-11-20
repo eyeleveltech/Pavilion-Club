@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ExternalLink,
   ShieldCheck,
+  Printer,
 } from 'lucide-react';
 import {
   getPickleballEnquiries,
@@ -26,6 +27,10 @@ import {
   type PickleballEnquiry,
   type StudioEnquiry,
 } from '@/lib/enquiry-store';
+import {
+  PrintRegistrationSheet,
+  type PrintableRegistrationData,
+} from '@/components/public/studio/PrintRegistrationSheet';
 
 export function EnquiriesView() {
   const [activeTab, setActiveTab] = useState<'pickleball' | 'studio'>('pickleball');
@@ -36,6 +41,7 @@ export function EnquiriesView() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [lastRefreshed, setLastRefreshed] = useState<string>('Just now');
   const [checkInNotice, setCheckInNotice] = useState<{ tone: 'success' | 'warn'; text: string } | null>(null);
+  const [printData, setPrintData] = useState<PrintableRegistrationData | null>(null);
 
   // Load enquiries from storage and bind live sync listeners
   const refreshData = () => {
@@ -406,6 +412,28 @@ export function EnquiriesView() {
                             );
                           })()}
 
+                          {/* 1-Click Printable Application Sheet */}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPrintData({
+                                reference: item.reference,
+                                name: item.name,
+                                phone: item.phone,
+                                email: item.email,
+                                category: item.plan,
+                                cohort: 'Pickleball Member',
+                                pricingLabel: `${item.sessions} Sessions Package`,
+                                amountDisplay: item.amountDisplay,
+                                createdAt: item.createdAt,
+                              })
+                            }
+                            className="p-1.5 rounded-lg border border-[#c7a26a]/40 bg-[#c7a26a]/10 hover:bg-[#c7a26a]/20 text-[#c7a26a] transition-all"
+                            title="Print Physical Application Sheet (for Signature & QR payment)"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                          </button>
+
                           {/* 1-Click WhatsApp Button */}
                           <a
                             href={`https://wa.me/91${item.phone}?text=${encodeURIComponent(
@@ -543,6 +571,30 @@ export function EnquiriesView() {
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* 1-Click Printable Application Sheet */}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPrintData({
+                                reference: item.reference,
+                                name: item.name,
+                                phone: item.phone,
+                                email: item.email,
+                                category: item.category,
+                                cohort: item.cohort,
+                                day: item.day,
+                                timeSlot: item.timeSlot,
+                                level: item.level,
+                                notes: item.notes,
+                                createdAt: item.createdAt,
+                              })
+                            }
+                            className="p-1.5 rounded-lg border border-[#c7a26a]/40 bg-[#c7a26a]/10 hover:bg-[#c7a26a]/20 text-[#c7a26a] transition-all"
+                            title="Print Physical Application Sheet (for Signature & QR payment)"
+                          >
+                            <Printer className="w-3.5 h-3.5" />
+                          </button>
+
                           {/* 1-Click WhatsApp Quick Trial Confirmation */}
                           <a
                             href={`https://wa.me/91${item.phone}?text=${encodeURIComponent(
@@ -584,6 +636,13 @@ export function EnquiriesView() {
           )}
         </div>
       )}
+
+      {/* Printable Application Sheet Modal for Physical Signature */}
+      <PrintRegistrationSheet
+        isOpen={Boolean(printData)}
+        onClose={() => setPrintData(null)}
+        data={printData}
+      />
     </div>
   );
 }

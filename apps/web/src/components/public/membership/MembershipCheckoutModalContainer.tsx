@@ -21,7 +21,13 @@ export function MembershipCheckoutModalContainer() {
     checkHash();
     window.addEventListener('hashchange', checkHash);
 
-    // 2. Intercept click on any link pointing to #join
+    // 2. Direct event listener for MembershipJoinButton
+    const handleDirectOpen = () => {
+      setIsOpen(true);
+    };
+    window.addEventListener('open-membership-modal', handleDirectOpen);
+
+    // 3. Intercept click on any link pointing to #join
     const handleClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest('a[href="#join"]');
       if (target) {
@@ -37,6 +43,7 @@ export function MembershipCheckoutModalContainer() {
 
     return () => {
       window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('open-membership-modal', handleDirectOpen);
       document.removeEventListener('click', handleClick);
     };
   }, []);

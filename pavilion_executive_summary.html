@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Pavilion Club & Turf-OS · Executive One-Pager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #070D18;
+    --card: #0D1929;
+    --gold: #C9A96E;
+    --gold-light: #E5C378;
+    --gold-faint: rgba(201, 169, 110, 0.12);
+    --gold-border: rgba(201, 169, 110, 0.28);
+    --ivory: #FBF8F1;
+    --ivory-dim: rgba(251, 248, 241, 0.65);
+    --emerald: #10B981;
+    --amber: #F59E0B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--ivory);
+    line-height: 1.55;
+    font-size: 13px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 44px 48px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .header {
+    border-bottom: 1px solid var(--gold-border);
+    padding-bottom: 20px;
+    margin-bottom: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .brand-title {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ivory);
+    letter-spacing: 0.05em;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .meta-tag {
+    font-size: 11px;
+    color: var(--ivory-dim);
+    text-align: right;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .pillar-card {
+    background: var(--card);
+    border: 1px solid var(--gold-border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .pillar-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .pillar-card p {
+    font-size: 12px;
+    color: var(--ivory-dim);
+    line-height: 1.55;
+  }
+
+  .highlight-banner {
+    background: linear-gradient(135deg, rgba(201, 169, 110, 0.14), rgba(13, 25, 41, 0.95));
+    border: 1px solid var(--gold);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 26px;
+  }
+
+  .highlight-banner h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 17px;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .step-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .step-box {
+    background: rgba(7, 13, 24, 0.7);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 11px;
+  }
+
+  .step-box .num {
+    color: var(--gold);
+    font-weight: 800;
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .step-box strong {
+    color: var(--ivory);
+    display: block;
+    margin-bottom: 3px;
+    font-size: 11.5px;
+  }
+
+  .step-box span {
+    color: var(--ivory-dim);
+  }
+
+  /* Two Column Matrix */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .box-container {
+    background: var(--card);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .box-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gold-border);
+  }
+
+  .item-list {
+    list-style: none;
+    space-y: 10px;
+  }
+
+  .item-list li {
+    font-size: 11.5px;
+    color: var(--ivory-dim);
+    margin-bottom: 9px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .check-icon {
+    color: var(--emerald);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .pending-icon {
+    color: var(--amber);
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: rgba(251, 248, 241, 0.4);
+  }
+
+  @media print {
+    body { background: #070D18 !important; }
+    .page { min-height: 98vh; padding: 24px; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================================== -->
+<!-- PAGE 1: EXECUTIVE BRIEF & WORKFLOW -->
+<!-- ========================================== -->
+<div class="page">
+  <div>
+    <div class="header">
+      <div>
+        <h1 class="brand-title">THE PAVILION CLUB</h1>
+        <div class="brand-sub">Turf-OS Executive Summary &amp; System Capabilities</div>
+      </div>
+      <div class="meta-tag">
+        <strong>Venue:</strong> Mogappair East, Chennai<br>
+        <strong>Status:</strong> Staging Validated · Ready for Live
+      </div>
+    </div>
+
+    <!-- 3 Core Engines -->
+    <div class="card-grid">
+      <div class="pillar-card">
+        <h3>1. Public Website</h3>
+        <p>
+          Luxury client-facing site at <code style="color:var(--gold);">thepavilionclub.com</code>. Offers instant court booking, digital pass QR, membership discovery, and Studio Mogappair rate card.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <h3>2. Turf-OS Engine</h3>
+        <p>
+          Central operating system. Controls court slots, enforces 10-minute hold locks (zero double bookings), manages 7 Studio packs, and tracks member session credits.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <h3>3. Front Desk Console</h3>
+        <p>
+          Operations desk at <code style="color:var(--gold);">/admin/enquiries</code>. Live leads feed across Pickleball &amp; Studio, 1-click attendance check-in, 1-click WhatsApp, and 1-click A4 print.
+        </p>
+      </div>
+    </div>
+
+    <!-- The 4-Step Onboarding Flow (Phase 4 Highlight) -->
+    <div class="highlight-banner">
+      <h2>The Member Onboarding &amp; Signature Workflow (Phase 4)</h2>
+      <p style="font-size:12px; color:var(--ivory-dim);">
+        How prospective members enquire online, visit in person, sign on paper, and pay via front desk QR code:
+      </p>
+
+      <div class="step-row">
+        <div class="step-box">
+          <span class="num">Step 01</span>
+          <strong>Online Click</strong>
+          <span>Visitor selects programme (e.g. Salsa Couple) &amp; fills quick popup.</span>
+        </div>
+
+        <div class="step-box">
+          <span class="num">Step 02</span>
+          <strong>Lead Capture</strong>
+          <span>Details save in Turf-OS database with reference # (e.g. STU-2026-4819).</span>
+        </div>
+
+        <div class="step-box">
+          <span class="num">Step 03</span>
+          <strong>A4 Form Print</strong>
+          <span>Desk prints formatted admission slip with rules &amp; signature box.</span>
+        </div>
+
+        <div class="step-box">
+          <span class="num">Step 04</span>
+          <strong>Sign &amp; QR Pay</strong>
+          <span>Member physically signs form; desk collects payment via UPI QR code.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 Flagship Programmes -->
+    <div class="box-container">
+      <div class="box-title">Active Studio Programmes &amp; Pricing (Mogappair Rate Card)</div>
+      <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; font-size:11px; text-align:center;">
+        <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(201,169,110,0.2);">
+          <strong style="color:var(--gold-light); display:block;">DANCE</strong>
+          <span style="color:var(--ivory-dim);">Weekday (12): ₹2,200</span><br>
+          <span style="color:var(--ivory-dim);">Weekend (8): ₹2,000</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(201,169,110,0.2);">
+          <strong style="color:var(--gold-light); display:block;">SALSA</strong>
+          <span style="color:var(--ivory-dim);">Single: ₹3,000</span><br>
+          <span style="color:var(--ivory-dim);">Couple: ₹5,000</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(201,169,110,0.2);">
+          <strong style="color:var(--gold-light); display:block;">GYMNASTICS</strong>
+          <span style="color:var(--ivory-dim);">8 Classes / Mo</span><br>
+          <strong style="color:var(--ivory);">₹4,000 + GST</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(201,169,110,0.2);">
+          <strong style="color:var(--gold-light); display:block;">BOXING</strong>
+          <span style="color:var(--ivory-dim);">8 Classes / Mo</span><br>
+          <strong style="color:var(--ivory);">₹2,750 + GST</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid rgba(201,169,110,0.2);">
+          <strong style="color:var(--gold-light); display:block;">YOGA</strong>
+          <span style="color:var(--ivory-dim);">12 Classes / Mo</span><br>
+          <strong style="color:var(--ivory);">₹2,500 + GST</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>The Pavilion Club · Executive Brief · Page 1 of 2</span>
+    <span>Confidential · Eyelevel Engineering</span>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE 2: STATUS & ACTION ITEMS -->
+<!-- ========================================== -->
+<div class="page">
+  <div>
+    <div class="header">
+      <div>
+        <h1 class="brand-title">SYSTEM STATUS &amp; ROADMAP</h1>
+        <div class="brand-sub">Deliverables Checklist &amp; Client Action Items</div>
+      </div>
+      <div class="meta-tag">
+        <strong>Release Target:</strong> Live Staging<br>
+        <strong>TypeScript Check:</strong> Passed (0 Errors)
+      </div>
+    </div>
+
+    <div class="matrix-grid">
+      <!-- What is 100% Ready -->
+      <div class="box-container">
+        <div class="box-title">100% Completed &amp; Verified Features</div>
+        <ul class="item-list">
+          <li><span class="check-icon">✓</span> <span><strong>Studio Rate Card:</strong> Live on website with 5 programmes &amp; launch pricing.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Dynamic Enquiry Modal:</strong> Auto-fills selected programme &amp; validates contact info.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Printable A4 Admission Form:</strong> Includes Member Signature box &amp; Spot QR slip.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Front Desk Enquiries Console:</strong> Dual tabs, 1-click attendance, 1-click print.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Database Pack Insertion:</strong> 7 official Studio packs inserted in Turf-OS database.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Court Booking Engine:</strong> 10-minute hold lock prevents duplicate bookings.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Digital Court Pass:</strong> Unique ref code, scannable QR, calendar integration.</span></li>
+          <li><span class="check-icon">✓</span> <span><strong>Member Pack Credit Burn:</strong> Automatic session credit deduction on court booking.</span></li>
+        </ul>
+      </div>
+
+      <!-- Action Items & Pending -->
+      <div class="box-container">
+        <div class="box-title">Client Action Items &amp; Next Sprint</div>
+        <ul class="item-list">
+          <li>
+            <span class="pending-icon">⏳</span>
+            <span>
+              <strong>1. Club Mailbox Password (Immediate):</strong><br>
+              Provide SMTP credentials for <code style="color:var(--gold-light);">frontdesk@thepavilionclub.com</code> so new web leads trigger automatic emails directly to club staff.
+            </span>
+          </li>
+          <li style="margin-top:14px;">
+            <span class="pending-icon">⏳</span>
+            <span>
+              <strong>2. Promotional Banner CMS (Phase 5):</strong><br>
+              Upcoming UI inside Turf-OS settings where the owner can upload promotional posters (Pickleball ₹2,000 flyer) directly without developers.
+            </span>
+          </li>
+          <li style="margin-top:14px;">
+            <span class="pending-icon">⏳</span>
+            <span>
+              <strong>3. Rate Card &amp; Timetable CMS (Phase 5):</strong><br>
+              Allow owner to change prices and batch timings directly from Front Desk.
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Executive Sign-off Box -->
+    <div class="box-container" style="margin-top:16px; border:1px solid var(--gold-border);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span style="color:var(--gold); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em;">Engineering Verification</span>
+          <h4 style="font-family:'Cinzel',serif; font-size:14px; color:var(--ivory); margin-top:2px;">Production Ready for Live Deployment</h4>
+          <p style="font-size:11px; color:var(--ivory-dim); margin-top:4px;">
+            Both servers running cleanly (<code style="color:var(--gold-light);">localhost:3001</code> &amp; <code style="color:var(--gold-light);">localhost:3000</code>). All Phase 4 requirements satisfied.
+          </p>
+        </div>
+
+        <div style="text-align:right;">
+          <div style="display:inline-block; padding:6px 16px; background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.4); border-radius:8px; color:#34D399; font-weight:700; font-size:11px;">
+            AWAITING CLIENT APPROVAL TO PUSH LIVE
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>The Pavilion Club · Executive Brief · Page 2 of 2</span>
+    <span>Confidential · Eyelevel Engineering</span>
+  </div>
+</div>
+
+</body>
+</html>

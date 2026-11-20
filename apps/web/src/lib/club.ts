@@ -46,6 +46,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: 'Academy', menuLabel: 'Pickleball Academy', href: '/academy/' },
   { label: 'Events', menuLabel: 'Tournaments & Events', href: '/events/' },
   { label: 'Franchise', menuLabel: 'Franchise', href: '/franchise/' },
+  { label: 'Services', menuLabel: 'Club Services', href: '/services/' },
   { label: 'Contact', menuLabel: 'Contact', href: '/contact/' },
 ];
 

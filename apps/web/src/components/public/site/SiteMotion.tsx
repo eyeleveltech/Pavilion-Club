@@ -298,11 +298,11 @@ function runMotion(root: HTMLElement): () => void {
         gsap.set(float, { xPercent: -50, yPercent: -50, scale: 0.9 });
         const fx = gsap.quickTo(float, 'x', { duration: 0.55, ease: 'power3' });
         const fy = gsap.quickTo(float, 'y', { duration: 0.55, ease: 'power3' });
-        const hide = () => gsap.to(float, { autoAlpha: 0, scale: 0.9, duration: 0.3, ease: 'power3.out', overwrite: 'auto' });
+        const hide = () => gsap.to(float, { autoAlpha: 0, scale: 0.9, duration: 0.25, ease: 'power3.out', overwrite: 'auto' });
         $$('[data-img]', section).forEach((row) => {
           on(row, 'mouseenter', () => {
             imgs.forEach((im, j) => im.classList.toggle('is-on', j === Number(row.dataset.img)));
-            gsap.to(float, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'power3.out', overwrite: 'auto' });
+            gsap.to(float, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'power3.out', overwrite: 'auto' });
           });
           on(row, 'mouseleave', hide);
         });
@@ -311,6 +311,14 @@ function runMotion(root: HTMLElement): () => void {
           fy(e.clientY);
         });
         on(section, 'mouseleave', hide);
+
+        // Auto-hide floating preview on scroll, blur, or window leave so it never gets stuck
+        on(window, 'scroll', hide);
+        if (lenis) {
+          lenis.on('scroll', hide);
+        }
+        on(window, 'blur', hide);
+        on(document.documentElement, 'mouseleave', hide);
       });
     }
 
@@ -378,8 +386,8 @@ function runMotion(root: HTMLElement): () => void {
     }
   }, root);
 
-  /* ---------- the gold cursor ---------- */
-  if (fine && !reduce) disposers.push(mountCursor(gsap, on));
+  /* ---------- the signature luxury round cursor ---------- */
+  if (fine && !reduce) disposers.push(mountCursor(gsap, on, lenis));
 
   // Fonts change line lengths, and so every trigger position.
   void document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -392,7 +400,7 @@ function runMotion(root: HTMLElement): () => void {
   };
 }
 
-function mountCursor(gsap: any, on: Listen): () => void {
+function mountCursor(gsap: any, on: Listen, lenis?: any): () => void {
   const dot = document.createElement('div');
   const ring = document.createElement('div');
   dot.className = 'site-cursor';
@@ -403,35 +411,60 @@ function mountCursor(gsap: any, on: Listen): () => void {
   document.body.classList.add('has-cursor');
 
   gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
-  const dx = gsap.quickTo(dot, 'x', { duration: 0.1 });
-  const dy = gsap.quickTo(dot, 'y', { duration: 0.1 });
-  const rx = gsap.quickTo(ring, 'x', { duration: 0.5, ease: 'power3' });
-  const ry = gsap.quickTo(ring, 'y', { duration: 0.5, ease: 'power3' });
-  // Hidden until the mouse moves, and over form fields, where the text
-  // cursor shows instead.
+  const dx = gsap.quickTo(dot, 'x', { duration: 0.08, ease: 'none' });
+  const dy = gsap.quickTo(dot, 'y', { duration: 0.08, ease: 'none' });
+  const rx = gsap.quickTo(ring, 'x', { duration: 0.35, ease: 'power2.out' });
+  const ry = gsap.quickTo(ring, 'y', { duration: 0.35, ease: 'power2.out' });
+
   let shown = false;
+  let lastX = -1;
+  let lastY = -1;
+
+  const updateHoverAt = (el: Element | null) => {
+    const isInteractive = Boolean(
+      el?.closest('a, button, [role="button"], summary, label, .is-link, .editorial-btn, .site-row')
+    );
+    ring.classList.toggle('is-link', isInteractive);
+
+    const isFormInput = Boolean(el?.closest('input, textarea, select, [contenteditable="true"]'));
+    const show = !isFormInput;
+    if (show !== shown) {
+      shown = show;
+      gsap.to([dot, ring], { opacity: show ? 1 : 0, duration: 0.2, overwrite: 'auto' });
+    }
+  };
 
   on(window, 'mousemove', (e) => {
+    lastX = e.clientX;
+    lastY = e.clientY;
     dx(e.clientX);
     dy(e.clientY);
     rx(e.clientX);
     ry(e.clientY);
     const el = e.target instanceof Element ? e.target : null;
-    const label = el?.closest<HTMLElement>('[data-cursor]')?.dataset.cursor ?? '';
-    if (ring.textContent !== label) ring.textContent = label;
-    ring.classList.toggle('is-label', Boolean(label));
-    ring.classList.toggle('is-link', !label && Boolean(el?.closest('a, button, summary, label')));
-    const isFormInput = Boolean(el?.closest('input, textarea, select'));
-    const show = !isFormInput;
-    if (show !== shown) {
-      shown = show;
-      gsap.to([dot, ring], { opacity: show ? 1 : 0, duration: 0.25, overwrite: 'auto' });
+    updateHoverAt(el);
+  });
+
+  const onScroll = () => {
+    if (lastX >= 0 && lastY >= 0 && lastX <= innerWidth && lastY <= innerHeight) {
+      const el = document.elementFromPoint(lastX, lastY);
+      updateHoverAt(el);
     }
-  });
-  on(document.documentElement, 'mouseleave', () => {
+  };
+
+  on(window, 'scroll', onScroll);
+  if (lenis) {
+    lenis.on('scroll', onScroll);
+  }
+
+  const hideCursor = () => {
     shown = false;
-    gsap.to([dot, ring], { opacity: 0, duration: 0.3, overwrite: 'auto' });
-  });
+    ring.classList.remove('is-link');
+    gsap.to([dot, ring], { opacity: 0, duration: 0.2, overwrite: 'auto' });
+  };
+
+  on(document.documentElement, 'mouseleave', hideCursor);
+  on(window, 'blur', hideCursor);
 
   return () => {
     dot.remove();

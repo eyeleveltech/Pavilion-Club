@@ -262,8 +262,8 @@
     if (dot && ring) {
       document.body.classList.add('has-cursor');
       gsap.set([dot, ring], { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
-      const dx = gsap.quickTo(dot, 'x', { duration: .1 }), dy = gsap.quickTo(dot, 'y', { duration: .1 });
-      const rx = gsap.quickTo(ring, 'x', { duration: .5, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: .5, ease: 'power3' });
+      const dx = gsap.quickTo(dot, 'x', { duration: .08 }), dy = gsap.quickTo(dot, 'y', { duration: .08 });
+      const rx = gsap.quickTo(ring, 'x', { duration: .35, ease: 'power2.out' }), ry = gsap.quickTo(ring, 'y', { duration: .35, ease: 'power2.out' });
       let seen = false;
       let lastX = innerWidth / 2;
       let lastY = innerHeight / 2;
@@ -271,31 +271,13 @@
       // Real-time hover evaluator: checks element directly at (x, y)
       const checkHoverAt = (x, y) => {
         if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
-          if (ring.classList.contains('is-hover')) {
-            ring.classList.remove('is-hover');
-            ring.textContent = '';
-          }
           ring.classList.remove('is-link');
           return;
         }
 
         const el = document.elementFromPoint(x, y);
-        const hoverEl = el && el.closest ? el.closest('[data-cursor]') : null;
-
-        if (hoverEl && hoverEl.dataset.cursor) {
-          if (!ring.classList.contains('is-hover') || ring.textContent !== hoverEl.dataset.cursor) {
-            ring.classList.add('is-hover');
-            ring.textContent = hoverEl.dataset.cursor;
-          }
-        } else {
-          if (ring.classList.contains('is-hover')) {
-            ring.classList.remove('is-hover');
-            ring.textContent = '';
-          }
-        }
-
-        const linkEl = el && el.closest ? el.closest('a, button, .magnetic') : null;
-        if (linkEl && !hoverEl) {
+        const linkEl = el && el.closest ? el.closest('a, button, .magnetic, .row') : null;
+        if (linkEl) {
           ring.classList.add('is-link');
         } else {
           ring.classList.remove('is-link');
