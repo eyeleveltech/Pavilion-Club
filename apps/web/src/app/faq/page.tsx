@@ -19,8 +19,8 @@ const GROUPS: readonly { id: string; title: string; items: readonly FaqItem[] }[
         a: 'No. The inaugural membership is for shared play and does not reserve a private or exclusive court.',
       },
       {
-        q: 'How many sessions are included?',
-        a: 'Up to 20 one-hour sessions per membership month, with a maximum of one session per day during the weekday access window (Monday – Friday, 6:00 AM – 3:00 PM).',
+        q: 'How many hours of play are included?',
+        a: '12 hours of play per membership month, with a maximum of one 1-hour session per day during the weekday access window (Monday – Friday, 6:00 AM – 3:00 PM).',
       },
       {
         q: 'Can I request a preferred time or skill group?',

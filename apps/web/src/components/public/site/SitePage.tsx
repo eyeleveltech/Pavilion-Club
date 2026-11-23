@@ -22,14 +22,20 @@ import { isHomeLink } from '@/lib/club';
 const MOTION_BOOT =
   "(function(d){d.documentElement.classList.add('site-motion');setTimeout(function(){if(!window.__siteMotion)d.documentElement.classList.add('site-motion-off')},5000)})(document)";
 
-export function SitePage({ children }: { children: ReactNode }) {
+export function SitePage({
+  children,
+  overlayHeader = true,
+}: {
+  children: ReactNode;
+  overlayHeader?: boolean;
+}) {
   MOTION_SCRIPTS.forEach(([, src]) => preload(src, { as: 'script' }));
   return (
     <>
       <link rel="stylesheet" href="/assets/fonts/fonts.css" />
       <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT }} />
       <div className="site-root flex min-h-svh flex-col bg-ivory font-sans text-navy antialiased">
-        <PublicHeader overlay />
+        <PublicHeader overlay={overlayHeader} />
         <main id="main" className="flex-1">
           {children}
         </main>

@@ -152,6 +152,29 @@ export function StudioRateCard() {
   const [modalInitialData, setModalInitialData] = useState<StudioEnquiryData | null>(null);
 
   const handleOpenEnquiry = (prog?: RateCardItem) => {
+    if (typeof window !== 'undefined') {
+      const formEl = document.getElementById('enquire');
+      if (formEl) {
+        window.dispatchEvent(
+          new CustomEvent('pavilion-select-category', {
+            detail: {
+              category: 'studio',
+              programme: prog ? prog.title : undefined,
+            },
+          })
+        );
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (window.location.hash !== '#enquire') {
+          window.history.pushState(null, '', '#enquire');
+        }
+        setTimeout(() => {
+          const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
+          nameInput?.focus();
+        }, 400);
+        return;
+      }
+    }
+
     if (prog) {
       const topTier = prog.pricing[0];
       setModalInitialData({

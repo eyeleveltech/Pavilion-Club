@@ -49,6 +49,21 @@ export function StudioTimetable() {
     const handleClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest('a[href="#studio-enquiry"]');
       if (target) {
+        const formEl = document.getElementById('enquire');
+        if (formEl) {
+          e.preventDefault();
+          const catSelect = document.querySelector<HTMLSelectElement>('#enquire select[name="category"]');
+          if (catSelect && catSelect.value !== 'studio') {
+            catSelect.value = 'studio';
+            catSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setTimeout(() => {
+            const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
+            nameInput?.focus();
+          }, 400);
+          return;
+        }
         e.preventDefault();
         setEnquiryData(null);
         setIsModalOpen(true);

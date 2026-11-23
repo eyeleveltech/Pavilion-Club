@@ -65,10 +65,10 @@ const GROUPS: readonly Group[] = [
         image: '/assets/images/courts-side.jpg',
         facts: [
           { label: 'When', value: 'Mon – Fri, 6 AM – 3 PM' },
-          { label: 'Includes', value: 'Up to 20 one-hour sessions a month, one a day' },
+          { label: 'Includes', value: '12 hours of play a month (up to 1 hour daily)' },
           { label: 'Price', value: '₹2,000 a month + 18% GST (₹2,360)' },
         ],
-        action: { label: 'Join the membership', href: '/membership/#courts' },
+        action: { label: 'Join the membership', href: '/membership/#enquire' },
         more: { label: 'Membership terms', href: '/membership/#terms' },
       },
     ],

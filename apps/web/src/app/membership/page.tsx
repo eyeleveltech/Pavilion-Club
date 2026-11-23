@@ -19,6 +19,7 @@ import {
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { MembershipCheckoutModalContainer } from '@/components/public/membership/MembershipCheckoutModalContainer';
 import { MembershipJoinButton } from '@/components/public/membership/MembershipJoinButton';
+import { UnifiedMembershipFormSection } from '@/components/public/membership/UnifiedMembershipFormSection';
 import { StudioTimetable } from '@/components/public/studio/StudioTimetable';
 import { StudioRateCard } from '@/components/public/studio/StudioRateCard';
 
@@ -32,14 +33,14 @@ const JOIN_URL = whatsappUrl("Hi Pavilion Club! I'd like to join the Pavilion Co
 
 const COURTS_FACTS = [
   { label: 'Access', value: 'Monday – Friday, 6:00 AM – 3:00 PM (excluding public holidays).' },
-  { label: 'Included play', value: 'Up to 20 one-hour sessions per membership month; at most one session a day.' },
+  { label: 'Included play', value: '12 hours of play per membership month; up to one 1-hour session a day.' },
   { label: 'Format', value: 'An individual membership for shared play, not a private or exclusive court booking.' },
   { label: 'Capacity', value: 'Up to six players assigned to a court per session; rotations may be used.' },
   { label: 'Access mode', value: 'Direct walk-in access — present your digital pass at the front desk between 6:00 AM – 3:00 PM (Mon – Fri). No advance slot booking required.' },
 ] as const;
 
 const STATS = [
-  { n: 20, label: 'One-hour sessions a membership month' },
+  { n: 12, unit: 'hrs', label: 'Monthly play allowance' },
   { n: 9, unit: 'hrs', label: 'Weekday window, 6 AM to 3 PM' },
   { n: 6, label: 'Players at most on a court' },
   { n: 1, unit: 'hr', label: 'Daily active play allowance' },
@@ -60,7 +61,7 @@ const STEPS = [
   },
   {
     title: 'Fair play quota',
-    text: 'Enjoy up to 20 weekday sessions per month. No advance slot booking needed—quota is deducted when you check in at the desk.',
+    text: 'Enjoy 12 hours of weekday play per month (up to 1 hour daily). No advance slot booking needed—quota is deducted when you check in at the desk.',
   },
 ] as const;
 
@@ -72,8 +73,8 @@ const FAQS: readonly FaqItem[] = [
     a: 'No. The inaugural membership is for shared play and does not reserve a private or exclusive court.',
   },
   {
-    q: 'How many sessions are included?',
-    a: 'Up to 20 one-hour sessions per membership month, with a maximum of one session per day during the weekday access window (Monday – Friday, 6:00 AM – 3:00 PM).',
+    q: 'How many hours of play are included?',
+    a: '12 hours of play per membership month, with a maximum of one 1-hour session per day during the weekday access window (Monday – Friday, 6:00 AM – 3:00 PM).',
   },
   {
     q: 'Can I request a preferred time or skill group?',
@@ -110,10 +111,11 @@ export default function MembershipPage() {
       >
         <ArrowLink href="#courts">Pickleball Membership</ArrowLink>
         <ArrowLink href="#studio">Studio Membership</ArrowLink>
+        <ArrowLink href="/pass/">Digital Member Pass</ArrowLink>
       </PageHero>
 
       <Ticker
-        items={['Pickleball Membership', 'Shared play', '20 sessions a month', 'Pavilion Studio', 'Dance', 'Dance Fitness', 'Fitness', 'Wellness', 'Sports & Movement']}
+        items={['Pickleball Membership', 'Inaugural Offer ₹2,000', '12 hours a month', 'Pavilion Studio', 'Dance', 'Dance Fitness', 'Fitness', 'Wellness', 'Sports & Movement']}
       />
 
       {/* A · Pavilion Courts */}
@@ -133,8 +135,21 @@ export default function MembershipPage() {
               </p>
             </div>
             <aside className="site-price h-fit lg:sticky lg:top-28" data-fade>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#040810]/15 bg-[#040810]/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-[#040810]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#c7a26a] animate-pulse" />
+                Inaugural Offer · Save ₹1,000
+              </div>
               <p className="site-price__kicker">Inaugural shared-play membership</p>
-              <p className="site-price__amount">
+              <div className="mt-4 flex items-center gap-2.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--soft)]">Regular</span>
+                <span className="font-serif text-xl font-bold text-slate-500 line-through decoration-rose-500 decoration-[2px]">
+                  ₹3,000
+                </span>
+                <span className="rounded bg-rose-500/10 px-2 py-0.5 text-[11px] font-bold text-rose-700">
+                  Save ₹1,000
+                </span>
+              </div>
+              <p className="site-price__amount mt-1">
                 <span className="site-price__cur">₹</span>
                 <span data-count="2000" data-format="inr">
                   2,000
@@ -148,11 +163,12 @@ export default function MembershipPage() {
               </div>
               <ul className="site-ticks mt-7 text-[0.88rem]">
                 <li>Mon – Fri, 6:00 AM – 3:00 PM</li>
-                <li>Up to 20 one-hour sessions a month</li>
+                <li>12 hours of play a month (1 hr daily allowance)</li>
                 <li>Shared play, up to six per court</li>
               </ul>
-              <div className="mt-9 grid justify-items-start gap-5">
+              <div className="mt-9 grid justify-items-start gap-4">
                 <MembershipJoinButton>Enquire to join</MembershipJoinButton>
+                <ArrowLink href="/pass">View My Member Pass</ArrowLink>
                 <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
               </div>
             </aside>
@@ -215,7 +231,8 @@ export default function MembershipPage() {
               ))}
             </ul>
             <div className="mt-9 grid justify-items-start gap-5" data-fade>
-              <GoldButton href="#studio-enquiry">Enquire to join</GoldButton>
+              <MembershipJoinButton category="studio">Enquire to join</MembershipJoinButton>
+              <ArrowLink href="/pass/">View My Member Pass</ArrowLink>
               <ArrowLink href={CLUB.phoneHref}>Call the desk</ArrowLink>
             </div>
           </div>
@@ -243,7 +260,7 @@ export default function MembershipPage() {
               </h3>
               <ul className="site-ticks mt-6 text-[0.95rem] text-[var(--soft)]" data-stagger>
                 <li>Direct walk-in access — no advance slot reservation required. Present your digital pass at the front desk for instant entry.</li>
-                <li>One session per day (up to 60 minutes) and up to 20 sessions per membership month.</li>
+                <li>One session per day (up to 60 minutes) and up to 12 hours of play per membership month.</li>
                 <li>Sessions are valid Monday – Friday, 6:00 AM – 3:00 PM (excluding public holidays and tournaments).</li>
                 <li>Sessions are personal, tied to your digital pass, and non-transferable. Unused sessions do not roll over.</li>
                 <li>Front desk check-in: your daily session quota is logged and deducted only upon arrival at the desk.</li>
@@ -296,6 +313,10 @@ export default function MembershipPage() {
         <MembershipJoinButton>Enquire to join</MembershipJoinButton>
         <ArrowLink href={CLUB.phoneHref}>Or call {CLUB.phoneDisplay}</ArrowLink>
       </PageCta>
+
+      {/* Unified Direct Registration Section placed directly above the footer */}
+      <UnifiedMembershipFormSection />
+
       <MembershipCheckoutModalContainer />
     </SitePage>
   );

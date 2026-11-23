@@ -1,54 +1,83 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  requestLoginCode,
-  verifyLoginCode,
-  purchasePack,
-  confirmPackPayment,
   submitEnquiry,
-  TurfApiError,
 } from '@/lib/turfos-client';
-import { openCheckout, getRazorpayKeyId, resolveRazorpayKeyId } from '@/lib/razorpay';
-import { addPickleballEnquiry } from '@/lib/enquiry-store';
+import { addPickleballEnquiry, addStudioEnquiry } from '@/lib/enquiry-store';
 import { CLUB, whatsappUrl } from '@/lib/club';
 import { GoldButton } from '@/components/public/site/GoldButton';
+import {
+  PrintRegistrationSheet,
+  type PrintableRegistrationData,
+} from '@/components/public/studio/PrintRegistrationSheet';
 
 export interface MembershipCheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type Step = 'details' | 'rules' | 'otp' | 'payment' | 'success';
+type Step = 'details' | 'rules' | 'success';
 
-interface MemberPass {
+export interface MemberPass {
   reference: string;
   name: string;
   phone: string;
   email: string;
+  category: 'pickleball' | 'studio';
+  planTitle: string;
   validFrom: string;
   validUntil: string;
   totalSessions: number;
   amountPaise: number;
-  paymentId?: string;
+  paymentId?: string | undefined;
+  studioProgramme?: string | undefined;
+  studioCohort?: string | undefined;
 }
 
-const RESEND_COOLDOWN = 60;
 const MEMBERSHIP_PRICE_PAISE = 236000; // ₹2,360 (₹2,000 + 18% GST ₹360)
 const STORAGE_KEY = 'pavilion_member_pass';
 
-function generateMemberReference(): string {
+const STUDIO_PROGRAMMES = [
+  'Dance (Hip-Hop & Contemporary)',
+  'Salsa & Latin Social',
+  'Dance Fitness (Cardio & Core)',
+  'Yoga & Mindful Movement',
+  'Boxing & Combat Conditioning',
+  'Silambam (Traditional Martial Arts)',
+  'Gymnastics & Tumbling',
+  'Personal Training (1-on-1)',
+  'Studio Floor Rental',
+];
+
+const STUDIO_COHORTS = [
+  'Kids (Ages 4–10)',
+  'Juniors (Ages 10–14)',
+  'Teens (Ages 14–18)',
+  'Adults (18+)',
+  'All Ages / Open Batch',
+];
+
+const STUDIO_BATCH_OPTIONS = [
+  'Weekday Batch (Mon · Wed · Fri · 12 Classes)',
+  'Weekend Batch (Sat · Sun · 8 Classes)',
+  'Morning Batch (06:00 AM – 07:00 AM)',
+  'Evening Batch (05:00 PM – 06:00 PM)',
+  'Night Batch (07:00 PM – 08:00 PM)',
+];
+
+function generateMemberReference(category: 'pickleball' | 'studio'): string {
   const year = new Date().getFullYear();
   const randomPart = Math.floor(1000 + Math.random() * 9000);
-  return `PAV-MEM-${year}-${randomPart}`;
+  const prefix = category === 'pickleball' ? 'PAV-MEM' : 'PAV-STU';
+  return `${prefix}-${year}-${randomPart}`;
 }
 
-
-interface LuxuryMetalPassCardProps {
+export interface LuxuryMetalPassCardProps {
   memberPass: MemberPass;
 }
 
-function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
+export function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
   const [isHovered, setIsHovered] = useState(false);
@@ -82,10 +111,8 @@ function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
     });
   };
 
-  // Format reference as clean spaced ID: e.g., PAV 2026 8492
   const formattedNumber = memberPass.reference.replace(/-/g, ' ');
 
-  // Format valid thru as MM/YY: e.g. 12/26
   const untilDate = new Date(memberPass.validUntil);
   const validThru = isNaN(untilDate.getTime())
     ? '12/26'
@@ -116,7 +143,7 @@ function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
         }}
       />
 
-      {/* 3D Debossed Guilloche Rosette Medallion (Top-Right) */}
+      {/* 3D Debossed Guilloche Rosette Medallion */}
       <svg
         className="absolute -top-[42px] -right-[42px] w-[275px] h-[275px] pointer-events-none z-[1] opacity-90"
         style={{
@@ -127,133 +154,86 @@ function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
       >
         <circle cx="170" cy="70" r="130" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
         <circle cx="170" cy="70" r="130" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-
         <circle cx="170" cy="70" r="115" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
         <circle cx="170" cy="70" r="115" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-
         <circle cx="170" cy="70" r="100" stroke="rgba(0,0,0,0.7)" strokeWidth="2" />
         <circle cx="170" cy="70" r="100" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-
         <circle cx="170" cy="70" r="85" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
         <circle cx="170" cy="70" r="85" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-
-        <circle cx="170" cy="70" r="70" stroke="rgba(0,0,0,0.7)" strokeWidth="2" />
-        <circle cx="170" cy="70" r="70" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-
-        <circle cx="170" cy="70" r="55" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
-        <circle cx="170" cy="70" r="55" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-
-        {/* Guilloche Rays */}
-        <g stroke="rgba(255,255,255,0.2)" strokeWidth="1.4" strokeLinecap="round">
-          <line x1="170" y1="-50" x2="170" y2="-25" />
-          <line x1="170" y1="165" x2="170" y2="190" />
-          <line x1="50" y1="70" x2="75" y2="70" />
-          <line x1="265" y1="70" x2="290" y2="70" />
-          <line x1="85" y1="-15" x2="102" y2="2" />
-          <line x1="238" y1="138" x2="255" y2="155" />
-          <line x1="85" y1="155" x2="102" y2="138" />
-          <line x1="238" y1="2" x2="255" y2="-15" />
-        </g>
-
-        {/* 5-Pointed Stars along concentric arc */}
-        <g fill="rgba(255,255,255,0.22)">
-          <polygon points="90,45 93,52 101,52 95,57 97,64 90,60 83,64 85,57 79,52 87,52" />
-          <polygon points="120,5 123,12 131,12 125,17 127,24 120,20 113,24 115,17 109,12 117,12" />
-          <polygon points="80,105 83,112 91,112 85,117 87,124 80,120 73,124 75,117 69,112 77,112" />
-        </g>
-
-        {/* Debossed Center Pavilion P-C Monogram Inside Medallion */}
-        <g transform="translate(138, 20) scale(1.05)">
-          <rect x="2" y="2" width="60" height="96" rx="28" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" fill="none" />
-          <rect x="2" y="2" width="60" height="96" rx="28" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" fill="none" />
-          <path d="M30 26 L30 76" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M30 26 L30 76" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" stroke="rgba(0,0,0,0.85)" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" stroke="rgba(255,255,255,0.25)" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-        </g>
       </svg>
 
-      {/* Floating Action Pills (Top-Right) */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
-        <a
-          href="#wallet"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            alert('Pass download prepared for Apple Wallet');
-          }}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#090b0e]/90 border border-white/15 text-[10px] sm:text-[11px] font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4)] backdrop-blur-md hover:scale-[1.02] transition-transform"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="shrink-0">
-            <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="2" />
-            <path d="M15 12H18" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M6 9H12" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <span>Add to Apple Wallet</span>
-        </a>
-
-        <button
-          type="button"
-          onClick={copyNumber}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-[#090b0e] text-[10px] sm:text-[11px] font-bold shadow-[0_4px_12px_rgba(0,0,0,0.35)] hover:scale-[1.02] transition-transform"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-          </svg>
-          <span>{copied ? 'Copied!' : 'Copy number'}</span>
-        </button>
-      </div>
-
-      {/* Top Left: Official Emblem & Brand Title */}
-      <div className="relative z-10 flex items-center gap-2 max-w-[130px]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/Pavilion_monogram.png"
-          alt="Pavilion Club Monogram"
-          className="w-10 h-10 object-contain shrink-0"
-          style={{
-            filter: 'brightness(1.8) drop-shadow(-1px -1px 0px rgba(0,0,0,0.8)) drop-shadow(1px 1px 0px rgba(255,255,255,0.35))',
-          }}
-        />
-        <div className="flex flex-col overflow-hidden">
-          <span className="font-serif text-[10px] sm:text-[11px] font-bold tracking-[0.14em] uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] leading-tight">
-            The Pavilion Club
-          </span>
-          <span className="text-[7.5px] font-semibold tracking-[0.12em] uppercase text-white/60 mt-0.5 whitespace-nowrap">
-            Mogappair East
-          </span>
-        </div>
-      </div>
-
-      {/* Card Footer Details */}
-      <div className="relative z-10 flex justify-between items-end">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-[10px] font-semibold text-white/70">Inaugural Shared-Play</span>
-            <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-white">
-              Founding Member
+      {/* Row 1: Brand & Status Header */}
+      <div className="relative z-[4] flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c7a26a] animate-pulse" />
+            <span className="text-[9px] uppercase tracking-[0.25em] font-black text-[#c7a26a]">
+              The Pavilion Club
             </span>
           </div>
-          <div className="font-sans text-xl sm:text-2xl font-extrabold tracking-[0.08em] text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] leading-tight">
-            {formattedNumber}
+          <span className="text-[11px] font-bold tracking-wider text-white/90 block mt-0.5">
+            {memberPass.category === 'pickleball' ? 'MEMBER PASS · 12H QUOTA' : 'STUDIO ADMISSION PASS'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5 bg-[#c7a26a]/15 border border-[#c7a26a]/40 px-2 py-0.5 rounded text-[9px] font-mono font-bold text-[#c7a26a]">
+          <span>VERIFIED AT DESK</span>
+        </div>
+      </div>
+
+      {/* Row 2: Chip & Reference ID */}
+      <div className="relative z-[4] my-auto pt-2">
+        <div className="flex items-center justify-between mb-2">
+          {/* Smart EMV Chip simulation */}
+          <div className="w-10 h-7 rounded bg-gradient-to-tr from-[#d4af37] via-[#f3e5ab] to-[#aa771c] p-[1px] shadow-md">
+            <div className="w-full h-full rounded-[3px] border border-black/30 grid grid-cols-2 grid-rows-2 p-0.5 gap-0.5">
+              <div className="border border-black/20 rounded-sm"></div>
+              <div className="border border-black/20 rounded-sm"></div>
+              <div className="border border-black/20 rounded-sm"></div>
+              <div className="border border-black/20 rounded-sm"></div>
+            </div>
           </div>
-          <div className="text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-white/75 mt-1">
-            {memberPass.name || 'Member'}
+
+          <div
+            onClick={copyNumber}
+            className="flex items-center gap-1 text-[11px] font-mono text-white/70 hover:text-[#c7a26a] transition-colors"
+            title="Click to copy ID"
+          >
+            <span>{copied ? '✓ Copied' : '📋 Copy'}</span>
           </div>
         </div>
 
-        <div className="text-right flex flex-col items-end">
-          <span className="text-[8px] font-semibold uppercase tracking-wider text-white/60">
-            Valid Thru
+        <div
+          onClick={copyNumber}
+          className="font-mono text-base sm:text-lg tracking-[0.2em] font-extrabold text-white text-shadow-sm select-all"
+        >
+          {formattedNumber}
+        </div>
+      </div>
+
+      {/* Row 3: Member Name & Quota Footer */}
+      <div className="relative z-[4] flex items-end justify-between pt-1 border-t border-white/10">
+        <div>
+          <span className="text-[8px] uppercase tracking-wider text-white/40 block font-semibold">
+            Passholder
           </span>
-          <span className="font-mono text-xs sm:text-sm font-bold text-white leading-tight mt-0.5">
-            {validThru}
+          <span className="text-xs sm:text-sm font-bold text-white tracking-wide block truncate max-w-[200px]">
+            {memberPass.name}
           </span>
-          <span className="text-[8px] font-bold tracking-wider uppercase text-white/60 mt-0.5">
-            20 Sessions · Mon–Fri
+          <span className="text-[9px] font-mono text-white/60 block">
+            {memberPass.phone}
+          </span>
+        </div>
+
+        <div className="text-right">
+          <span className="text-[8px] uppercase tracking-wider text-white/40 block font-semibold">
+            Monthly Allowance
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-[#c7a26a] font-mono block">
+            {memberPass.category === 'pickleball' ? '12 Hours Quota' : `${memberPass.totalSessions} Classes`}
+          </span>
+          <span className="text-[9px] font-mono text-white/50 block">
+            Thru {validThru}
           </span>
         </div>
       </div>
@@ -264,32 +244,31 @@ function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
 export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutModalProps) {
   const [step, setStep] = useState<Step>('details');
 
-  // Form State
+  // Category Toggle: 'pickleball' (12h Quota) vs 'studio' (Dance/Yoga/Boxing)
+  const [category, setCategory] = useState<'pickleball' | 'studio'>('pickleball');
+
+  // Shared Form State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [notes, setNotes] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // OTP State
-  const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
-  const [otpError, setOtpError] = useState<string | null>(null);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [otpCodeSent, setOtpCodeSent] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // Studio-Specific Form State
+  const [studioProgramme, setStudioProgramme] = useState(STUDIO_PROGRAMMES[0] ?? 'Dance');
+  const [studioCohort, setStudioCohort] = useState(STUDIO_COHORTS[3] ?? 'Adults (18+)');
+  const [studioBatch, setStudioBatch] = useState(STUDIO_BATCH_OPTIONS[0] ?? 'Weekday Batch');
 
-  // Payment & Success State
-  const [isPaying, setIsPaying] = useState(false);
-  const [paymentNotice, setPaymentNotice] = useState<{ tone: 'error' | 'info'; text: string } | null>(null);
+  // Submission & Pass State
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [memberPass, setMemberPass] = useState<MemberPass | null>(null);
+  const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
 
   // Load existing pass from storage if any
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      // If triggered via #join or explicit enquiry, ALWAYS open the registration form
       if (window.location.hash === '#join' || params.get('join') === 'true' || params.get('join') === '1') {
         setStep('details');
         setFormError(null);
@@ -301,13 +280,15 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         const future = new Date();
         future.setDate(now.getDate() + 30);
         setMemberPass({
-          reference: 'PAV-2026-8492',
+          reference: 'PAV-MEM-2026-8492',
           name: 'Suresh Kumar',
           email: 'suresh.kumar@example.com',
           phone: '+91 96000 55623',
+          category: 'pickleball',
+          planTitle: 'Inaugural Shared-Play Membership (12 Hours)',
           validFrom: now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
           validUntil: future.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-          totalSessions: 20,
+          totalSessions: 12,
           amountPaise: 236000,
         });
         setStep('success');
@@ -333,15 +314,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     }
   }, [isOpen]);
 
-  // Timer cooldown effect for OTP
-  useEffect(() => {
-    if (step !== 'otp' || cooldown <= 0) return;
-    const timer = setInterval(() => {
-      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [step, cooldown]);
-
   // Lock body & html scroll and pause Lenis smooth scroll when modal open
   useEffect(() => {
     if (isOpen) {
@@ -361,29 +333,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     }
   }, [isOpen]);
 
-  // Send real email OTP via TurfOS
-  const sendEmailOtp = useCallback(async (targetEmail: string) => {
-    if (!targetEmail) return;
-    setIsSendingOtp(true);
-    setOtpError(null);
-
-    try {
-      await requestLoginCode(targetEmail.trim().toLowerCase());
-      setOtpCodeSent(true);
-      setCooldown(RESEND_COOLDOWN);
-    } catch (err: unknown) {
-      const msg =
-        err instanceof TurfApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : 'Could not send verification code to your email.';
-      setOtpError(msg);
-    } finally {
-      setIsSendingOtp(false);
-    }
-  }, []);
-
   // Step 1: Validate details and advance to Step 2 (Rules)
   const handleProceedToRules = (e: React.FormEvent) => {
     e.preventDefault();
@@ -402,276 +351,142 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
-      setFormError('Please enter a valid email address for your membership pass.');
+      setFormError('Please enter a valid email address.');
       return;
     }
 
     setStep('rules');
   };
 
-  // Step 2: Confirm rules and proceed to Step 3 (OTP verification)
-  const handleProceedToOtp = async () => {
+  // Step 2: Confirm Rules & Issue Digital Pass Directly
+  // CRITICAL REQUIREMENT: Payment is completely bypassed / hidden right now!
+  const handleConfirmAndIssuePass = async () => {
     if (!agreedTerms) {
-      setFormError('Please check the confirmation box to confirm the shared-play weekday terms.');
+      setFormError('Please check the confirmation box to confirm the club terms.');
       return;
     }
+
+    setIsSubmitting(true);
     setFormError(null);
-    setStep('otp');
-    setDigits(['', '', '', '', '', '']);
-    await sendEmailOtp(email.trim().toLowerCase());
-  };
 
-  // Handle segmented OTP inputs
-  const handleDigitChange = (index: number, val: string) => {
-    const char = val.replace(/\D/g, '').slice(-1);
-    const next = [...digits];
-    next[index] = char;
-    setDigits(next);
-    setOtpError(null);
-
-    if (char && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (!pasted) return;
-    const next = [...digits];
-    for (let i = 0; i < 6; i++) {
-      next[i] = pasted[i] ?? '';
-    }
-    setDigits(next);
-    if (pasted.length === 6) {
-      inputRefs.current[5]?.focus();
-    } else {
-      inputRefs.current[Math.min(pasted.length, 5)]?.focus();
-    }
-  };
-
-  // Complete membership activation backed by central Turf-OS
-  const activateMembership = (
-    officialReference?: string,
-    expiresAtDate?: string | null,
-    totalCredits = 20,
-    paymentId?: string,
-  ) => {
-    const now = new Date();
-    const validUntilDate = expiresAtDate ? new Date(expiresAtDate) : new Date(now.getTime() + 30 * 86400000);
-    const ref = officialReference || generateMemberReference();
+    const cleanName = name.trim();
     const cleanPhone = phone.replace(/\D/g, '');
     const cleanEmail = email.trim().toLowerCase();
-    const finalPaymentId = paymentId || `pay_${Date.now().toString(36)}`;
+    const ref = generateMemberReference(category);
+    const now = new Date();
+    const validUntilDate = new Date(now.getTime() + 30 * 86400000);
 
-    const pass: MemberPass = {
+    const planTitle =
+      category === 'pickleball'
+        ? 'Inaugural Shared-Play Membership (12 Hours)'
+        : `Pavilion Studio · ${studioProgramme}`;
+
+    const newPass: MemberPass = {
       reference: ref,
-      name: name.trim(),
+      name: cleanName,
       phone: cleanPhone,
       email: cleanEmail,
+      category,
+      planTitle,
       validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       validUntil: validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      totalSessions: totalCredits,
-      amountPaise: MEMBERSHIP_PRICE_PAISE,
-      paymentId: finalPaymentId,
+      totalSessions: 12,
+      amountPaise: category === 'pickleball' ? MEMBERSHIP_PRICE_PAISE : 0,
+      paymentId: 'PAY_AT_DESK',
+      studioProgramme: category === 'studio' ? studioProgramme : undefined,
+      studioCohort: category === 'studio' ? studioCohort : undefined,
     };
 
-    setMemberPass(pass);
+    setMemberPass(newPass);
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pass));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newPass));
     }
 
-    // 1. Send direct to Turf-OS Central Enquiries
+    // 1. Submit Registration Dossier to Pavilion Serverless Route (/api/onboard)
+    // This triggers the A4 printable email format to hello@thepavilionclub.com
+    try {
+      await fetch('/api/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reference: ref,
+          category,
+          name: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          plan: planTitle,
+          sessions: 12,
+          studioCategory: category === 'studio' ? studioProgramme : undefined,
+          studioCohort: category === 'studio' ? studioCohort : undefined,
+          studioSlot: category === 'studio' ? studioBatch : undefined,
+          notes,
+          amountDisplay: category === 'pickleball' ? '₹2,360.00' : 'Studio Standard',
+          paymentStatus: 'Pay at Desk',
+        }),
+      });
+    } catch (err) {
+      console.warn('API onboard delivery logged:', err);
+    }
+
+    // 2. Add to Central Turf-OS Enquiries
     submitEnquiry({
-      type: 'membership',
-      name: name.trim(),
+      type: category === 'pickleball' ? 'membership' : 'studio',
+      name: cleanName,
       phone: cleanPhone,
       email: cleanEmail,
-      category: 'Pickleball Shared-Play',
-      notes: `Activated Inaugural Shared-Play Membership (${totalCredits} credits). Ref: ${ref}. Payment: ${finalPaymentId}`,
+      category: planTitle,
+      notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
     }).catch(() => null);
 
-    // 2. Auto-save to local front desk cache
-    addPickleballEnquiry({
-      reference: ref,
-      name: name.trim(),
-      phone: cleanPhone,
-      email: cleanEmail,
-      plan: 'Inaugural Shared-Play Membership (20 Sessions)',
-      sessions: totalCredits,
-      amountPaise: MEMBERSHIP_PRICE_PAISE,
-      paymentId: finalPaymentId,
-    });
-
-    setStep('success');
-  };
-
-  // Proceed to Razorpay payment with Turf-OS Central Engine
-  const handleProceedPayment = async () => {
-    setIsPaying(true);
-    setPaymentNotice(null);
-
-    const rawDigits = phone.replace(/\D/g, '');
-    const normPhone = rawDigits.length === 12 && rawDigits.startsWith('91') ? rawDigits.slice(2) : rawDigits.slice(-10);
-    const cleanEmail = email.trim().toLowerCase();
-
-    try {
-      // 1. Order initiated directly with Turf-OS
-      const packOrder = await purchasePack({
-        name: name.trim(),
-        phone: normPhone,
+    // 3. Add to Front Desk Console Cache
+    if (category === 'pickleball') {
+      addPickleballEnquiry({
+        reference: ref,
+        name: cleanName,
+        phone: cleanPhone,
         email: cleanEmail,
-      }).catch((err) => {
-        console.warn('Turf-OS pack order error, attempting fallback checkout:', err);
-        return null;
+        plan: 'Inaugural Shared-Play Membership (12 Hours)',
+        sessions: 12,
+        amountPaise: MEMBERSHIP_PRICE_PAISE,
+        paymentId: 'PAY_AT_DESK',
+        status: 'Pay at Desk',
+        notes,
       });
-
-      if (packOrder?.simulate) {
-        // Simulation mode in Turf-OS
-        const confirmRes = await confirmPackPayment({
-          phone: normPhone,
-          name: name.trim(),
-          email: cleanEmail,
-          paymentId: 'TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
-        }).catch(() => null);
-
-        setIsPaying(false);
-        activateMembership(
-          confirmRes?.reference,
-          confirmRes?.pack?.expiresAt,
-          confirmRes?.pack?.creditsTotal || 20,
-        );
-        return;
-      }
-
-      const keyId = packOrder?.keyId || (await resolveRazorpayKeyId());
-
-      if (!keyId || keyId === 'rzp_live_placeholder') {
-        // Local dev / rehearsal simulation fallback
-        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-          const confirmRes = await confirmPackPayment({
-            phone: normPhone,
-            name: name.trim(),
-            email: cleanEmail,
-            paymentId: 'TEST_PAY_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
-          }).catch(() => null);
-
-          setTimeout(() => {
-            setIsPaying(false);
-            activateMembership(
-              confirmRes?.reference,
-              confirmRes?.pack?.expiresAt,
-              confirmRes?.pack?.creditsTotal || 20,
-            );
-          }, 600);
-          return;
-        }
-
-        setPaymentNotice({
-          tone: 'error',
-          text: 'Unable to connect to TurfOS Razorpay gateway. Please check that payments are switched on in your TurfOS dashboard.',
-        });
-        setIsPaying(false);
-        return;
-      }
-
-      await openCheckout({
-        keyId,
-        orderId: packOrder?.orderId,
-        amountPaise: packOrder?.amountPaise || MEMBERSHIP_PRICE_PAISE,
-        currency: 'INR',
-        venueName: packOrder?.venueName || 'The Pavilion Club',
-        description: 'Inaugural Shared-Play Membership (20 Sessions)',
-        prefill: {
-          name: name.trim(),
-          email: cleanEmail,
-          contact: normPhone,
-        },
-        onSuccess: async (paymentId) => {
-          try {
-            const confirmRes = await confirmPackPayment({
-              phone: normPhone,
-              name: name.trim(),
-              email: cleanEmail,
-              paymentId: paymentId || ('pay_' + Date.now().toString(36)),
-              orderId: packOrder?.orderId,
-            });
-            setIsPaying(false);
-            activateMembership(
-              confirmRes.reference,
-              confirmRes.pack.expiresAt,
-              confirmRes.pack.creditsTotal,
-              paymentId,
-            );
-          } catch {
-            setIsPaying(false);
-            activateMembership(undefined, undefined, 20, paymentId);
-          }
-        },
-        onDismiss: () => {
-          setIsPaying(false);
-          setPaymentNotice({
-            tone: 'info',
-            text: 'Payment window closed. Press Pay Now below whenever you are ready.',
-          });
-        },
-        onFailure: (reason: string) => {
-          setIsPaying(false);
-          setPaymentNotice({
-            tone: 'error',
-            text: reason || 'Payment could not be completed. Please try again.',
-          });
-        },
-      });
-    } catch (err: unknown) {
-      setIsPaying(false);
-      setPaymentNotice({
-        tone: 'error',
-        text: err instanceof Error ? err.message : 'Something went wrong during checkout. Please try again.',
+    } else {
+      addStudioEnquiry({
+        reference: ref,
+        name: cleanName,
+        phone: cleanPhone,
+        email: cleanEmail,
+        category: studioProgramme,
+        cohort: studioCohort,
+        day: studioBatch,
+        timeSlot: studioBatch,
+        notes,
       });
     }
-  };
 
-  // Verify OTP code and automatically trigger payment
-  const verifyCode = async () => {
-    const fullCode = digits.join('');
-    if (fullCode.length !== 6) {
-      setOtpError('Please enter all 6 digits of the confirmation code.');
-      return;
-    }
-
-    setIsVerifyingOtp(true);
-    setOtpError(null);
-
-    try {
-      await verifyLoginCode(email.trim().toLowerCase(), fullCode);
-      setStep('payment');
-      // Automatically launch Razorpay checkout
-      await handleProceedPayment();
-    } catch (err: unknown) {
-      const msg =
-        err instanceof TurfApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : 'Invalid or expired confirmation code. Please check and try again.';
-      setOtpError(msg);
-    } finally {
-      setIsVerifyingOtp(false);
-    }
+    setIsSubmitting(false);
+    // Straight to next step: Digital Pass issued!
+    setStep('success');
   };
 
   if (!isOpen) return null;
 
-  // Active step index calculation for Concept 08 Stepper
-  const activeStepNum =
-    step === 'details' ? 1 : step === 'rules' ? 2 : step === 'otp' || step === 'payment' ? 3 : 4;
+  const printableData: PrintableRegistrationData | null = memberPass
+    ? {
+        reference: memberPass.reference,
+        name: memberPass.name,
+        phone: memberPass.phone,
+        email: memberPass.email,
+        category: memberPass.planTitle,
+        cohort: memberPass.studioCohort || (memberPass.category === 'pickleball' ? 'Pickleball Member' : 'Studio Member'),
+        timeSlot: memberPass.category === 'pickleball' ? 'Mon–Fri 6:00 AM – 3:00 PM (12 Hours Monthly Quota)' : studioBatch,
+        amountDisplay: memberPass.category === 'pickleball' ? '₹2,360 / mo (All-Inclusive)' : 'Standard Studio Rates',
+        notes: notes || undefined,
+        createdAt: new Date().toISOString(),
+      }
+    : null;
 
   return (
     <div
@@ -701,11 +516,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           0%, 100% { box-shadow: 0 0 0 2px rgba(199, 162, 106, 0.25), 0 0 10px rgba(199, 162, 106, 0.35); }
           50% { box-shadow: 0 0 0 4px rgba(199, 162, 106, 0.45), 0 0 16px rgba(199, 162, 106, 0.6); }
         }
-        @keyframes checkPop {
-          0% { transform: scale(0.5); }
-          70% { transform: scale(1.2); }
-          100% { transform: scale(1); }
-        }
         .animate-modal-backdrop {
           animation: modalBackdropFade 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -718,9 +528,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         .animate-stepper-glow {
           animation: goldPulse 2.2s ease-in-out infinite;
         }
-        .animate-check-pop {
-          animation: checkPop 220ms ease-out forwards;
-        }
         .modal-body-scroll { overflow-x: hidden !important; }
         .modal-body-scroll::-webkit-scrollbar {
           width: 5px;
@@ -732,9 +539,6 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           background: rgba(199, 162, 106, 0.35);
           border-radius: 4px;
         }
-        .modal-body-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(199, 162, 106, 0.6);
-        }
       `}</style>
 
       <div className="flex min-h-full items-center justify-center p-2 sm:p-4 py-2 sm:py-4">
@@ -743,12 +547,12 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
           className="relative w-full max-w-lg max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] flex flex-col rounded-2xl border border-[#c7a26a]/40 bg-[#08111d] px-4 py-3 sm:px-6 sm:py-4 text-[#fbf8f1] shadow-2xl shadow-black/90 z-10 animate-modal-card overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Pinned Header Bar */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-white/10 shrink-0 mb-0.5">
+          {/* Top Brand Header Bar */}
+          <div className="flex items-center justify-between pb-2.5 border-b border-white/10 shrink-0 mb-1">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#c7a26a] animate-pulse" />
               <span className="text-[0.62rem] font-bold uppercase tracking-[0.25em] text-[#c7a26a]">
-                The Pavilion Club · Chennai
+                The Pavilion Club · Member Onboarding
               </span>
             </div>
             <button
@@ -764,120 +568,136 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
             </button>
           </div>
 
-          {/* CONCEPT 08: Pinned 3-Step Guided Stepper Bar */}
+          {/* 2-Step Guided Stepper Bar (Payment bypassed per user request) */}
           {step !== 'success' && (
-            <div className="pt-1.5 pb-2 flex items-center justify-between px-1 shrink-0 mb-0.5">
+            <div className="pt-1.5 pb-2 flex items-center justify-between px-1 shrink-0 mb-1">
               <div className="flex items-center gap-2">
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                    activeStepNum > 1
-                      ? 'bg-[#c7a26a] text-[#0b192c] animate-check-pop'
-                      : activeStepNum === 1
-                        ? 'border-2 border-[#c7a26a] text-[#c7a26a] bg-[#c7a26a]/15 animate-stepper-glow'
-                        : 'border border-white/20 text-white/40'
+                    step === 'rules'
+                      ? 'bg-[#c7a26a] text-[#0b192c]'
+                      : 'border-2 border-[#c7a26a] text-[#c7a26a] bg-[#c7a26a]/15 animate-stepper-glow'
                   }`}
                 >
-                  {activeStepNum > 1 ? '✓' : '1'}
+                  {step === 'rules' ? '✓' : '1'}
                 </div>
-                <span
-                  className={`text-[0.65rem] font-semibold uppercase tracking-wider transition-colors duration-300 ${
-                    activeStepNum >= 1 ? 'text-[#c7a26a]' : 'text-white/40'
-                  }`}
-                >
-                  Details
+                <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#c7a26a]">
+                  Particulars
                 </span>
               </div>
 
               <div
-                className={`flex-1 h-px mx-2.5 transition-all duration-500 ${
-                  activeStepNum >= 2 ? 'bg-[#c7a26a]' : 'bg-white/10'
+                className={`flex-1 h-px mx-3 transition-all duration-500 ${
+                  step === 'rules' ? 'bg-[#c7a26a]' : 'bg-white/10'
                 }`}
               />
 
               <div className="flex items-center gap-2">
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                    activeStepNum > 2
-                      ? 'bg-[#c7a26a] text-[#0b192c] animate-check-pop'
-                      : activeStepNum === 2
-                        ? 'border-2 border-[#c7a26a] text-[#c7a26a] bg-[#c7a26a]/15 animate-stepper-glow'
-                        : 'border border-white/20 text-white/40'
-                  }`}
-                >
-                  {activeStepNum > 2 ? '✓' : '2'}
-                </div>
-                <span
-                  className={`text-[0.65rem] font-semibold uppercase tracking-wider transition-colors duration-300 ${
-                    activeStepNum >= 2 ? 'text-[#c7a26a]' : 'text-white/40'
-                  }`}
-                >
-                  Rules
-                </span>
-              </div>
-
-              <div
-                className={`flex-1 h-px mx-2.5 transition-all duration-500 ${
-                  activeStepNum >= 3 ? 'bg-[#c7a26a]' : 'bg-white/10'
-                }`}
-              />
-
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                    activeStepNum === 3
+                    step === 'rules'
                       ? 'border-2 border-[#c7a26a] text-[#c7a26a] bg-[#c7a26a]/15 animate-stepper-glow'
                       : 'border border-white/20 text-white/40'
                   }`}
                 >
-                  3
+                  2
                 </div>
                 <span
                   className={`text-[0.65rem] font-semibold uppercase tracking-wider transition-colors duration-300 ${
-                    activeStepNum === 3 ? 'text-[#c7a26a]' : 'text-white/40'
+                    step === 'rules' ? 'text-[#c7a26a]' : 'text-white/40'
                   }`}
                 >
-                  Payment
+                  Rules &amp; Pass
                 </span>
               </div>
             </div>
           )}
 
-          {/* Scrollable Step Body (Guarantees content never gets cut off on any screen) */}
+          {/* Scrollable Step Body */}
           <div data-lenis-prevent="true" className="overflow-y-auto overflow-x-hidden overscroll-contain flex-1 py-1 modal-body-scroll pr-0.5">
             {/* ======================================================== */}
-            {/* STEP 1: Personal Credentials Form */}
+            {/* STEP 1: Unified Form (Pickleball & Studio) */}
             {/* ======================================================== */}
             {step === 'details' && (
               <div className="animate-step-in">
                 <div className="text-center">
                   <h2 id="membership-modal-title" className="font-serif text-2xl font-medium text-[#fbf8f1]">
-                    Inaugural Shared-Play Pass
+                    Unified Member Registration
                   </h2>
                   <p className="mt-0.5 text-xs text-[#fbf8f1]/70 max-w-sm mx-auto">
-                    Step 01: Enter your personal credentials to begin your club membership.
+                    Select your programme below and enter your credentials to obtain your member pass.
                   </p>
                 </div>
 
-                {/* Price Banner */}
-                <div className="mt-3.5 rounded-xl border border-[#c7a26a]/30 bg-[#0e1a29]/80 p-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-[0.58rem] font-bold uppercase tracking-wider text-[#c7a26a] block">
-                      Inaugural Subscription
-                    </span>
-                    <div className="flex items-baseline gap-1 mt-0.5">
-                      <span className="font-serif text-xl sm:text-2xl font-bold text-[#fbf8f1]">₹2,360</span>
-                      <span className="text-xs text-white/50">/ mo (all-inclusive)</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[0.62rem] font-semibold text-[#c7a26a] bg-[#c7a26a]/15 px-2 py-0.5 rounded border border-[#c7a26a]/30 block font-mono">
-                      20 SESSIONS / MO
-                    </span>
-                    <span className="text-[0.58rem] text-white/45 mt-0.5 block">₹2,000 + 18% GST</span>
-                  </div>
+                {/* Category Pill Selector */}
+                <div className="mt-3.5 grid grid-cols-2 gap-2 p-1 bg-[#050b14] rounded-xl border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setCategory('pickleball')}
+                    className={`py-2 px-3 rounded-lg text-xs font-semibold tracking-wide transition-all flex flex-col items-center gap-0.5 ${
+                      category === 'pickleball'
+                        ? 'bg-[#c7a26a] text-[#08111d] shadow-md font-bold'
+                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>🎾 Pickleball Membership</span>
+                    <span className="text-[10px] opacity-80 font-mono">12 Hours Monthly Quota</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCategory('studio')}
+                    className={`py-2 px-3 rounded-lg text-xs font-semibold tracking-wide transition-all flex flex-col items-center gap-0.5 ${
+                      category === 'studio'
+                        ? 'bg-[#c7a26a] text-[#08111d] shadow-md font-bold'
+                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>🧘 The Studio Mogappair</span>
+                    <span className="text-[10px] opacity-80 font-mono">Dance · Fitness · Yoga</span>
+                  </button>
                 </div>
 
-                <form onSubmit={handleProceedToRules} className="mt-3.5 space-y-3">
+                {/* Quota & Pricing Banner */}
+                {category === 'pickleball' ? (
+                  <div className="mt-3 rounded-xl border border-[#c7a26a]/30 bg-[#0e1a29]/80 p-3 flex items-center justify-between">
+                    <div>
+                      <span className="text-[0.58rem] font-bold uppercase tracking-wider text-[#c7a26a] block">
+                        Inaugural Shared-Play Pass · Save ₹1,000
+                      </span>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="font-serif text-xl sm:text-2xl font-bold text-[#fbf8f1]">₹2,360</span>
+                        <span className="text-xs text-white/50">/ mo (₹2,000 + 18% GST)</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[0.62rem] font-semibold text-[#c7a26a] bg-[#c7a26a]/15 px-2 py-0.5 rounded border border-[#c7a26a]/30 block font-mono">
+                        12 HOURS / MO
+                      </span>
+                      <span className="text-[0.58rem] text-emerald-400 mt-0.5 block font-semibold">Pay at Club Desk</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-3 rounded-xl border border-white/10 bg-[#0e1a29]/80 p-3 flex items-center justify-between">
+                    <div>
+                      <span className="text-[0.58rem] font-bold uppercase tracking-wider text-[#c7a26a] block">
+                        Pavilion Studio Mogappair
+                      </span>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="font-serif text-lg font-bold text-[#fbf8f1]">Class &amp; Floor Hire</span>
+                        <span className="text-xs text-white/50">· Admission Intake</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[0.62rem] font-semibold text-[#c7a26a] bg-[#c7a26a]/15 px-2 py-0.5 rounded border border-[#c7a26a]/30 block font-mono">
+                        12 CLASSES / MO
+                      </span>
+                      <span className="text-[0.58rem] text-emerald-400 mt-0.5 block font-semibold">Pay at Club Desk</span>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleProceedToRules} className="mt-3 space-y-3">
                   <div>
                     <label htmlFor="mem-name" className="block text-[0.62rem] font-semibold uppercase tracking-wider text-white/70 mb-1">
                       Full Legal Name *
@@ -905,7 +725,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                         placeholder="+91 96000 55623"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full h-10 px-3.5 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] placeholder-white/25 text-xs focus:outline-none focus:border-[#c7a26a] transition-all"
+                        className="w-full h-10 px-3.5 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] placeholder-white/25 text-xs focus:outline-none focus:border-[#c7a26a] transition-all font-mono"
                       />
                     </div>
 
@@ -925,13 +745,90 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                     </div>
                   </div>
 
+                  {/* Studio Options Dropdowns (When Studio is selected) */}
+                  {category === 'studio' && (
+                    <div className="space-y-3 pt-1 border-t border-white/10 animate-step-in">
+                      <div>
+                        <label htmlFor="stu-programme" className="block text-[0.62rem] font-semibold uppercase tracking-wider text-white/70 mb-1">
+                          Select Studio Programme *
+                        </label>
+                        <select
+                          id="stu-programme"
+                          value={studioProgramme}
+                          onChange={(e) => setStudioProgramme(e.target.value)}
+                          className="w-full h-10 px-3 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] text-xs focus:outline-none focus:border-[#c7a26a] transition-all"
+                        >
+                          {STUDIO_PROGRAMMES.map((prog) => (
+                            <option key={prog} value={prog} className="bg-[#08111d]">
+                              {prog}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="stu-cohort" className="block text-[0.62rem] font-semibold uppercase tracking-wider text-white/70 mb-1">
+                            Target Cohort *
+                          </label>
+                          <select
+                            id="stu-cohort"
+                            value={studioCohort}
+                            onChange={(e) => setStudioCohort(e.target.value)}
+                            className="w-full h-10 px-3 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] text-xs focus:outline-none focus:border-[#c7a26a] transition-all"
+                          >
+                            {STUDIO_COHORTS.map((coh) => (
+                              <option key={coh} value={coh} className="bg-[#08111d]">
+                                {coh}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label htmlFor="stu-batch" className="block text-[0.62rem] font-semibold uppercase tracking-wider text-white/70 mb-1">
+                            Preferred Batch *
+                          </label>
+                          <select
+                            id="stu-batch"
+                            value={studioBatch}
+                            onChange={(e) => setStudioBatch(e.target.value)}
+                            className="w-full h-10 px-3 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] text-xs focus:outline-none focus:border-[#c7a26a] transition-all"
+                          >
+                            {STUDIO_BATCH_OPTIONS.map((bat) => (
+                              <option key={bat} value={bat} className="bg-[#08111d]">
+                                {bat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="mem-notes" className="block text-[0.62rem] font-semibold uppercase tracking-wider text-white/70 mb-1">
+                      Notes / Skill Level / Preferences (Optional)
+                    </label>
+                    <input
+                      id="mem-notes"
+                      type="text"
+                      placeholder="e.g. Beginner level, morning preference"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full h-10 px-3.5 rounded-lg border border-white/15 bg-[#060d15] text-[#fbf8f1] placeholder-white/25 text-xs focus:outline-none focus:border-[#c7a26a] transition-all"
+                    />
+                  </div>
+
                   {formError && (
                     <p role="alert" className="text-xs text-red-300 bg-red-950/40 border border-red-800/60 rounded-lg p-2 text-center animate-step-in">
                       {formError}
                     </p>
                   )}
 
-                  <GoldButton type="submit" fullWidth className="mt-1.5">Next: Review Court Rules →</GoldButton>
+                  <GoldButton type="submit" fullWidth className="mt-1.5">
+                    Next: Review Guidelines &amp; Issue Pass →
+                  </GoldButton>
                 </form>
               </div>
             )}
@@ -943,60 +840,94 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
               <div className="animate-step-in">
                 <div className="text-center">
                   <h2 className="font-serif text-xl sm:text-2xl font-medium text-[#fbf8f1]">
-                    Confirm Court Access Hours
+                    {category === 'pickleball' ? 'Confirm Court Access Hours' : 'Confirm Studio Guidelines'}
                   </h2>
                   <p className="mt-0.5 text-xs text-[#fbf8f1]/70 max-w-sm mx-auto">
-                    Step 02: Please confirm that your schedule aligns with the shared-play weekday window.
+                    Step 02: Review the schedule and confirm your admission details.
                   </p>
                 </div>
 
-                {/* Unified Executive Rules Table */}
+                {/* Rules Table */}
                 <div className="mt-2.5 rounded-xl border border-white/10 bg-[#0e1a29]/80 divide-y divide-white/5 overflow-hidden">
-                  <div className="flex items-start gap-2.5 py-2 px-3">
-                    <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
-                      📅
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-xs text-white">Monday to Friday Only</span>
-                        <span className="text-[10px] text-[#c7a26a] font-mono font-bold bg-[#c7a26a]/15 px-1.5 py-0.5 rounded border border-[#c7a26a]/30">6:00 AM – 3:00 PM</span>
+                  {category === 'pickleball' ? (
+                    <>
+                      <div className="flex items-start gap-2.5 py-2 px-3">
+                        <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                          📅
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs text-white">Monday to Friday Only</span>
+                            <span className="text-[10px] text-[#c7a26a] font-mono font-bold bg-[#c7a26a]/15 px-1.5 py-0.5 rounded border border-[#c7a26a]/30">6:00 AM – 3:00 PM</span>
+                          </div>
+                          <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Shared play sessions start and finish inside this window. Weekends for tournaments &amp; coaching.</p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Sessions start and finish inside this window. Weekends for coaching &amp; events.</p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-start gap-2.5 py-2 px-3">
-                    <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
-                      ⏱️
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-xs text-white">20 One-Hour Sessions / Month</span>
-                        <span className="text-[10px] text-white/60 font-mono">Max 1/day</span>
+                      <div className="flex items-start gap-2.5 py-2 px-3">
+                        <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                          ⏱️
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs text-white">12 Hours of Play / Month</span>
+                            <span className="text-[10px] text-emerald-400 font-mono font-bold">Max 1 hr/day</span>
+                          </div>
+                          <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Front desk deducts 1 hour per check-in until all 12 hours are utilized.</p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Shared play format with rotation up to 6 players per court.</p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-start gap-2.5 py-2 px-3">
-                    <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
-                      🎾
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-xs text-white">Direct Walk-In Access</span>
-                        <span className="text-[10px] text-[#c7a26a] font-mono font-bold">No Slot Booking</span>
+                      <div className="flex items-start gap-2.5 py-2 px-3">
+                        <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                          🎾
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs text-white">Direct Walk-In Access</span>
+                            <span className="text-[10px] text-[#c7a26a] font-mono font-bold">No Slot Booking</span>
+                          </div>
+                          <p className="text-[10px] text-white/50 mt-0.5 leading-tight">No advance booking needed. Present digital pass at front desk for instant entry.</p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-white/50 mt-0.5 leading-tight">No advance booking needed. Present digital pass at front desk for instant entry.</p>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-start gap-2.5 py-2 px-3">
+                        <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                          🧘
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs text-white">{studioProgramme}</span>
+                            <span className="text-[10px] text-[#c7a26a] font-mono font-bold bg-[#c7a26a]/15 px-1.5 py-0.5 rounded border border-[#c7a26a]/30">{studioCohort}</span>
+                          </div>
+                          <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Scheduled class intake at The Pavilion Studio Mogappair East.</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5 py-2 px-3">
+                        <div className="w-6 h-6 rounded-md bg-[#c7a26a]/15 border border-[#c7a26a]/30 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                          👟
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-xs text-white">Indoor Footwear Protocol</span>
+                            <span className="text-[10px] text-emerald-400 font-mono font-bold">Clean Soles Only</span>
+                          </div>
+                          <p className="text-[10px] text-white/50 mt-0.5 leading-tight">Dedicated clean non-marking indoor shoes or grip socks required on the sprung floor.</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Price & Passholder Sync Strip */}
                 <div className="mt-2 bg-[#060d15] border border-[#c7a26a]/30 rounded-lg py-1.5 px-3 flex items-center justify-between">
                   <div>
-                    <span className="text-[0.52rem] font-bold uppercase tracking-wider text-white/50 block">Amount Payable</span>
-                    <span className="font-serif text-base sm:text-lg font-bold text-[#c7a26a]">₹2,360 <span className="text-[0.62rem] text-white/50 font-normal">/ mo</span></span>
+                    <span className="text-[0.52rem] font-bold uppercase tracking-wider text-white/50 block">Payment Status</span>
+                    <span className="font-serif text-sm sm:text-base font-bold text-emerald-400">
+                      Pay at Club Desk <span className="text-[0.62rem] text-white/50 font-normal">/ Front Desk Verified</span>
+                    </span>
                   </div>
                   <div className="text-right">
                     <span className="font-mono text-xs text-white/90 block font-semibold truncate max-w-[150px]">{name}</span>
@@ -1015,7 +946,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                     className="mt-0.5 h-3.5 w-3.5 rounded border-white/30 bg-[#060d15] text-[#c7a26a] focus:ring-0 shrink-0 accent-[#c7a26a]"
                   />
                   <span>
-                    I confirm that I understand this membership is strictly for <strong>shared play during weekday mornings/afternoons (6 AM – 3 PM)</strong>.
+                    I confirm that I understand this application is for <strong>{category === 'pickleball' ? 'weekday shared-play (6 AM – 3 PM, 12 Hours Quota)' : `${studioProgramme} at The Pavilion Studio`}</strong>.
                   </span>
                 </label>
 
@@ -1027,290 +958,114 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2.5 mt-2.5">
-                  <button type="button" onClick={() => setStep('details')} className="h-11 border border-white/20 bg-transparent text-white/75 text-xs font-semibold uppercase tracking-[0.2em] hover:border-white/50 hover:text-white active:scale-[0.99] transition-all rounded-none">← Edit Details</button>
-                  <GoldButton type="button" onClick={() => void handleProceedToOtp()} disabled={!agreedTerms}>Verify &amp; Pay →</GoldButton>
-                </div>
-              </div>
-            )}
-
-            {/* ======================================================== */}
-            {/* STEP 3A: Email OTP Verification Gate */}
-            {/* ======================================================== */}
-            {step === 'otp' && (
-              <div className="animate-step-in">
-                <div className="flex justify-center mb-2.5">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#c7a26a]/40 bg-[#c7a26a]/10 text-[#c7a26a] animate-stepper-glow">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
-                      <rect width="20" height="16" x="2" y="4" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <h2 className="font-serif text-2xl font-semibold text-[#fbf8f1]">Verify Your Email</h2>
-                  <p className="text-xs text-[#fbf8f1]/70 mt-0.5">
-                    We sent a 6-digit confirmation code to:
-                  </p>
-                  <div className="flex items-center justify-center gap-2 pt-0.5">
-                    <span className="font-semibold text-[#c7a26a] text-xs break-all">{email}</span>
-                    <button
-                      type="button"
-                      onClick={() => setStep('details')}
-                      className="text-[11px] underline text-white/50 hover:text-[#c7a26a] transition-colors"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-
-                {/* 6 Digit Inputs */}
-                <div className="mt-4">
-                  <div className="flex justify-center gap-2">
-                    {digits.map((digit, idx) => (
-                      <input
-                        key={idx}
-                        ref={(el) => {
-                          inputRefs.current[idx] = el;
-                        }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        disabled={isVerifyingOtp || isSendingOtp}
-                        onChange={(e) => handleDigitChange(idx, e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(idx, e)}
-                        onPaste={handlePaste}
-                        className="h-11 w-10 sm:h-12 sm:w-11 text-center text-xl font-bold font-mono rounded-lg border bg-[#060d15] text-[#fbf8f1] border-white/20 focus:outline-none focus:border-[#c7a26a] focus:ring-1 focus:ring-[#c7a26a] transition-all"
-                        aria-label={`Digit ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-
-                  {otpError ? (
-                    <p role="alert" className="mt-2.5 text-center text-xs text-red-400 animate-step-in">
-                      {otpError}
-                    </p>
-                  ) : isSendingOtp ? (
-                    <p className="mt-2.5 text-center text-xs text-[#c7a26a] animate-pulse">
-                      Sending verification code...
-                    </p>
-                  ) : otpCodeSent ? (
-                    <p className="mt-2.5 text-center text-xs text-emerald-400/90 font-medium animate-step-in">
-                      ✓ Code sent. Please check your inbox and spam folder.
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="mt-5 space-y-2.5">
-                  <GoldButton type="button" onClick={() => void verifyCode()} disabled={isVerifyingOtp || isSendingOtp || digits.some((d) => !d)} fullWidth>{isVerifyingOtp ? 'Verifying Code...' : 'Verify & Launch Razorpay (₹2,360)'}</GoldButton>
-
-                  <div className="text-center text-xs text-[#fbf8f1]/60">
-                    {cooldown > 0 ? (
-                      <span>
-                        Resend code in <strong className="font-mono text-[#fbf8f1]/80">{cooldown}s</strong>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => void sendEmailOtp(email)}
-                        disabled={isVerifyingOtp || isSendingOtp}
-                        className="font-medium text-[#c7a26a] hover:underline transition-colors"
-                      >
-                        Didn&apos;t receive code? Resend
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ======================================================== */}
-            {/* STEP 3B: Order Summary & Re-Trigger Razorpay */}
-            {/* ======================================================== */}
-            {step === 'payment' && (
-              <div className="animate-step-in">
-                <div className="text-center">
-                  <span className="text-[0.62rem] font-bold uppercase tracking-[0.25em] text-emerald-400 block">
-                    ✓ Email Verified
-                  </span>
-                  <h2 className="font-serif text-2xl font-semibold mt-1 text-[#fbf8f1]">
-                    Complete Payment via Razorpay
-                  </h2>
-                </div>
-
-                <div className="mt-3.5 rounded-xl border border-white/10 bg-[#0e1a29]/80 p-3.5 space-y-2 text-xs text-[#fbf8f1]/80">
-                  <div className="flex justify-between">
-                    <span className="text-white/50">Passholder:</span>
-                    <span className="font-semibold text-white">{name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/50">Mobile:</span>
-                    <span className="font-mono">{phone}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/50">Email:</span>
-                    <span className="font-mono">{email}</span>
-                  </div>
-                  <div className="flex justify-between border-t border-white/10 pt-2 text-[#c7a26a] font-bold text-sm">
-                    <span>Total Payable:</span>
-                    <span className="font-mono">₹2,360.00</span>
-                  </div>
-                </div>
-
-                {paymentNotice && (
-                  <div
-                    role="alert"
-                    className={`mt-3.5 text-xs rounded-lg p-2.5 text-center animate-step-in ${
-                      paymentNotice.tone === 'error'
-                        ? 'text-red-300 bg-red-950/40 border border-red-800/60'
-                        : 'text-amber-200 bg-amber-950/40 border border-amber-800/60'
-                    }`}
+                  <button
+                    type="button"
+                    onClick={() => setStep('details')}
+                    className="h-11 border border-white/20 bg-transparent text-white/75 text-xs font-semibold uppercase tracking-[0.2em] hover:border-white/50 hover:text-white active:scale-[0.99] transition-all rounded-none"
                   >
-                    <p>{paymentNotice.text}</p>
-                    {(!getRazorpayKeyId() || getRazorpayKeyId() === 'rzp_live_placeholder') && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsPaying(true);
-                          setTimeout(() => {
-                            setIsPaying(false);
-                            activateMembership('TEST_PASS_' + Math.random().toString(36).substring(2, 9).toUpperCase());
-                          }, 500);
-                        }}
-                        className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#c7a26a]/20 hover:bg-[#c7a26a]/30 border border-[#c7a26a]/50 text-[#c7a26a] text-[11px] font-semibold transition-all active:scale-[0.98]"
-                      >
-                        ⚡ Preview 3D Digital Metal Pass (Simulation Mode) →
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-4 space-y-2">
-                  <GoldButton type="button" onClick={() => void handleProceedPayment()} disabled={isPaying} fullWidth>{isPaying ? 'Opening Razorpay Gateway...' : 'Pay ₹2,360 & Activate Pass →'}</GoldButton>
-                  <p className="text-center text-[10px] text-white/40">
-                    🔒 Secured by Razorpay · 256-bit SSL encrypted · Instant digital pass
-                  </p>
+                    ← Edit Details
+                  </button>
+                  <GoldButton
+                    type="button"
+                    onClick={() => void handleConfirmAndIssuePass()}
+                    disabled={!agreedTerms || isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit →'}
+                  </GoldButton>
                 </div>
               </div>
             )}
 
             {/* ======================================================== */}
-            {/* STEP 4: Official Digital Pass (Celebratory Success) */}
+            {/* STEP 3: Application Submitted (Pending Desk Verification) */}
             {/* ======================================================== */}
             {step === 'success' && memberPass && (
-              <div className="animate-step-in">
+              <div className="animate-step-in text-center space-y-4 py-2">
                 {/* Header Title with Celebration Badge */}
-                <div className="text-center mb-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 shadow-sm">
-                    ✓ Official Digital Pass Issued
+                <div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm">
+                    ⏳ Application Submitted · Pending Desk Approval
                   </span>
-                  <h2 className="font-serif text-2xl font-semibold mt-1 text-[#fbf8f1]">
-                    Welcome to The Pavilion Club
+                  <h2 className="font-serif text-2xl font-semibold mt-2 text-[#fbf8f1]">
+                    Thank You, {memberPass.name}
                   </h2>
-                  <p className="text-xs text-white/70 mt-0.5">
-                    Your luxury digital pass is active for Mon–Fri 6:00 AM – 3:00 PM Shared-Play sessions.
+                  <p className="text-xs text-white/70 mt-1 max-w-sm mx-auto">
+                    Your application has been received and forwarded to our Front Desk team.
                   </p>
                 </div>
 
-                {/* 3D Titanium Metal Pass Card */}
-                <LuxuryMetalPassCard memberPass={memberPass} />
-
-                {/* Direct Walk-in Guidance Banner */}
-                <div className="mt-4 p-3 rounded-xl border border-[#c7a26a]/30 bg-[#c7a26a]/10 text-center">
-                  <p className="text-[11px] font-semibold text-[#c7a26a] tracking-wide uppercase">
-                    🎾 Direct Walk-In Court Access
-                  </p>
-                  <p className="text-xs text-white/90 mt-1 leading-relaxed">
-                    No advance slot booking required. Simply present this digital pass on your phone at the front desk between <b>6:00 AM – 3:00 PM (Mon – Fri)</b> to play your daily 1-hour session.
-                  </p>
-                </div>
-
-                {/* Quick Actions Suite (Matching Reference Image Layout) */}
-                <div className="mt-5 flex justify-center items-center gap-6 sm:gap-8">
-                  {/* 1. Member Hours Access & Rules */}
-                  <a
-                    href="#hours"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert('Membership Access Hours: Monday to Friday, 6:00 AM – 3:00 PM. Up to 20 Shared-Play sessions per month at The Pavilion Club, Mogappair East.');
-                    }}
-                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                    </div>
-                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
-                      Member Hours
+                {/* Status Box */}
+                <div className="p-4 rounded-xl border border-[rgba(201,169,110,0.3)] bg-[#07131f] text-left space-y-2.5 max-w-md mx-auto">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">Reference ID</span>
+                    <span className="font-mono text-xs font-bold text-[#c7a26a] bg-[#c7a26a]/15 px-2 py-0.5 rounded border border-[#c7a26a]/30">
+                      {memberPass.reference}
                     </span>
-                  </a>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white/60">Selected Plan:</span>
+                    <span className="font-semibold text-white truncate max-w-[200px]">{memberPass.planTitle}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white/60">Digital Card Status:</span>
+                    <span className="font-semibold text-amber-300 bg-amber-950/50 border border-amber-800/60 px-2 py-0.5 rounded">
+                      Unlocks upon Desk Approval
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-white/60 pt-1 border-t border-white/10 leading-relaxed">
+                    💡 Our Front Desk team will call you at <strong>+91 {memberPass.phone}</strong>. Once approved &amp; accepted at the club desk, your Official Digital Member Card with 12-Hour Quota will be activated.
+                  </p>
+                </div>
 
-                  {/* 2. WhatsApp Concierge */}
+                {/* Quick Actions */}
+                <div className="flex flex-wrap justify-center gap-3 pt-2">
                   <a
                     href={whatsappUrl(
-                      `Hi Pavilion Club! I have joined the Inaugural Shared-Play Membership. My Member Pass ID is ${memberPass.reference}.`
+                      `Hi Pavilion Club! I have applied for membership (Ref: ${memberPass.reference}). Could you please verify and accept my pass?`
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline"
+                    className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all"
                   >
-                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm.01 18.06c-1.49 0-2.95-.4-4.22-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.13 8.13 0 0 1-1.25-4.28c0-4.5 3.66-8.15 8.16-8.15 2.18 0 4.22.85 5.76 2.39a8.09 8.09 0 0 1 2.39 5.76c0 4.49-3.66 8.15-8.15 8.15zm4.47-6.1c-.24-.12-1.44-.71-1.66-.79-.23-.08-.39-.12-.56.12-.17.25-.64.79-.79.96-.14.16-.29.18-.54.06-.24-.12-1.02-.38-1.95-1.21-.72-.65-1.21-1.45-1.36-1.69-.14-.25-.02-.38.1-.5.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.17.04-.32-.02-.44-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.02 2.6.13.16 1.77 2.71 4.3 3.8.6.26 1.07.42 1.44.53.61.2 1.16.17 1.6.1.49-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.21-.17-.46-.29z" />
-                      </svg>
-                    </div>
-                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
-                      WhatsApp
-                    </span>
+                    💬 WhatsApp Front Desk
                   </a>
-
-                  {/* 3. Save Pass */}
+                  <a
+                    href={CLUB.phoneHref}
+                    className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-white text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5"
+                  >
+                    📞 Call Desk
+                  </a>
                   <button
                     type="button"
-                    onClick={() => window.print()}
-                    className="flex flex-col items-center gap-1.5 group cursor-pointer text-white no-underline border-none bg-transparent"
+                    onClick={() => {
+                      localStorage.removeItem(STORAGE_KEY);
+                      setMemberPass(null);
+                      setStep('details');
+                    }}
+                    className="px-4 py-2 text-xs text-[#c7a26a]/80 hover:text-[#c7a26a] underline transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full bg-white text-[#0b0f14] grid place-items-center shadow-[0_6px_16px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:bg-[#f0f2f5] transition-all">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                    </div>
-                    <span className="text-[11px] font-semibold text-white/80 tracking-wide group-hover:text-white">
-                      Save pass
-                    </span>
+                    Register Another Member
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 text-xs text-white/50 hover:text-white underline transition-colors"
+                  >
+                    Done
                   </button>
                 </div>
-
-                  <div className="pt-4 flex items-center justify-between text-[11px]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.removeItem(STORAGE_KEY);
-                        setMemberPass(null);
-                        setStep('details');
-                      }}
-                      className="text-[#c7a26a]/80 hover:text-[#c7a26a] underline transition-colors"
-                    >
-                      Register New Member
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="text-white/50 hover:text-white transition-colors"
-                    >
-                      Done & Close
-                    </button>
-                  </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Printable Application Sheet Modal for Physical Signature / Save PDF */}
+      <PrintRegistrationSheet
+        isOpen={isPrintSheetOpen}
+        onClose={() => setIsPrintSheetOpen(false)}
+        data={printableData}
+      />
     </div>
   );
 }

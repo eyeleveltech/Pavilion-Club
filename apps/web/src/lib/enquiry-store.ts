@@ -12,11 +12,12 @@ export interface PickleballEnquiry {
   plan: string;
   sessions: number;
   sessionsUsed: number;
-  lastCheckIn?: string;
+  lastCheckIn?: string | undefined;
   amountPaise: number;
   amountDisplay: string;
   paymentId: string;
-  status: 'Paid & Active' | 'Pending Verification';
+  status: 'Paid & Active' | 'Pending Verification' | 'Active Member (12h Quota)' | 'Pay at Desk';
+  notes?: string;
   createdAt: string;
   createdDisplay: string;
 }
@@ -52,8 +53,8 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     name: 'Karthik Narayanan',
     phone: '9840123456',
     email: 'karthik.narayanan@gmail.com',
-    plan: 'Inaugural Shared-Play Membership',
-    sessions: 20,
+    plan: 'Inaugural Shared-Play Membership (12 Hours)',
+    sessions: 12,
     sessionsUsed: 2,
     lastCheckIn: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     amountPaise: 236000,
@@ -70,14 +71,14 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     name: 'Ananya Sundaram',
     phone: '9962055621',
     email: 'ananya.sundaram@outlook.com',
-    plan: 'Inaugural Shared-Play Membership',
-    sessions: 20,
-    sessionsUsed: 5,
+    plan: 'Inaugural Shared-Play Membership (12 Hours)',
+    sessions: 12,
+    sessionsUsed: 3,
     lastCheckIn: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
     amountPaise: 236000,
     amountDisplay: '₹2,360.00',
     paymentId: 'pay_P284759302',
-    status: 'Paid & Active',
+    status: 'Active Member (12h Quota)',
     createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
     createdDisplay: '3 hours ago',
   },
@@ -88,13 +89,13 @@ const SEED_PICKLEBALL: PickleballEnquiry[] = [
     name: 'Vikram Chandrasekar',
     phone: '9791044521',
     email: 'vikram.c@gmail.com',
-    plan: 'Inaugural Shared-Play Membership',
-    sessions: 20,
+    plan: 'Inaugural Shared-Play Membership (12 Hours)',
+    sessions: 12,
     sessionsUsed: 0,
     amountPaise: 236000,
     amountDisplay: '₹2,360.00',
     paymentId: 'pay_P394857201',
-    status: 'Paid & Active',
+    status: 'Pending Verification',
     createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
     createdDisplay: '6 hours ago',
   },
@@ -174,6 +175,13 @@ const SEED_STUDIO: StudioEnquiry[] = [
 function notifyEnquiryUpdate() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(ENQUIRY_UPDATE_EVENT));
+    try {
+      const bc = new BroadcastChannel('pavilion_channel');
+      bc.postMessage({ type: 'ENQUIRY_UPDATED', timestamp: Date.now() });
+      bc.close();
+    } catch {
+      // BroadcastChannel not supported in this environment
+    }
   }
 }
 
@@ -203,6 +211,8 @@ export function addPickleballEnquiry(data: {
   sessions?: number;
   amountPaise?: number;
   paymentId?: string;
+  status?: PickleballEnquiry['status'];
+  notes?: string;
 }): PickleballEnquiry {
   const current = getPickleballEnquiries();
   const now = new Date();
@@ -213,13 +223,14 @@ export function addPickleballEnquiry(data: {
     name: data.name,
     phone: data.phone,
     email: data.email,
-    plan: data.plan || 'Inaugural Shared-Play Membership',
-    sessions: data.sessions || 20,
+    plan: data.plan || 'Inaugural Shared-Play Membership (12 Hours)',
+    sessions: data.sessions || 12,
     sessionsUsed: 0,
     amountPaise: data.amountPaise || 236000,
     amountDisplay: '₹2,360.00',
     paymentId: data.paymentId || `pay_${Date.now().toString(36)}`,
-    status: 'Paid & Active',
+    status: data.status || 'Pay at Desk',
+    notes: data.notes || '',
     createdAt: now.toISOString(),
     createdDisplay: 'Just now',
   };
@@ -236,11 +247,37 @@ export function addPickleballEnquiry(data: {
     name: data.name,
     phone: data.phone,
     email: data.email,
-    category: data.plan || 'Pickleball Shared-Play',
-    notes: `Enquiry ref ${data.reference} (${data.sessions || 20} sessions). Status: Paid & Active`,
+    category: data.plan || 'Pickleball Shared-Play (12 Hours)',
+    notes: `Enquiry ref ${data.reference} (${data.sessions || 12} hours quota). Status: ${data.status || 'Pay at Desk'}${data.notes ? ` | Notes: ${data.notes}` : ''}`,
   }).catch(() => null);
 
   return newEntry;
+}
+
+export function acceptAndOnboardMember(id: string): { success: boolean; message: string } {
+  const current = getPickleballEnquiries();
+  const member = current.find((m) => m.id === id);
+  if (!member) return { success: false, message: 'Member not found.' };
+
+  const updated = current.map((m) => {
+    if (m.id === id) {
+      return {
+        ...m,
+        status: 'Active Member (12h Quota)' as const,
+      };
+    }
+    return m;
+  });
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY_PICKLEBALL, JSON.stringify(updated));
+    notifyEnquiryUpdate();
+  }
+
+  return {
+    success: true,
+    message: `Accepted ${member.name}! Onboarded to Active Membership with ${member.sessions} Hours Quota.`,
+  };
 }
 
 export function checkInMember(id: string): { success: boolean; message: string; used?: number; remaining?: number } {
@@ -250,13 +287,13 @@ export function checkInMember(id: string): { success: boolean; message: string; 
 
   const used = member.sessionsUsed || 0;
   if (used >= member.sessions) {
-    return { success: false, message: 'Quota exhausted: all 20 sessions have been completed this month.' };
+    return { success: false, message: `Quota exhausted: all ${member.sessions} hours of monthly play have been completed.` };
   }
 
   const now = new Date();
   const todayYMD = now.toISOString().slice(0, 10);
   if (member.lastCheckIn && member.lastCheckIn.slice(0, 10) === todayYMD) {
-    return { success: false, message: 'Member has already checked in for today (Max 1 session/day).' };
+    return { success: false, message: 'Member has already checked in for today (Max 1 hour session/day).' };
   }
 
   const newUsed = used + 1;
@@ -278,7 +315,7 @@ export function checkInMember(id: string): { success: boolean; message: string; 
   }
   return {
     success: true,
-    message: `Checked-in ${member.name}! Session ${newUsed}/20 recorded (${remaining} sessions remaining).`,
+    message: `Checked-in ${member.name}! Hour ${newUsed}/${member.sessions} recorded (${remaining} hours remaining).`,
     used: newUsed,
     remaining,
   };
@@ -388,5 +425,98 @@ export function deleteEnquiry(id: string, type: 'pickleball' | 'studio'): void {
       notifyEnquiryUpdate();
     }
   }
+}
+
+export interface MemberLookupResult {
+  found: boolean;
+  isApproved: boolean;
+  reference: string;
+  name: string;
+  phone: string;
+  email: string;
+  category: 'pickleball' | 'studio';
+  planTitle: string;
+  status: string;
+  sessionsTotal: number;
+  sessionsUsed: number;
+  sessionsRemaining: number;
+  lastCheckIn?: string | undefined;
+  createdDisplay: string;
+  paymentStatus: string;
+}
+
+export function findMemberPassByQuery(query: string): MemberLookupResult | null {
+  const cleanQ = query.trim().toLowerCase().replace(/\s+/g, '');
+  const digits = query.replace(/\D/g, '');
+
+  if (!cleanQ && !digits) return null;
+
+  // 1. Search in Pickleball Memberships
+  const pbList = getPickleballEnquiries();
+  const pbMatch = pbList.find((p) => {
+    const cleanRef = p.reference.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const searchRef = cleanQ.replace(/[^a-z0-9]/g, '');
+    if (searchRef && (cleanRef === searchRef || cleanRef.includes(searchRef))) return true;
+    if (digits.length >= 10 && p.phone.replace(/\D/g, '').endsWith(digits.slice(-10))) return true;
+    return false;
+  });
+
+  if (pbMatch) {
+    const isApproved =
+      pbMatch.status === 'Active Member (12h Quota)' || pbMatch.status === 'Paid & Active';
+    const total = pbMatch.sessions || 12;
+    const used = pbMatch.sessionsUsed || 0;
+    const remaining = Math.max(0, total - used);
+
+    return {
+      found: true,
+      isApproved,
+      reference: pbMatch.reference,
+      name: pbMatch.name,
+      phone: pbMatch.phone,
+      email: pbMatch.email,
+      category: 'pickleball',
+      planTitle: pbMatch.plan,
+      status: pbMatch.status,
+      sessionsTotal: total,
+      sessionsUsed: used,
+      sessionsRemaining: remaining,
+      lastCheckIn: pbMatch.lastCheckIn,
+      createdDisplay: pbMatch.createdDisplay,
+      paymentStatus: isApproved ? 'Front Desk Verified & Paid' : 'Pay at Desk (Pending Verification)',
+    };
+  }
+
+  // 2. Search in Studio Memberships
+  const stList = getStudioEnquiries();
+  const stMatch = stList.find((s) => {
+    const cleanRef = s.reference.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const searchRef = cleanQ.replace(/[^a-z0-9]/g, '');
+    if (searchRef && (cleanRef === searchRef || cleanRef.includes(searchRef))) return true;
+    if (digits.length >= 10 && s.phone.replace(/\D/g, '').endsWith(digits.slice(-10))) return true;
+    return false;
+  });
+
+  if (stMatch) {
+    const isApproved = stMatch.status === 'Enrolled';
+    return {
+      found: true,
+      isApproved,
+      reference: stMatch.reference,
+      name: stMatch.name,
+      phone: stMatch.phone,
+      email: stMatch.email,
+      category: 'studio',
+      planTitle: `Pavilion Studio · ${stMatch.category} (${stMatch.cohort})`,
+      status: stMatch.status,
+      sessionsTotal: 12,
+      sessionsUsed: 0,
+      sessionsRemaining: 12,
+      createdDisplay: stMatch.createdDisplay,
+      paymentStatus: isApproved ? 'Enrolled & Verified' : 'Pending Desk Review',
+    };
+  }
+
+  return null;
 }
 

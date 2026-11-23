@@ -12,7 +12,15 @@ export function MembershipCheckoutModalContainer() {
       if (typeof window !== 'undefined') {
         const hash = window.location.hash;
         const params = new URLSearchParams(window.location.search);
-        if (hash === '#join' || hash === '#pass' || params.get('join') === 'true' || params.get('join') === '1' || params.get('pass') === 'preview') {
+
+        // If inline #enquire form is on the page and hash is #join or #enquire, scroll down to it
+        const formEl = document.getElementById('enquire');
+        if (formEl && (hash === '#join' || hash === '#enquire' || hash === '#studio-enquiry')) {
+          formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return;
+        }
+
+        if (params.get('pass') === 'preview' || hash === '#pass') {
           setIsOpen(true);
         }
       }
@@ -23,19 +31,35 @@ export function MembershipCheckoutModalContainer() {
 
     // 2. Direct event listener for MembershipJoinButton
     const handleDirectOpen = () => {
+      const formEl = document.getElementById('enquire');
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
+          nameInput?.focus();
+        }, 400);
+        return;
+      }
       setIsOpen(true);
     };
     window.addEventListener('open-membership-modal', handleDirectOpen);
 
-    // 3. Intercept click on any link pointing to #join
+    // 3. Intercept click on any link pointing to #join or #studio-enquiry
     const handleClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement)?.closest('a[href="#join"]');
+      const target = (e.target as HTMLElement)?.closest('a[href="#join"], a[href="#studio-enquiry"], a[href="#enquire"]');
       if (target) {
+        const formEl = document.getElementById('enquire');
+        if (formEl) {
+          e.preventDefault();
+          formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setTimeout(() => {
+            const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
+            nameInput?.focus();
+          }, 400);
+          return;
+        }
         e.preventDefault();
         setIsOpen(true);
-        if (window.location.hash !== '#join') {
-          window.history.pushState(null, '', '#join');
-        }
       }
     };
 

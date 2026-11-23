@@ -21,6 +21,7 @@ import {
   getPickleballEnquiries,
   getStudioEnquiries,
   updateStudioEnquiryStatus,
+  acceptAndOnboardMember,
   checkInMember,
   deleteEnquiry,
   ENQUIRY_UPDATE_EVENT,
@@ -31,6 +32,10 @@ import {
   PrintRegistrationSheet,
   type PrintableRegistrationData,
 } from '@/components/public/studio/PrintRegistrationSheet';
+import {
+  LuxuryMetalPassCard,
+  type MemberPass,
+} from '@/components/public/membership/MembershipCheckoutModal';
 
 export function EnquiriesView() {
   const [activeTab, setActiveTab] = useState<'pickleball' | 'studio'>('pickleball');
@@ -42,6 +47,7 @@ export function EnquiriesView() {
   const [lastRefreshed, setLastRefreshed] = useState<string>('Just now');
   const [checkInNotice, setCheckInNotice] = useState<{ tone: 'success' | 'warn'; text: string } | null>(null);
   const [printData, setPrintData] = useState<PrintableRegistrationData | null>(null);
+  const [viewCardPass, setViewCardPass] = useState<MemberPass | null>(null);
 
   // Load enquiries from storage and bind live sync listeners
   const refreshData = () => {
@@ -52,6 +58,18 @@ export function EnquiriesView() {
 
   const handleCheckIn = (id: string) => {
     const res = checkInMember(id);
+    setCheckInNotice({
+      tone: res.success ? 'success' : 'warn',
+      text: res.message,
+    });
+    refreshData();
+    setTimeout(() => {
+      setCheckInNotice(null);
+    }, 4000);
+  };
+
+  const handleAcceptMember = (id: string) => {
+    const res = acceptAndOnboardMember(id);
     setCheckInNotice({
       tone: res.success ? 'success' : 'warn',
       text: res.message,
@@ -321,11 +339,14 @@ export function EnquiriesView() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 font-sans">
-                  {filteredPickleball.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-white/[0.02] transition-colors group"
-                    >
+                  {filteredPickleball.map((item) => {
+                    const isPending =
+                      item.status === 'Pending Verification' || item.status === 'Pay at Desk';
+                    return (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-white/[0.02] transition-colors group"
+                      >
                       <td className="p-3.5 whitespace-nowrap">
                         <span className="font-mono font-bold text-white bg-white/5 border border-white/15 px-2 py-0.5 rounded">
                           {item.reference}
@@ -366,7 +387,11 @@ export function EnquiriesView() {
                           {item.amountDisplay}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 px-1.5 py-0.5 rounded">
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
+                            item.status === 'Pending Verification' || item.status === 'Pay at Desk'
+                              ? 'text-amber-300 bg-amber-950/40 border-amber-800/60'
+                              : 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60'
+                          }`}>
                             <CheckCircle2 className="w-2.5 h-2.5" />
                             {item.status}
                           </span>
@@ -380,8 +405,22 @@ export function EnquiriesView() {
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
-                          {/* 1-Click Member Check-In */}
+                          {/* Front Desk Actions: Accept & Onboard OR -1 Hr Check-In */}
                           {(() => {
+                            const isPending = item.status === 'Pending Verification' || item.status === 'Pay at Desk';
+                            if (isPending) {
+                              return (
+                                <button
+                                  type="button"
+                                  onClick={() => handleAcceptMember(item.id)}
+                                  className="px-2.5 py-1 text-[11px] font-bold text-black bg-[#c7a26a] hover:bg-[#d9b882] rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
+                                  title="Accept lead & onboard to 12-Hour Active Membership"
+                                >
+                                  ✓ Accept &amp; Onboard
+                                </button>
+                              );
+                            }
+
                             const todayYMD = new Date().toISOString().slice(0, 10);
                             const checkedInToday = item.lastCheckIn && item.lastCheckIn.slice(0, 10) === todayYMD;
                             const isExhausted = (item.sessionsUsed || 0) >= item.sessions;
@@ -396,7 +435,7 @@ export function EnquiriesView() {
                             if (isExhausted) {
                               return (
                                 <span className="inline-flex items-center px-2 py-1 text-[10px] font-semibold text-white/40 bg-white/5 border border-white/10 rounded-lg">
-                                  20/20 Done
+                                  {item.sessions}/{item.sessions} Completed
                                 </span>
                               );
                             }
@@ -405,12 +444,38 @@ export function EnquiriesView() {
                                 type="button"
                                 onClick={() => handleCheckIn(item.id)}
                                 className="px-2.5 py-1 text-[11px] font-bold text-black bg-[#c7a26a] hover:bg-[#d9b882] rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
-                                title="Check-in member for today's 1-hour session"
+                                title="Check-in member for today's session: -1 Hour from remaining quota"
                               >
-                                🎾 Check-In (1 Hr)
+                                🎾 -1 Hr Check-In
                               </button>
                             );
                           })()}
+
+                          {/* 1-Click Activated Digital Card View (Active Members only) */}
+                          {!isPending && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setViewCardPass({
+                                  reference: item.reference,
+                                  name: item.name,
+                                  phone: item.phone,
+                                  email: item.email,
+                                  category: 'pickleball',
+                                  planTitle: item.plan,
+                                  validFrom: item.createdDisplay,
+                                  validUntil: '30 Days from Activation',
+                                  totalSessions: item.sessions,
+                                  amountPaise: item.amountPaise,
+                                  paymentId: item.paymentId,
+                                })
+                              }
+                              className="px-2.5 py-1 text-[11px] font-bold text-[#c7a26a] bg-[#c7a26a]/15 hover:bg-[#c7a26a]/25 border border-[#c7a26a]/40 rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
+                              title="View Member's Activated 3D Titanium Digital Pass"
+                            >
+                              🪪 Card
+                            </button>
+                          )}
 
                           {/* 1-Click Printable Application Sheet */}
                           <button
@@ -437,7 +502,7 @@ export function EnquiriesView() {
                           {/* 1-Click WhatsApp Button */}
                           <a
                             href={`https://wa.me/91${item.phone}?text=${encodeURIComponent(
-                              `Hello ${item.name}! Welcome to The Pavilion Club. Your Inaugural Shared-Play Membership (${item.reference}) is active with 20 Sessions.`
+                              `Hello ${item.name}! Welcome to The Pavilion Club. Your Inaugural Shared-Play Membership (${item.reference}) is active with 12 Hours of play.`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -468,8 +533,9 @@ export function EnquiriesView() {
                         </div>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
+                  );
+                })}
+              </tbody>
               </table>
             </div>
           )}
@@ -500,11 +566,13 @@ export function EnquiriesView() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 font-sans">
-                  {filteredStudio.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-white/[0.02] transition-colors group"
-                    >
+                  {filteredStudio.map((item) => {
+                    const isEnrolled = item.status === 'Enrolled';
+                    return (
+                      <tr
+                        key={item.id}
+                        className="hover:bg-white/[0.02] transition-colors group"
+                      >
                       <td className="p-3.5 whitespace-nowrap">
                         <span className="font-mono font-bold text-[#c7a26a] bg-[#c7a26a]/10 border border-[#c7a26a]/30 px-2 py-0.5 rounded">
                           {item.reference}
@@ -571,6 +639,32 @@ export function EnquiriesView() {
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* 1-Click Activated Digital Card View (Enrolled Members only) */}
+                          {isEnrolled && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setViewCardPass({
+                                  reference: item.reference,
+                                  name: item.name,
+                                  phone: item.phone,
+                                  email: item.email,
+                                  category: 'studio',
+                                  planTitle: `Pavilion Studio · ${item.category} (${item.cohort})`,
+                                  validFrom: item.createdDisplay,
+                                  validUntil: '30 Days from Activation',
+                                  totalSessions: 12,
+                                  amountPaise: 236000,
+                                  paymentId: 'STUDIO_ENROLLED',
+                                })
+                              }
+                              className="px-2.5 py-1 text-[11px] font-bold text-[#c7a26a] bg-[#c7a26a]/15 hover:bg-[#c7a26a]/25 border border-[#c7a26a]/40 rounded-lg shadow-sm transition-all flex items-center gap-1 active:scale-95"
+                              title="View Member's Activated 3D Titanium Digital Pass"
+                            >
+                              🪪 Card
+                            </button>
+                          )}
+
                           {/* 1-Click Printable Application Sheet */}
                           <button
                             type="button"
@@ -629,8 +723,9 @@ export function EnquiriesView() {
                         </div>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
+                  );
+                })}
+              </tbody>
               </table>
             </div>
           )}
@@ -643,6 +738,54 @@ export function EnquiriesView() {
         onClose={() => setPrintData(null)}
         data={printData}
       />
+
+      {/* Activated Member Digital Card Modal */}
+      {viewCardPass && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-step-in">
+          <div className="relative w-full max-w-lg bg-[#0b1724] border border-[#c7a26a]/40 rounded-2xl p-6 text-center space-y-4 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setViewCardPass(null)}
+              className="absolute top-4 right-4 text-white/50 hover:text-white text-lg font-bold w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center"
+            >
+              ✕
+            </button>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+              ✓ Active Member Card · Front Desk Approved
+            </span>
+            <h3 className="font-serif text-2xl font-bold text-white">
+              Official Digital Member Card
+            </h3>
+            <p className="text-xs text-white/70 max-w-sm mx-auto">
+              This card is officially activated with 12 Hours Monthly Quota. Member can present this pass or reference number at the desk.
+            </p>
+
+            <div className="py-2">
+              <LuxuryMetalPassCard memberPass={viewCardPass} />
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <a
+                href={`https://wa.me/91${viewCardPass.phone}?text=${encodeURIComponent(
+                  `Hello ${viewCardPass.name}! Your Pavilion Club Digital Member Pass (${viewCardPass.reference}) has been activated by the front desk with 12 Hours monthly allowance. See you on court!`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                💬 Share Card on WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={() => setViewCardPass(null)}
+                className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-white text-xs font-semibold uppercase tracking-wider transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

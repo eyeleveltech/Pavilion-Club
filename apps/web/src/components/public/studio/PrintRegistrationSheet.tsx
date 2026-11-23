@@ -44,6 +44,10 @@ export function PrintRegistrationSheet({ isOpen, onClose, data }: PrintRegistrat
         year: 'numeric',
       });
 
+  const isPickleball =
+    data.category.toLowerCase().includes('pickleball') ||
+    data.category.toLowerCase().includes('shared-play');
+
   return (
     <div
       role="dialog"
@@ -119,10 +123,10 @@ export function PrintRegistrationSheet({ isOpen, onClose, data }: PrintRegistrat
                 The Pavilion Club · Mogappair East
               </p>
               <h1 className="text-2xl font-serif font-black tracking-tight text-slate-900 mt-0.5">
-                THE STUDIO · MEMBER ADMISSION FORM
+                {isPickleball ? 'PICKLEBALL MEMBERSHIP DOSSIER' : 'THE STUDIO · MEMBER ADMISSION FORM'}
               </h1>
               <p className="text-xs text-slate-600 mt-1">
-                Official Programme Registration &amp; Physical Onboarding Slip
+                {isPickleball ? 'Official Shared-Play Membership · 12 Hours Monthly Quota' : 'Official Programme Registration & Physical Onboarding Slip'}
               </p>
             </div>
 
@@ -172,35 +176,51 @@ export function PrintRegistrationSheet({ isOpen, onClose, data }: PrintRegistrat
               <div>
                 <span className="text-slate-500 block text-[10px] uppercase font-semibold">Batch &amp; Schedule</span>
                 <span className="font-semibold text-slate-800">
-                  {data.day ? `${data.day} · ` : ''}
-                  {data.timeSlot || data.pricingLabel || 'Official Batch'}
+                  {isPickleball ? 'Mon–Fri 6:00 AM – 3:00 PM (12 Hours Monthly Quota)' : `${data.day ? `${data.day} · ` : ''}${data.timeSlot || data.pricingLabel || 'Official Batch'}`}
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase font-semibold">Target Cohort / Level</span>
+                <span className="text-slate-500 block text-[10px] uppercase font-semibold">Target Cohort / Allowance</span>
                 <span className="font-semibold text-slate-800">
-                  {data.cohort || 'Adults (18+)'} {data.level ? `· ${data.level}` : ''}
+                  {isPickleball ? 'Max 1 hr daily allowance' : `${data.cohort || 'Adults (18+)'} ${data.level ? `· ${data.level}` : ''}`}
                 </span>
               </div>
               {data.amountDisplay && (
                 <div className="col-span-2 sm:col-span-3 pt-2 border-t border-slate-200 flex justify-between items-center">
-                  <span className="text-slate-600 font-semibold text-xs">Agreed Programme Fee (+ GST):</span>
+                  <span className="text-slate-600 font-semibold text-xs">Agreed Fee (+ GST):</span>
                   <span className="font-mono font-bold text-base text-slate-900">{data.amountDisplay}</span>
                 </div>
               )}
             </div>
           </div>
 
+          {/* Attendance Tracking Stamp Grid for Physical Desk Records (12 Hours) */}
+          {isPickleball && (
+            <div className="mb-6">
+              <h2 className="text-xs uppercase font-black tracking-wider text-slate-700 bg-slate-100 px-3 py-1.5 rounded mb-2 border-l-4 border-slate-900">
+                3. Front Desk 12-Hour Attendance Stamp Grid
+              </h2>
+              <div className="grid grid-cols-6 gap-2 text-center text-xs">
+                {Array.from({ length: 12 }, (_, i) => (
+                  <div key={i} className="border border-slate-300 rounded p-1.5 bg-slate-50">
+                    <span className="text-[9px] font-bold text-slate-600 uppercase block">Hour {i + 1}</span>
+                    <div className="h-5 border-b border-slate-200 my-1"></div>
+                    <span className="text-[8px] text-slate-400 block font-mono">Date / Sign</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Section 3: Safety & Member Undertaking */}
           <div className="mb-6">
             <h2 className="text-xs uppercase font-black tracking-wider text-slate-700 bg-slate-100 px-3 py-1.5 rounded mb-2 border-l-4 border-slate-900">
-              3. Member Declaration &amp; Studio Rules
+              {isPickleball ? '4. Member Undertaking & Court Rules' : '3. Member Declaration & Studio Rules'}
             </h2>
             <p className="text-[10px] text-slate-600 leading-relaxed text-justify">
-              I hereby declare that I am physically fit to participate in studio fitness/dance/movement sessions. 
-              I agree to abide by the rules and code of conduct of The Pavilion Club. Packages are non-transferable 
-              and non-refundable once activated. Clean non-marking shoes or barefoot protocol as prescribed by the 
-              instructor must be followed on the studio floor.
+              {isPickleball
+                ? 'I confirm that this shared-play membership is strictly valid for weekday mornings and afternoons (Mon–Fri 6:00 AM – 3:00 PM). Play is on a shared court rotation basis (up to 6 players per court). The monthly 12-hour quota allows up to 1 hour daily play. Dedicated non-marking court shoes are required.'
+                : 'I hereby declare that I am physically fit to participate in studio fitness/dance/movement sessions. I agree to abide by the rules and code of conduct of The Pavilion Club. Packages are non-transferable and non-refundable once activated. Clean non-marking shoes or barefoot protocol as prescribed by the instructor must be followed on the studio floor.'}
             </p>
           </div>
 

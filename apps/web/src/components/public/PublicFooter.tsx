@@ -23,6 +23,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
           <h4>The club</h4>
           <ul>
             <li><Link href="/membership/">Memberships</Link></li>
+            <li><Link href="/pass/">Digital Member Pass</Link></li>
             <li><Link href="/academy/">Pickleball Academy</Link></li>
             <li><Link href="/events/">Tournaments &amp; Events</Link></li>
             <li><a href="/#spaces">Our Spaces</a></li>
@@ -36,6 +37,7 @@ export function PublicFooter({ className = '' }: { className?: string }) {
           <h4>Players</h4>
           <ul>
             <li><a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a></li>
+            <li><Link href="/pass/">Digital Member Pass</Link></li>
             <li><Link href="/rules/">Court rules</Link></li>
             <li><Link href="/faq/">FAQs</Link></li>
             <li><Link href="/cancellation/">Cancellation &amp; refunds</Link></li>

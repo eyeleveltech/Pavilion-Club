@@ -697,3 +697,34 @@ export function formatLongDate(iso: string, timeZone = 'Asia/Kolkata'): string {
     year: 'numeric',
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Live Member Pass Lookup from ClubOps                                */
+/* ------------------------------------------------------------------ */
+
+export interface PublicMemberPassResult {
+  found: boolean;
+  isApproved?: boolean;
+  reference?: string;
+  name?: string;
+  phone?: string;
+  email?: string | null;
+  category?: string;
+  planTitle?: string;
+  status?: string;
+  sessionsTotal?: number;
+  sessionsUsed?: number;
+  sessionsRemaining?: number;
+  lastCheckIn?: string | null;
+  createdDisplay?: string;
+  paymentStatus?: string;
+  message?: string;
+}
+
+export async function fetchLiveMemberPass(query: string): Promise<PublicMemberPassResult | null> {
+  try {
+    return await call<PublicMemberPassResult>(`/pass?query=${encodeURIComponent(query)}`);
+  } catch {
+    return null;
+  }
+}
