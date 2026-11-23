@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowLink } from '@/components/public/site/SitePage';
-import { StudioEnquiryModal, type StudioEnquiryData } from './StudioEnquiryModal';
 
 interface RateCardItem {
   id: string;
   category: string;
   badge?: string;
   title: string;
+  formProgramme: string;
   description: string;
   features: string[];
   pricing: {
@@ -17,6 +17,7 @@ interface RateCardItem {
     specialPrice: number;
     note?: string;
     days?: string;
+    formBatch?: string;
   }[];
   accent?: boolean;
 }
@@ -27,6 +28,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
     category: '01 · Dance Programmes',
     badge: 'Weekday & Weekend Batches',
     title: 'Dance Classes',
+    formProgramme: 'Dance (Hip-Hop & Contemporary)',
     description: 'Applicable to all dance styles: Hip Hop, Commercial, Bollywood, Contemporary & Kids Dance (excluding Salsa).',
     features: [
       'Comprehensive choreography & musicality',
@@ -40,12 +42,14 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
         specialPrice: 2200,
         days: 'Mon · Wed · Fri (12 classes / month)',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekday Batch (Mon · Wed · Fri · 12 Classes)',
       },
       {
         label: 'Weekend Batch',
         specialPrice: 2000,
         days: 'Saturday & Sunday (8 classes / month)',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekend Batch (Sat · Sun · 8 Classes)',
       },
     ],
     accent: true,
@@ -55,6 +59,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
     category: '02 · Latin Social',
     badge: '8 Classes / Package',
     title: 'Salsa & Partnerwork',
+    formProgramme: 'Salsa & Latin Social',
     description: 'Master authentic Latin rhythms, partnerwork, footwork, frame connection and musicality.',
     features: [
       'Individual & couple registrations',
@@ -67,12 +72,14 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
         specialPrice: 3000,
         days: '8 classes per package',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekend Batch (Sat · Sun · 8 Classes)',
       },
       {
         label: 'Couple Package',
         specialPrice: 5000,
         days: '8 classes per package (for 2)',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekend Batch (Sat · Sun · 8 Classes)',
       },
     ],
   },
@@ -81,6 +88,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
     category: '03 · Movement & Acrobatics',
     badge: '8 Classes / Month',
     title: 'Gymnastics',
+    formProgramme: 'Gymnastics & Tumbling',
     description: 'Build exceptional flexibility, bodyweight strength, core conditioning and aerial spatial awareness.',
     features: [
       'Floor work, flexibility & handstands',
@@ -94,6 +102,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
         specialPrice: 4000,
         days: '8 classes per month',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekend Batch (Sat · Sun · 8 Classes)',
       },
     ],
   },
@@ -102,6 +111,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
     category: '04 · Combat & Conditioning',
     badge: '8 Classes / Month',
     title: 'Boxing & Heavy Bag',
+    formProgramme: 'Boxing & Combat Conditioning',
     description: 'High-intensity athletic training: authentic punch mechanics, footwork drills, heavy bags and conditioning.',
     features: [
       'Heavy bag rounds & hand-eye reflex drills',
@@ -115,6 +125,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
         specialPrice: 2750,
         days: '8 classes per month',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekend Batch (Sat · Sun · 8 Classes)',
       },
     ],
   },
@@ -123,6 +134,7 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
     category: '05 · Mindful Wellness',
     badge: '12 Classes / Month',
     title: 'Yoga & Mobility',
+    formProgramme: 'Yoga & Mindful Movement',
     description: 'Morning movement reset: Hatha and Vinyasa alignment, breathwork, joint mobility and deep decompression.',
     features: [
       'Morning 6:00 AM – 7:00 AM weekday flow',
@@ -136,33 +148,34 @@ const STUDIO_PROGRAMMES: RateCardItem[] = [
         specialPrice: 2500,
         days: '12 classes per month (Mon · Wed · Fri)',
         note: '+ GST at applicable rate',
+        formBatch: 'Weekday Batch (Mon · Wed · Fri · 12 Classes)',
       },
     ],
   },
 ];
 
 const STUDIO_PHONE = '+91 9884373336';
-const STUDIO_PHONE_CLEAN = '919884373336';
-const STUDIO_WHATSAPP_URL = `https://wa.me/${STUDIO_PHONE_CLEAN}?text=${encodeURIComponent(
-  "Hi Pavilion Studio! I'd like to enquire about the Official Programme Rate Card."
-)}`;
 
 export function StudioRateCard() {
-  const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
-  const [modalInitialData, setModalInitialData] = useState<StudioEnquiryData | null>(null);
-
-  const handleOpenEnquiry = (prog?: RateCardItem) => {
+  const handleOpenEnquiry = (prog?: RateCardItem, tier?: RateCardItem['pricing'][0]) => {
     if (typeof window !== 'undefined') {
+      const activeTier = tier || prog?.pricing[0];
+      window.dispatchEvent(
+        new CustomEvent('pavilion-select-category', {
+          detail: {
+            category: 'studio',
+            programme: prog ? (prog.formProgramme || prog.title) : undefined,
+            cohort: 'Adults (18+)',
+            batch: activeTier?.formBatch,
+            pricingLabel: prog ? prog.title : undefined,
+            pricingTier: activeTier ? activeTier.label : undefined,
+            pricingAmount: activeTier ? `₹${activeTier.specialPrice.toLocaleString('en-IN')}` : undefined,
+            pricingDays: activeTier?.days,
+          },
+        })
+      );
       const formEl = document.getElementById('enquire');
       if (formEl) {
-        window.dispatchEvent(
-          new CustomEvent('pavilion-select-category', {
-            detail: {
-              category: 'studio',
-              programme: prog ? prog.title : undefined,
-            },
-          })
-        );
         formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (window.location.hash !== '#enquire') {
           window.history.pushState(null, '', '#enquire');
@@ -171,22 +184,10 @@ export function StudioRateCard() {
           const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
           nameInput?.focus();
         }, 400);
-        return;
+      } else {
+        window.location.href = '/membership/#enquire';
       }
     }
-
-    if (prog) {
-      const topTier = prog.pricing[0];
-      setModalInitialData({
-        activity: prog.title,
-        programmeTitle: prog.title,
-        pricingLabel: topTier ? `${topTier.label} (${topTier.days || ''})` : undefined,
-        amountDisplay: topTier ? `₹${topTier.specialPrice.toLocaleString('en-IN')}` : undefined,
-      });
-    } else {
-      setModalInitialData(null);
-    }
-    setEnquiryModalOpen(true);
   };
 
   return (
@@ -217,14 +218,6 @@ export function StudioRateCard() {
             <span>Enquire &amp; Apply Online</span>
             <span>⟶</span>
           </button>
-          <a
-            href={STUDIO_WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-3 rounded-md border border-[var(--gold-line)] text-[#C9A96E] font-semibold text-[0.82rem] tracking-wider uppercase transition-all hover:border-[#C9A96E] hover:text-[#E5C378]"
-          >
-            <span>WhatsApp</span>
-          </a>
           <a
             href={`tel:${STUDIO_PHONE}`}
             className="inline-flex items-center gap-2 px-4 py-3 rounded-md border border-[var(--gold-line)] text-[var(--ivory)] font-semibold text-[0.82rem] tracking-wider uppercase transition-all hover:border-[#C9A96E] hover:text-[#C9A96E]"
@@ -287,9 +280,14 @@ export function StudioRateCard() {
             <div className="pt-5 border-t border-[rgba(201,169,110,0.2)]">
               <div className="space-y-4">
                 {prog.pricing.map((tier, pIdx) => (
-                  <div key={pIdx} className="bg-[rgba(6,13,23,0.6)] rounded-xl p-3.5 border border-[rgba(201,169,110,0.18)]">
+                  <div
+                    key={pIdx}
+                    onClick={() => handleOpenEnquiry(prog, tier)}
+                    className="bg-[rgba(6,13,23,0.6)] rounded-xl p-3.5 border border-[rgba(201,169,110,0.18)] hover:border-[#C9A96E] hover:bg-[rgba(6,13,23,0.85)] transition-all cursor-pointer group/tier"
+                    title={`Select ${prog.title} · ${tier.label}`}
+                  >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[0.78rem] font-semibold text-[var(--ivory)] uppercase tracking-wider">
+                      <span className="text-[0.78rem] font-semibold text-[var(--ivory)] uppercase tracking-wider group-hover/tier:text-[#C9A96E] transition-colors">
                         {tier.label}
                       </span>
                       <div className="flex items-baseline gap-2">
@@ -318,7 +316,7 @@ export function StudioRateCard() {
               </div>
 
               {/* CTA link per card */}
-              <div className="mt-5 space-y-2">
+              <div className="mt-5">
                 <button
                   type="button"
                   onClick={() => handleOpenEnquiry(prog)}
@@ -326,18 +324,6 @@ export function StudioRateCard() {
                 >
                   Apply &amp; Enquire Online ⟶
                 </button>
-                <div className="text-center">
-                  <a
-                    href={`https://wa.me/${STUDIO_PHONE_CLEAN}?text=${encodeURIComponent(
-                      `Hi Pavilion Studio! I want to enquire about ${prog.title}.`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[0.72rem] text-[var(--ivory-45)] hover:text-[#C9A96E] transition-colors inline-block"
-                  >
-                    or chat on WhatsApp ↗
-                  </a>
-                </div>
               </div>
             </div>
           </div>
@@ -374,23 +360,9 @@ export function StudioRateCard() {
           >
             Call Desk
           </a>
-          <a
-            href={STUDIO_WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 rounded-lg border border-[var(--gold-line)] text-[#C9A96E] font-semibold text-[0.8rem] tracking-wider uppercase hover:border-[#C9A96E] transition-all"
-          >
-            WhatsApp
-          </a>
         </div>
       </div>
 
-      {/* Dynamic Enquiry Modal */}
-      <StudioEnquiryModal
-        isOpen={enquiryModalOpen}
-        onClose={() => setEnquiryModalOpen(false)}
-        initialData={modalInitialData}
-      />
     </div>
   );
 }

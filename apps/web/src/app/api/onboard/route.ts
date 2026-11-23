@@ -75,6 +75,16 @@ function buildA4EmailHtml(payload: OnboardRequestPayload): string {
 
   <div class="a4-container" style="max-width: 780px; margin: 0 auto; background: #ffffff; border: 1px solid #d9d1c1; border-radius: 12px; padding: 36px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
     
+    <!-- Top Action Bar for Email Readers (Screen only) -->
+    <div class="no-print" style="margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #e2d9cc; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em;">
+        Official Physical Member Admission Form (A4)
+      </span>
+      <span style="font-size: 11px; color: #64748b;">
+        Press <strong>Ctrl+P</strong> to print or save PDF
+      </span>
+    </div>
+
     <!-- Top Brand Lockup -->
     <table style="width: 100%; border-bottom: 2px solid #08111D; padding-bottom: 18px; margin-bottom: 24px;">
       <tr>

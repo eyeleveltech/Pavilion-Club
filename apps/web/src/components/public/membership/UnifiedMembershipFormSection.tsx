@@ -74,6 +74,12 @@ export function UnifiedMembershipFormSection() {
   const [studioProgramme, setStudioProgramme] = useState(STUDIO_PROGRAMMES[0] ?? 'Dance');
   const [studioCohort, setStudioCohort] = useState(STUDIO_COHORTS[3] ?? 'Adults (18+)');
   const [studioBatch, setStudioBatch] = useState(STUDIO_BATCH_OPTIONS[0] ?? 'Weekday Batch');
+  const [selectedPackage, setSelectedPackage] = useState<{
+    programme: string;
+    tier?: string | undefined;
+    amount?: string | undefined;
+    days?: string | undefined;
+  } | null>(null);
 
   // Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,27 +101,68 @@ export function UnifiedMembershipFormSection() {
         programme?: string;
         cohort?: string;
         batch?: string;
+        pricingLabel?: string;
+        pricingTier?: string;
+        pricingAmount?: string;
+        pricingDays?: string;
       }>
     ) => {
       if (e.detail?.category) {
         setCategory(e.detail.category);
+        if (e.detail.category === 'pickleball') {
+          setSelectedPackage(null);
+        }
       }
       if (e.detail?.programme) {
+        const raw = e.detail.programme.toLowerCase();
         const found =
-          STUDIO_PROGRAMMES.find((p) =>
-            p.toLowerCase().includes(e.detail.programme!.toLowerCase())
-          ) || e.detail.programme;
+          STUDIO_PROGRAMMES.find((p) => p.toLowerCase() === raw) ||
+          STUDIO_PROGRAMMES.find((p) => {
+            const pLow = p.toLowerCase();
+            if (raw.includes('box') && pLow.includes('box')) return true;
+            if (raw.includes('yoga') && pLow.includes('yoga')) return true;
+            if (raw.includes('salsa') && pLow.includes('salsa')) return true;
+            if (raw.includes('dance') && pLow.includes('dance') && !raw.includes('fitness') && !pLow.includes('fitness')) return true;
+            if (raw.includes('fitness') && pLow.includes('fitness')) return true;
+            if (raw.includes('gymnast') && pLow.includes('gymnast')) return true;
+            if (raw.includes('silambam') && pLow.includes('silambam')) return true;
+            if (raw.includes('personal') || raw.includes('pt')) return pLow.includes('personal');
+            return pLow.includes(raw) || raw.includes(pLow);
+          }) ||
+          STUDIO_PROGRAMMES[0] ||
+          'Dance (Hip-Hop & Contemporary)';
         setStudioProgramme(found);
+      }
+      if (e.detail?.batch) {
+        const rawBatch = e.detail.batch.toLowerCase();
+        const foundBatch =
+          STUDIO_BATCH_OPTIONS.find((b) => b.toLowerCase() === rawBatch) ||
+          STUDIO_BATCH_OPTIONS.find((b) => {
+            const bLow = b.toLowerCase();
+            if (rawBatch.includes('weekday') && bLow.includes('weekday')) return true;
+            if (rawBatch.includes('weekend') && bLow.includes('weekend')) return true;
+            if (rawBatch.includes('morning') && bLow.includes('morning')) return true;
+            if (rawBatch.includes('evening') && bLow.includes('evening')) return true;
+            if (rawBatch.includes('night') && bLow.includes('night')) return true;
+            return bLow.includes(rawBatch) || rawBatch.includes(bLow);
+          }) ||
+          e.detail.batch;
+        if (foundBatch) setStudioBatch(foundBatch);
       }
       if (e.detail?.cohort) {
         const foundCohort =
           STUDIO_COHORTS.find((c) =>
             c.toLowerCase().includes(e.detail.cohort!.toLowerCase())
           ) || e.detail.cohort;
-        setStudioCohort(foundCohort);
+        if (foundCohort) setStudioCohort(foundCohort);
       }
-      if (e.detail?.batch) {
-        setStudioBatch(e.detail.batch);
+      if (e.detail?.pricingLabel || e.detail?.programme) {
+        setSelectedPackage({
+          programme: e.detail.pricingLabel || e.detail.programme || '',
+          tier: e.detail.pricingTier,
+          amount: e.detail.pricingAmount,
+          days: e.detail.pricingDays,
+        });
       }
     };
 
@@ -168,7 +215,18 @@ export function UnifiedMembershipFormSection() {
     const planTitle =
       category === 'pickleball'
         ? 'Inaugural Shared-Play Membership (12 Hours)'
-        : `Pavilion Studio · ${studioProgramme}`;
+        : selectedPackage?.tier
+          ? `Pavilion Studio · ${studioProgramme} (${selectedPackage.tier})`
+          : `Pavilion Studio · ${studioProgramme}`;
+
+    const submissionNotes = [
+      selectedPackage
+        ? `Selected Package: ${selectedPackage.programme}${selectedPackage.tier ? ' · ' + selectedPackage.tier : ''}${selectedPackage.amount ? ' (' + selectedPackage.amount + ')' : ''}${selectedPackage.days ? ' [' + selectedPackage.days + ']' : ''}`
+        : null,
+      notes ? `Customer Notes: ${notes}` : null,
+    ]
+      .filter(Boolean)
+      .join(' | ');
 
     setSubmittedLead({
       reference: ref,
@@ -194,8 +252,13 @@ export function UnifiedMembershipFormSection() {
           studioCategory: category === 'studio' ? studioProgramme : undefined,
           studioCohort: category === 'studio' ? studioCohort : undefined,
           studioSlot: category === 'studio' ? studioBatch : undefined,
-          notes,
-          amountDisplay: category === 'pickleball' ? '₹2,360.00' : 'Studio Standard',
+          notes: submissionNotes || notes,
+          amountDisplay:
+            category === 'pickleball'
+              ? '₹2,360.00'
+              : selectedPackage?.amount
+                ? selectedPackage.amount
+                : 'Studio Standard',
           paymentStatus: 'Pay at Desk',
         }),
       });
@@ -204,14 +267,25 @@ export function UnifiedMembershipFormSection() {
     }
 
     // 2. Submit to Central Turf-OS Enquiries
-    submitEnquiry({
-      type: category === 'pickleball' ? 'membership' : 'studio',
-      name: cleanName,
-      phone: cleanPhone,
-      email: cleanEmail,
-      category: planTitle,
-      notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
-    }).catch(() => null);
+    try {
+      await submitEnquiry({
+        type: category === 'pickleball' ? 'membership' : 'studio',
+        name: cleanName,
+        phone: cleanPhone,
+        email: cleanEmail,
+        category: planTitle,
+        notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk.${submissionNotes ? ' ' + submissionNotes : ''}`,
+        details: {
+          reference: ref,
+          category,
+          plan: planTitle,
+          sessions: 12,
+          selectedPackage: selectedPackage || undefined,
+        },
+      });
+    } catch (err) {
+      console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
+    }
 
     // 3. Add to Front Desk Console Cache
     if (category === 'pickleball') {
@@ -405,7 +479,11 @@ export function UnifiedMembershipFormSection() {
                   name="category"
                   required
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as 'pickleball' | 'studio')}
+                  onChange={(e) => {
+                    const val = e.target.value as 'pickleball' | 'studio';
+                    setCategory(val);
+                    if (val === 'pickleball') setSelectedPackage(null);
+                  }}
                   className={control}
                 >
                   <option value="pickleball">
@@ -520,14 +598,6 @@ export function UnifiedMembershipFormSection() {
                 <GoldButton type="submit" disabled={isSubmitting || !agreedTerms}>
                   {isSubmitting ? 'Submitting...' : 'Submit →'}
                 </GoldButton>
-
-                <button
-                  type="button"
-                  onClick={handleWhatsApp}
-                  className="site-link text-navy focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-4"
-                >
-                  Send by WhatsApp instead <i aria-hidden="true" />
-                </button>
               </div>
 
               <p className="text-[0.78rem] leading-relaxed text-ink-faint sm:col-span-2">

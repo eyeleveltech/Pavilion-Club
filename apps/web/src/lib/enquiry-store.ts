@@ -16,7 +16,7 @@ export interface PickleballEnquiry {
   amountPaise: number;
   amountDisplay: string;
   paymentId: string;
-  status: 'Paid & Active' | 'Pending Verification' | 'Active Member (12h Quota)' | 'Pay at Desk';
+  status: 'Paid & Active' | 'Pending Verification' | 'Active Member (12h Quota)' | 'Pay at Desk' | 'Closed';
   notes?: string;
   createdAt: string;
   createdDisplay: string;
@@ -393,6 +393,20 @@ export function addStudioEnquiry(data: {
   }).catch(() => null);
 
   return newEntry;
+}
+
+export function updatePickleballEnquiryStatus(
+  id: string,
+  newStatus: PickleballEnquiry['status']
+): void {
+  const current = getPickleballEnquiries();
+  const updated = current.map((item) =>
+    item.id === id ? { ...item, status: newStatus } : item
+  );
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY_PICKLEBALL, JSON.stringify(updated));
+    notifyEnquiryUpdate();
+  }
 }
 
 export function updateStudioEnquiryStatus(

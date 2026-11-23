@@ -15,11 +15,14 @@ function sanitizeVenueName(name?: string | null): string {
 // A booking only becomes "confirmed" when Razorpay's webhook reaches TurfOS.
 // The browser's payment callback is a cue to start polling, never proof.
 
+const isBrowserLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
 const base = (
-  process.env.NEXT_PUBLIC_TURFOS_API_URL ||
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-    ? 'https://clubops.theeyelevelstudio.com'
-    : 'http://localhost:3000')
+  isBrowserLocalhost
+    ? 'http://localhost:3000'
+    : (process.env.NEXT_PUBLIC_TURFOS_API_URL || 'https://clubops.theeyelevelstudio.com')
 ).replace(/\/+$/, '');
 
 export class TurfApiError extends Error {

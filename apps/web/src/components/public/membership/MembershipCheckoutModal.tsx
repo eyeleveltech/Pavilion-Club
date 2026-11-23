@@ -429,14 +429,24 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
     }
 
     // 2. Add to Central Turf-OS Enquiries
-    submitEnquiry({
-      type: category === 'pickleball' ? 'membership' : 'studio',
-      name: cleanName,
-      phone: cleanPhone,
-      email: cleanEmail,
-      category: planTitle,
-      notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
-    }).catch(() => null);
+    try {
+      await submitEnquiry({
+        type: category === 'pickleball' ? 'membership' : 'studio',
+        name: cleanName,
+        phone: cleanPhone,
+        email: cleanEmail,
+        category: planTitle,
+        notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
+        details: {
+          reference: ref,
+          category,
+          plan: planTitle,
+          sessions: 12,
+        },
+      });
+    } catch (err) {
+      console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
+    }
 
     // 3. Add to Front Desk Console Cache
     if (category === 'pickleball') {
