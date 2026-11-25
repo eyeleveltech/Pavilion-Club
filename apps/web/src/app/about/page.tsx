@@ -38,13 +38,13 @@ const SPACES = [
   {
     name: 'Pavilion Courts',
     text: 'Three pickleball courts for shared play, coaching and court bookings.',
-    href: '/membership/#courts',
+    href: '/pickleball/',
     image: '/assets/images/courts-side.jpg',
   },
   {
     name: 'Pavilion Studio',
-    text: 'Dance, dance fitness, fitness, wellness and sports & movement, with programmes coming soon.',
-    href: '/membership/#studio',
+    text: 'Dance, dance fitness, fitness, wellness and sports & movement programmes.',
+    href: '/studio/',
     image: '/assets/images/wellness-b.jpg',
   },
   {
@@ -84,8 +84,8 @@ export default function AboutPage() {
         image="/assets/images/pavilion-lounge.jpg"
         side="Open daily from 06:00 AM"
       >
-        <GoldButton href="/membership/">Explore memberships</GoldButton>
-        <ArrowLink href="/contact/">Visit the club</ArrowLink>
+        <GoldButton href="/pickleball/">Explore Pickleball</GoldButton>
+        <ArrowLink href="/studio/">Explore Pavilion Studio</ArrowLink>
       </PageHero>
 
       <Ticker

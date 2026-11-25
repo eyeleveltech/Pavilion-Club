@@ -213,6 +213,7 @@ export function addPickleballEnquiry(data: {
   paymentId?: string;
   status?: PickleballEnquiry['status'];
   notes?: string;
+  skipRemoteSync?: boolean;
 }): PickleballEnquiry {
   const current = getPickleballEnquiries();
   const now = new Date();
@@ -241,15 +242,17 @@ export function addPickleballEnquiry(data: {
     notifyEnquiryUpdate();
   }
 
-  // Forward to Turf-OS Central Platform
-  submitEnquiry({
-    type: 'pickleball',
-    name: data.name,
-    phone: data.phone,
-    email: data.email,
-    category: data.plan || 'Pickleball Shared-Play (12 Hours)',
-    notes: `Enquiry ref ${data.reference} (${data.sessions || 12} hours quota). Status: ${data.status || 'Pay at Desk'}${data.notes ? ` | Notes: ${data.notes}` : ''}`,
-  }).catch(() => null);
+  // Forward to Turf-OS Central Platform unless caller already synced directly
+  if (!data.skipRemoteSync) {
+    submitEnquiry({
+      type: 'pickleball',
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      category: data.plan || 'Pickleball Shared-Play (12 Hours)',
+      notes: `Enquiry ref ${data.reference} (${data.sessions || 12} hours quota). Status: ${data.status || 'Pay at Desk'}${data.notes ? ` | Notes: ${data.notes}` : ''}`,
+    }).catch(() => null);
+  }
 
   return newEntry;
 }
@@ -349,6 +352,7 @@ export function addStudioEnquiry(data: {
   timeSlot: string;
   level?: string;
   notes?: string;
+  skipRemoteSync?: boolean;
 }): StudioEnquiry {
   const current = getStudioEnquiries();
   const now = new Date();
@@ -376,21 +380,23 @@ export function addStudioEnquiry(data: {
     notifyEnquiryUpdate();
   }
 
-  // Forward to Turf-OS Central Platform
-  submitEnquiry({
-    type: 'studio',
-    name: data.name,
-    phone: data.phone,
-    email: data.email,
-    category: data.category,
-    notes: `Studio Enquiry: ${data.cohort} · ${data.day} ${data.timeSlot} · Level: ${data.level || 'Beginner'}. Notes: ${data.notes || 'None'}`,
-    details: {
-      cohort: data.cohort,
-      day: data.day,
-      timeSlot: data.timeSlot,
-      level: data.level,
-    },
-  }).catch(() => null);
+  // Forward to Turf-OS Central Platform unless caller already synced directly
+  if (!data.skipRemoteSync) {
+    submitEnquiry({
+      type: 'studio',
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      category: data.category,
+      notes: `Studio Enquiry: ${data.cohort} · ${data.day} ${data.timeSlot} · Level: ${data.level || 'Beginner'}. Notes: ${data.notes || 'None'}`,
+      details: {
+        cohort: data.cohort,
+        day: data.day,
+        timeSlot: data.timeSlot,
+        level: data.level,
+      },
+    }).catch(() => null);
+  }
 
   return newEntry;
 }

@@ -49,6 +49,8 @@ jobs:
         run: |
           echo "Checking generated output files..."
           test -f apps/web/out/index.html || { echo "ERROR: Missing out/index.html"; exit 1; }
+          test -f apps/web/out/pickleball/index.html || { echo "ERROR: Missing out/pickleball/index.html"; exit 1; }
+          test -f apps/web/out/studio/index.html || { echo "ERROR: Missing out/studio/index.html"; exit 1; }
           test -f apps/web/out/book/index.html || { echo "ERROR: Missing out/book/index.html"; exit 1; }
           test -f apps/web/out/.htaccess || { echo "ERROR: Missing out/.htaccess"; exit 1; }
           grep -q "hello@thepavilionclub.com" apps/web/out/index.html || { echo "ERROR: Missing official email in index.html"; exit 1; }
@@ -74,8 +76,8 @@ jobs:
           for i in 1 2 3 4 5; do
             echo "Checking live site attempt $i..."
             HTML=$(curl -f -s "https://thepavilionclub.com/?v=$(date +%s%N)")
-            if echo "$HTML" | grep -q "membership-sec"; then
-              echo "SUCCESS: thepavilionclub.com is live with the in-page membership section!"
+            if echo "$HTML" | grep -q "/pickleball/"; then
+              echo "SUCCESS: thepavilionclub.com is live with the Pickleball & Studio navigation!"
               exit 0
             fi
             sleep 4

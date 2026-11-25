@@ -48,10 +48,26 @@ const STUDIO_BATCH_OPTIONS = [
   'Night Batch (07:00 PM – 08:00 PM)',
 ];
 
-function generateMemberReference(category: 'pickleball' | 'studio'): string {
+const ACADEMY_PROGRAMMES = [
+  'Kids Coaching Clinic (Upto 14 yrs · 12 sessions · ₹3,000/mo + GST)',
+  'Adults Coaching Clinic (Beginners & Intermediate · 12 sessions · ₹4,500/mo + GST)',
+  'Personal Training 1 on 1 (Upon request)',
+  'Level 1: Beginner Clinic (Foundations & rules)',
+  'Level 2: Intermediate Clinic (Third-shot drops & resets)',
+  'Level 3: Advanced Masterclass (Tournament matchplay)',
+];
+
+const ACADEMY_TIMINGS = [
+  'Weekday mornings (06:00 – 08:00 AM)',
+  'Weekday evenings (06:00 – 08:00 PM)',
+  'Weekend batches (Saturday & Sunday)',
+  'Flexible / Coach Assessment',
+];
+
+function generateMemberReference(category: 'pickleball' | 'academy' | 'studio'): string {
   const year = new Date().getFullYear();
   const randomPart = Math.floor(1000 + Math.random() * 9000);
-  const prefix = category === 'pickleball' ? 'PAV-MEM' : 'PAV-STU';
+  const prefix = category === 'pickleball' ? 'PAV-MEM' : category === 'academy' ? 'PAV-ACA' : 'PAV-STU';
   return `${prefix}-${year}-${randomPart}`;
 }
 
@@ -59,12 +75,12 @@ const control =
   'mt-1 block w-full rounded-none border-0 border-b border-[rgba(15,30,46,.24)] bg-transparent px-0 py-3 text-[1rem] text-navy placeholder:text-ink-faint transition-[border-color,box-shadow] duration-300 focus:border-navy focus:shadow-[0_1px_0_0_var(--navy)] focus:outline-none';
 
 interface UnifiedMembershipFormSectionProps {
-  initialCategory?: 'pickleball' | 'studio';
+  initialCategory?: 'pickleball' | 'academy' | 'studio';
 }
 
 export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }: UnifiedMembershipFormSectionProps = {}) {
-  // Category Selection: 'pickleball' (12h Quota) vs 'studio' (Dance/Yoga/Boxing)
-  const [category, setCategory] = useState<'pickleball' | 'studio'>(initialCategory);
+  // Category Selection: 'pickleball' (12h Quota) vs 'academy' (Coaching) vs 'studio' (Dance/Yoga/Boxing)
+  const [category, setCategory] = useState<'pickleball' | 'academy' | 'studio'>(initialCategory);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -73,6 +89,10 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
   const [notes, setNotes] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Academy Coaching Fields
+  const [academyProgramme, setAcademyProgramme] = useState(ACADEMY_PROGRAMMES[0] ?? 'Kids Coaching Clinic');
+  const [academyTiming, setAcademyTiming] = useState(ACADEMY_TIMINGS[1] ?? 'Weekday evenings');
 
   // Studio Fields
   const [studioProgramme, setStudioProgramme] = useState(STUDIO_PROGRAMMES[0] ?? 'Dance');
@@ -97,11 +117,11 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
   const [memberPass, setMemberPass] = useState<MemberPass | null>(null);
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
 
-  // Synchronize category/programme changes from external buttons (Join, Rate Card, Timetable)
+  // Synchronize category/programme changes from external buttons (Join, Rate Card, Timetable, Academy)
   useEffect(() => {
     const handleCategoryEvent = (
       e: CustomEvent<{
-        category?: 'pickleball' | 'studio';
+        category?: 'pickleball' | 'academy' | 'studio';
         programme?: string;
         cohort?: string;
         batch?: string;
@@ -119,23 +139,41 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
       }
       if (e.detail?.programme) {
         const raw = e.detail.programme.toLowerCase();
-        const found =
-          STUDIO_PROGRAMMES.find((p) => p.toLowerCase() === raw) ||
-          STUDIO_PROGRAMMES.find((p) => {
-            const pLow = p.toLowerCase();
-            if (raw.includes('box') && pLow.includes('box')) return true;
-            if (raw.includes('yoga') && pLow.includes('yoga')) return true;
-            if (raw.includes('salsa') && pLow.includes('salsa')) return true;
-            if (raw.includes('dance') && pLow.includes('dance') && !raw.includes('fitness') && !pLow.includes('fitness')) return true;
-            if (raw.includes('fitness') && pLow.includes('fitness')) return true;
-            if (raw.includes('gymnast') && pLow.includes('gymnast')) return true;
-            if (raw.includes('silambam') && pLow.includes('silambam')) return true;
-            if (raw.includes('personal') || raw.includes('pt')) return pLow.includes('personal');
-            return pLow.includes(raw) || raw.includes(pLow);
-          }) ||
-          STUDIO_PROGRAMMES[0] ||
-          'Dance (Hip-Hop & Contemporary)';
-        setStudioProgramme(found);
+        if (e.detail.category === 'academy') {
+          const foundAcademy =
+            ACADEMY_PROGRAMMES.find((p) => p.toLowerCase() === raw) ||
+            ACADEMY_PROGRAMMES.find((p) => {
+              const pLow = p.toLowerCase();
+              if (raw.includes('kid') && pLow.includes('kid')) return true;
+              if (raw.includes('adult') && pLow.includes('adult')) return true;
+              if ((raw.includes('personal') || raw.includes('1 on 1') || raw.includes('1-on-1')) && pLow.includes('personal')) return true;
+              if ((raw.includes('level 1') || raw.includes('beginner')) && pLow.includes('level 1')) return true;
+              if ((raw.includes('level 2') || raw.includes('intermediate')) && pLow.includes('level 2')) return true;
+              if ((raw.includes('level 3') || raw.includes('advanced') || raw.includes('master')) && pLow.includes('level 3')) return true;
+              return pLow.includes(raw) || raw.includes(pLow);
+            }) ||
+            ACADEMY_PROGRAMMES[0] ||
+            'Kids Coaching Clinic (Upto 14 yrs · 12 sessions · ₹3,000/mo + GST)';
+          setAcademyProgramme(foundAcademy);
+        } else {
+          const found =
+            STUDIO_PROGRAMMES.find((p) => p.toLowerCase() === raw) ||
+            STUDIO_PROGRAMMES.find((p) => {
+              const pLow = p.toLowerCase();
+              if (raw.includes('box') && pLow.includes('box')) return true;
+              if (raw.includes('yoga') && pLow.includes('yoga')) return true;
+              if (raw.includes('salsa') && pLow.includes('salsa')) return true;
+              if (raw.includes('dance') && pLow.includes('dance') && !raw.includes('fitness') && !pLow.includes('fitness')) return true;
+              if (raw.includes('fitness') && pLow.includes('fitness')) return true;
+              if (raw.includes('gymnast') && pLow.includes('gymnast')) return true;
+              if (raw.includes('silambam') && pLow.includes('silambam')) return true;
+              if (raw.includes('personal') || raw.includes('pt')) return pLow.includes('personal');
+              return pLow.includes(raw) || raw.includes(pLow);
+            }) ||
+            STUDIO_PROGRAMMES[0] ||
+            'Dance (Hip-Hop & Contemporary)';
+          setStudioProgramme(found);
+        }
       }
       if (e.detail?.batch) {
         const rawBatch = e.detail.batch.toLowerCase();
@@ -219,11 +257,14 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
     const planTitle =
       category === 'pickleball'
         ? 'Inaugural Shared-Play Membership (12 Hours)'
-        : selectedPackage?.tier
-          ? `Pavilion Studio · ${studioProgramme} (${selectedPackage.tier})`
-          : `Pavilion Studio · ${studioProgramme}`;
+        : category === 'academy'
+          ? `Pickleball Academy · ${academyProgramme}`
+          : selectedPackage?.tier
+            ? `Pavilion Studio · ${studioProgramme} (${selectedPackage.tier})`
+            : `Pavilion Studio · ${studioProgramme}`;
 
     const submissionNotes = [
+      category === 'academy' ? `Timing: ${academyTiming}` : null,
       selectedPackage
         ? `Selected Package: ${selectedPackage.programme}${selectedPackage.tier ? ' · ' + selectedPackage.tier : ''}${selectedPackage.amount ? ' (' + selectedPackage.amount + ')' : ''}${selectedPackage.days ? ' [' + selectedPackage.days + ']' : ''}`
         : null,
@@ -231,6 +272,14 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
     ]
       .filter(Boolean)
       .join(' | ');
+
+    const inferredSessions =
+      category === 'studio' &&
+      (studioProgramme.toLowerCase().includes('box') ||
+        selectedPackage?.days?.toLowerCase().includes('8 class') ||
+        selectedPackage?.days?.toLowerCase().includes('8 session'))
+        ? 8
+        : 12;
 
     setSubmittedLead({
       reference: ref,
@@ -240,50 +289,21 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
       planTitle,
     });
 
-    // 1. Submit Registration Dossier to Pavilion Serverless Route (/api/onboard)
-    try {
-      await fetch('/api/onboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          reference: ref,
-          category,
-          name: cleanName,
-          phone: cleanPhone,
-          email: cleanEmail,
-          plan: planTitle,
-          sessions: 12,
-          studioCategory: category === 'studio' ? studioProgramme : undefined,
-          studioCohort: category === 'studio' ? studioCohort : undefined,
-          studioSlot: category === 'studio' ? studioBatch : undefined,
-          notes: submissionNotes || notes,
-          amountDisplay:
-            category === 'pickleball'
-              ? '₹2,360.00'
-              : selectedPackage?.amount
-                ? selectedPackage.amount
-                : 'Studio Standard',
-          paymentStatus: 'Pay at Desk',
-        }),
-      });
-    } catch (err) {
-      console.warn('API onboard delivery logged:', err);
-    }
-
-    // 2. Submit to Central Turf-OS Enquiries
+    // 1. Submit to Central Turf-OS Enquiries API (Hostinger deploys static export; no local /api routes)
     try {
       await submitEnquiry({
-        type: category === 'pickleball' ? 'membership' : 'studio',
+        type: category === 'pickleball' ? 'membership' : category === 'academy' ? 'academy' : 'studio',
         name: cleanName,
         phone: cleanPhone,
         email: cleanEmail,
         category: planTitle,
-        notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk.${submissionNotes ? ' ' + submissionNotes : ''}`,
+        notes: `Registration ref: ${ref}. Payment: Pay at Desk.${submissionNotes ? ' ' + submissionNotes : ''}`,
         details: {
           reference: ref,
           category,
           plan: planTitle,
-          sessions: 12,
+          sessions: inferredSessions,
+          timing: category === 'academy' ? academyTiming : undefined,
           selectedPackage: selectedPackage || undefined,
         },
       });
@@ -291,7 +311,7 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
       console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
     }
 
-    // 3. Add to Front Desk Console Cache
+    // 2. Add to Local Front Desk Console Cache (skipRemoteSync avoids duplicate second DB insert)
     if (category === 'pickleball') {
       addPickleballEnquiry({
         reference: ref,
@@ -299,13 +319,14 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
         phone: cleanPhone,
         email: cleanEmail,
         plan: 'Inaugural Shared-Play Membership (12 Hours)',
-        sessions: 12,
+        sessions: inferredSessions,
         amountPaise: MEMBERSHIP_PRICE_PAISE,
         paymentId: 'PAY_AT_DESK',
         status: 'Pay at Desk',
         notes,
+        skipRemoteSync: true,
       });
-    } else {
+    } else if (category === 'studio') {
       addStudioEnquiry({
         reference: ref,
         name: cleanName,
@@ -316,6 +337,7 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
         day: studioBatch,
         timeSlot: studioBatch,
         notes,
+        skipRemoteSync: true,
       });
     }
 
@@ -326,7 +348,9 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
     const text =
       category === 'pickleball'
         ? `Hello The Pavilion Club! I would like to register for the Inaugural Shared-Play Membership (12 Hours Monthly Quota, ₹2,360/mo). My name is ${name || '[Name]'}, phone ${phone || '[Phone]'}.`
-        : `Hello Pavilion Studio! I would like to join the ${studioProgramme} (${studioCohort} · ${studioBatch}). My name is ${name || '[Name]'}, phone ${phone || '[Phone]'}.`;
+        : category === 'academy'
+          ? `Hello The Pavilion Club Academy! I would like to enquire for ${academyProgramme} (${academyTiming}). My name is ${name || '[Name]'}, phone ${phone || '[Phone]'}.`
+          : `Hello Pavilion Studio! I would like to join the ${studioProgramme} (${studioCohort} · ${studioBatch}). My name is ${name || '[Name]'}, phone ${phone || '[Phone]'}.`;
     window.open(whatsappUrl(text), '_blank', 'noopener');
   };
 
@@ -386,7 +410,17 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
               </p>
             </div>
 
-            {/* Highlight 2: Studio */}
+            {/* Highlight 2: Pickleball Academy */}
+            <div className="border-l-2 border-gold pl-5 py-0.5">
+              <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft block">
+                Pickleball Academy · Inaugural Coaching Offer
+              </span>
+              <p className="text-[0.85rem] text-ink-soft mt-1 leading-relaxed">
+                <strong>Kids (Upto 14 yrs):</strong> ₹3,000/mo · <strong>Adults:</strong> ₹4,500/mo (12 sessions, GST extra) · 1-on-1 Personal Training.
+              </p>
+            </div>
+
+            {/* Highlight 3: Studio */}
             <div className="border-l-2 border-gold pl-5 py-0.5">
               <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft block">
                 Pavilion Studio, Mogappair
@@ -477,14 +511,14 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
               {/* Membership Category Selection */}
               <label className="block sm:col-span-2">
                 <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-                  Membership Category <span className="text-gold-text">*</span>
+                  Programme / Category <span className="text-gold-text">*</span>
                 </span>
                 <select
                   name="category"
                   required
                   value={category}
                   onChange={(e) => {
-                    const val = e.target.value as 'pickleball' | 'studio';
+                    const val = e.target.value as 'pickleball' | 'academy' | 'studio';
                     setCategory(val);
                     if (val === 'pickleball') setSelectedPackage(null);
                   }}
@@ -493,11 +527,57 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
                   <option value="pickleball">
                     Pickleball Shared-Play Membership (12 Hours Quota · ₹2,360/mo)
                   </option>
+                  <option value="academy">
+                    Pickleball Academy Coaching (Kids ₹3,000/mo · Adults ₹4,500/mo · 1-on-1)
+                  </option>
                   <option value="studio">
                     Pavilion Studio, Mogappair (Dance / Fitness / Yoga / Boxing)
                   </option>
                 </select>
               </label>
+
+              {/* Academy Specific Fields (Shown when Academy is selected) */}
+              {category === 'academy' && (
+                <>
+                  <label className="block sm:col-span-2">
+                    <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft">
+                      Academy Clinic / Cohort <span className="text-gold-text">*</span>
+                    </span>
+                    <select
+                      name="academyProgramme"
+                      required
+                      value={academyProgramme}
+                      onChange={(e) => setAcademyProgramme(e.target.value)}
+                      className={control}
+                    >
+                      {ACADEMY_PROGRAMMES.map((prog) => (
+                        <option key={prog} value={prog}>
+                          {prog}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="block sm:col-span-2">
+                    <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft">
+                      Preferred Batch Timing <span className="text-gold-text">*</span>
+                    </span>
+                    <select
+                      name="academyTiming"
+                      required
+                      value={academyTiming}
+                      onChange={(e) => setAcademyTiming(e.target.value)}
+                      className={control}
+                    >
+                      {ACADEMY_TIMINGS.map((timing) => (
+                        <option key={timing} value={timing}>
+                          {timing}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
 
               {/* Studio Specific Fields (Shown when Studio is selected) */}
               {category === 'studio' && (

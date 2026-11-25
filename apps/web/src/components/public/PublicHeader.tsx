@@ -104,12 +104,15 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
 
         {/* Right CTA Button & Mobile Menu Toggle */}
         <div className="editorial-nav__right">
+          <Link href="/pass/" className="editorial-nav__pass">
+            Member Pass
+          </Link>
           <GoldButton
             href="https://turftown.in"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Book Now
+            Book Court
           </GoldButton>
           <button
             type="button"
@@ -175,13 +178,19 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
             </Link>
           )
         )}
+        <Link
+          href="/pass/"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          Digital Member Pass
+        </Link>
         <a
           href="https://turftown.in"
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setMobileMenuOpen(false)}
         >
-          Book Now
+          Book Court
         </a>
 
         <div className="editorial-menu__foot">

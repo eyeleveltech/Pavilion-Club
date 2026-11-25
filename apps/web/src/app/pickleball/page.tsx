@@ -22,7 +22,7 @@ import { CLUB, whatsappUrl } from '@/lib/club';
 import { MembershipCheckoutModalContainer } from '@/components/public/membership/MembershipCheckoutModalContainer';
 import { MembershipJoinButton } from '@/components/public/membership/MembershipJoinButton';
 import { UnifiedMembershipFormSection } from '@/components/public/membership/UnifiedMembershipFormSection';
-import { AcademyRateCard } from '@/components/public/academy/AcademyRateCard';
+import { AcademyRateCard, AcademyClinicEnquireButton } from '@/components/public/academy/AcademyRateCard';
 
 export const metadata: Metadata = {
   title: 'Pickleball · Book Courts, Membership & Academy | The Pavilion Club',
@@ -386,7 +386,7 @@ export default function PickleballPage() {
                 </div>
 
                 <div className="mt-8 border-t border-white/10 pt-5">
-                  <GoldButton href="#enquire">Enquire for batch</GoldButton>
+                  <AcademyClinicEnquireButton clinicTitle={`${clinic.level}: ${clinic.title}`} />
                 </div>
               </div>
             ))}

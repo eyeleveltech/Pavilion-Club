@@ -381,6 +381,8 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         ? 'Inaugural Shared-Play Membership (12 Hours)'
         : `Pavilion Studio · ${studioProgramme}`;
 
+    const sessionQuota = category === 'studio' && studioProgramme.toLowerCase().includes('box') ? 8 : 12;
+
     const newPass: MemberPass = {
       reference: ref,
       name: cleanName,
@@ -390,7 +392,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       planTitle,
       validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       validUntil: validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      totalSessions: 12,
+      totalSessions: sessionQuota,
       amountPaise: category === 'pickleball' ? MEMBERSHIP_PRICE_PAISE : 0,
       paymentId: 'PAY_AT_DESK',
       studioProgramme: category === 'studio' ? studioProgramme : undefined,
@@ -402,33 +404,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newPass));
     }
 
-    // 1. Submit Registration Dossier to Pavilion Serverless Route (/api/onboard)
-    // This triggers the A4 printable email format to hello@thepavilionclub.com
-    try {
-      await fetch('/api/onboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          reference: ref,
-          category,
-          name: cleanName,
-          phone: cleanPhone,
-          email: cleanEmail,
-          plan: planTitle,
-          sessions: 12,
-          studioCategory: category === 'studio' ? studioProgramme : undefined,
-          studioCohort: category === 'studio' ? studioCohort : undefined,
-          studioSlot: category === 'studio' ? studioBatch : undefined,
-          notes,
-          amountDisplay: category === 'pickleball' ? '₹2,360.00' : 'Studio Standard',
-          paymentStatus: 'Pay at Desk',
-        }),
-      });
-    } catch (err) {
-      console.warn('API onboard delivery logged:', err);
-    }
-
-    // 2. Add to Central Turf-OS Enquiries
+    // 1. Add to Central Turf-OS Enquiries API (Hostinger deploys static export; no local /api routes)
     try {
       await submitEnquiry({
         type: category === 'pickleball' ? 'membership' : 'studio',
@@ -436,19 +412,19 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         phone: cleanPhone,
         email: cleanEmail,
         category: planTitle,
-        notes: `Registration ref: ${ref} (12 Hours Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
+        notes: `Registration ref: ${ref} (${sessionQuota} Sessions Quota). Payment: Pay at Desk. Notes: ${notes || 'None'}`,
         details: {
           reference: ref,
           category,
           plan: planTitle,
-          sessions: 12,
+          sessions: sessionQuota,
         },
       });
     } catch (err) {
       console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
     }
 
-    // 3. Add to Front Desk Console Cache
+    // 2. Add to Local Front Desk Console Cache (skipRemoteSync avoids duplicate second DB insert)
     if (category === 'pickleball') {
       addPickleballEnquiry({
         reference: ref,
@@ -456,11 +432,12 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         phone: cleanPhone,
         email: cleanEmail,
         plan: 'Inaugural Shared-Play Membership (12 Hours)',
-        sessions: 12,
+        sessions: sessionQuota,
         amountPaise: MEMBERSHIP_PRICE_PAISE,
         paymentId: 'PAY_AT_DESK',
         status: 'Pay at Desk',
         notes,
+        skipRemoteSync: true,
       });
     } else {
       addStudioEnquiry({
@@ -473,6 +450,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
         day: studioBatch,
         timeSlot: studioBatch,
         notes,
+        skipRemoteSync: true,
       });
     }
 

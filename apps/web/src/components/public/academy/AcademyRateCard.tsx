@@ -83,6 +83,64 @@ export const ACADEMY_COACHING_OFFERS: AcademyPricingTier[] = [
   },
 ];
 
+export function scrollAndSelectAcademyBatch(programmeTitle: string, priceDisplay?: string, sessions?: string) {
+  if (typeof window === 'undefined') return;
+
+  window.dispatchEvent(
+    new CustomEvent('pavilion-select-category', {
+      detail: {
+        category: 'academy',
+        programme: programmeTitle,
+        pricingLabel: programmeTitle,
+        pricingAmount: priceDisplay,
+        pricingDays: sessions,
+      },
+    })
+  );
+
+  // Sync Academy page EnquiryForm <select name="experience"> if present on /academy/
+  const expSelect = document.querySelector<HTMLSelectElement>('#enquire select[name="experience"]');
+  if (expSelect) {
+    const raw = programmeTitle.toLowerCase();
+    const matchOption = Array.from(expSelect.options).find((opt) => {
+      const val = opt.value.toLowerCase();
+      if (raw.includes('kid') && val.includes('kid')) return true;
+      if (raw.includes('adult') && val.includes('adult')) return true;
+      if ((raw.includes('personal') || raw.includes('1 on 1') || raw.includes('1-on-1')) && val.includes('personal')) return true;
+      if (raw.includes('level 1') && val.includes('level 1')) return true;
+      if (raw.includes('level 2') && val.includes('level 2')) return true;
+      if (raw.includes('level 3') && val.includes('level 3')) return true;
+      return val.includes(raw);
+    });
+    if (matchOption) {
+      expSelect.value = matchOption.value;
+    }
+  }
+
+  const formEl = document.getElementById('enquire');
+  if (formEl) {
+    formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      const nameInput = document.querySelector<HTMLInputElement>('#enquire input[name="name"]');
+      nameInput?.focus();
+    }, 450);
+  } else {
+    window.location.href = '/academy/#enquire';
+  }
+}
+
+export function AcademyClinicEnquireButton({ clinicTitle }: { clinicTitle: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => scrollAndSelectAcademyBatch(clinicTitle)}
+      className="site-btn-gold inline-flex items-center justify-center rounded-none bg-[#c7a26a] px-6 py-3.5 text-xs font-bold uppercase tracking-[0.22em] text-[#071018] transition-all hover:bg-[#dfbc82] cursor-pointer"
+    >
+      Enquire for batch ⟶
+    </button>
+  );
+}
+
 export function AcademyRateCard() {
   return (
     <div className="mt-8">
@@ -165,16 +223,17 @@ export function AcademyRateCard() {
 
             {/* CTA Buttons */}
             <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-3">
-              <a
-                href="#enquire"
-                className={`inline-flex w-full items-center justify-center rounded-none px-5 py-3.5 text-center text-xs font-bold uppercase tracking-[0.2em] transition-all ${
+              <button
+                type="button"
+                onClick={() => scrollAndSelectAcademyBatch(tier.title, tier.totalWithGst || tier.priceDisplay, tier.sessions)}
+                className={`inline-flex w-full items-center justify-center rounded-none px-5 py-3.5 text-center text-xs font-bold uppercase tracking-[0.2em] transition-all cursor-pointer ${
                   tier.accent
                     ? 'bg-[#c7a26a] text-[#071018] hover:bg-[#dfbc82]'
                     : 'border border-[#c7a26a]/60 text-ivory hover:bg-[#c7a26a] hover:text-[#071018]'
                 }`}
               >
                 Enquire for Batch
-              </a>
+              </button>
 
               <a
                 href={whatsappUrl(tier.enquireMessage)}

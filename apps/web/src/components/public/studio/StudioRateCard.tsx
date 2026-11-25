@@ -185,7 +185,7 @@ export function StudioRateCard() {
           nameInput?.focus();
         }, 400);
       } else {
-        window.location.href = '/membership/#enquire';
+        window.location.href = '/studio/#membership';
       }
     }
   };

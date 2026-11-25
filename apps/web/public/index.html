@@ -135,6 +135,8 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .nav__links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease)}
 .nav__links a:hover::after{transform:scaleX(1);transform-origin:left}
 .nav__right{justify-self:end;display:flex;gap:1.4rem;align-items:center}
+.nav__right .nav__pass{font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);white-space:nowrap;transition:color .3s}
+.nav__right .nav__pass:hover{color:var(--ivory)}
 .nav__right .btn{padding:.85rem 1.6rem}
 .nav__menu{display:none;font-size:.64rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;padding:.6rem 0}
 .menu{position:fixed;inset:0;z-index:90;background:var(--midnight-deep);display:flex;flex-direction:column;justify-content:center;padding:0 var(--gutter);clip-path:inset(0 0 100% 0);visibility:hidden}
@@ -143,7 +145,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 @media (max-width:900px){
   .nav{grid-template-columns:1fr auto}.nav .brand{justify-self:start}
   .nav__links{display:none}
-  .nav__right .btn{display:none}
+  .nav__right .btn,.nav__right .nav__pass{display:none}
   .nav__menu{display:inline-flex}
 }
 
@@ -503,6 +505,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="/contact/">Contact</a>
   </nav>
   <div class="nav__right">
+    <a class="nav__pass" href="/pass/">Member Pass</a>
     <a class="btn magnetic" href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Court</a>
     <button class="nav__menu" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>
@@ -514,6 +517,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="/franchise/">Franchise</a>
   <a href="/services/">Club Services</a>
   <a href="/contact/">Contact</a>
+  <a href="/pass/">Digital Member Pass</a>
   <a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Court</a>
   <div class="menu__foot">
     <span>Mon–Fri 06:00 AM – 11:00 PM</span>
@@ -544,8 +548,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="hero__tag">Play. Move. Connect.</p>
       <p class="lede">Three tournament-grade pickleball courts. A premium club for sport, fitness, food, celebrations and a great time.</p>
       <div class="hero__cta">
-        <a class="link-arrow" href="/membership/">Memberships <i></i></a>
-        <a class="link-arrow" href="/academy/">Academy <i></i></a>
+        <a class="link-arrow" href="/pickleball/">Pickleball <i></i></a>
+        <a class="link-arrow" href="/studio/">Pavilion Studio <i></i></a>
         <a class="link-arrow" href="/events/">Tournaments &amp; Events <i></i></a>
       </div>
     </div>
@@ -606,7 +610,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li>12 hours of play a month (1 hr daily allowance)</li>
           <li>Shared play, up to six players per court</li>
         </ul>
-        <a class="link-arrow" href="/membership/#courts">Explore Pavilion Courts <i></i></a>
+        <a class="link-arrow" href="/pickleball/#membership">Explore Pickleball &amp; Courts <i></i></a>
       </div>
     </article>
     <article class="path" data-fade>
@@ -621,7 +625,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <li>Gymnastics, Boxing &amp; Morning Yoga</li>
           <li>Weekday &amp; weekend batches from ₹2,000/mo</li>
         </ul>
-        <a class="link-arrow" href="/membership/#studio">Explore Studio Rate Card <i></i></a>
+        <a class="link-arrow" href="/studio/">Explore Pavilion Studio <i></i></a>
       </div>
     </article>
   </div>
@@ -638,10 +642,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="ln"><span>Learn. Play.</span></span>
       <span class="ln"><span><em class="sc">Improve.</em></span></span>
     </h2>
-    <p class="lede" data-fade>Take your next step in pickleball with the Pickleball Academy at The Pavilion Club. Explore available coaching programmes and enquire to find the right option for you.</p>
+    <p class="lede" data-fade>Take your next step in pickleball with the Pickleball Academy at The Pavilion Club. Explore Kids (₹3,000/mo) and Adults (₹4,500/mo) clinics or 1-on-1 coaching.</p>
     <div class="academy__cta" data-fade>
-      <a class="btn magnetic" href="/academy/">Explore the Academy</a>
-      <a class="link-arrow" href="/academy/#enquire">Enquire about coaching <i></i></a>
+      <a class="btn magnetic" href="/pickleball/#academy">Explore the Academy</a>
+      <a class="link-arrow" href="/pickleball/#enquire">Enquire about coaching <i></i></a>
     </div>
   </div>
 </section>
@@ -786,10 +790,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span class="row__arrow" aria-hidden="true"></span>
       <img class="row__thumb" src="/assets/images/courts-side.jpg" alt="" loading="lazy">
     </a>
-    <a class="row" href="/membership/#studio" data-img="1" data-cursor="View">
+    <a class="row" href="/studio/" data-img="1" data-cursor="View">
       <span class="row__n">02</span>
       <span class="row__name">Pavilion Studio</span>
-      <span class="row__desc">Dance, dance fitness, fitness, wellness and sports & movement, with programmes coming soon</span>
+      <span class="row__desc">Dance, Salsa, Boxing, Yoga, Silambam &amp; Gymnastics classes for Kids, Teens &amp; Adults</span>
       <span class="row__arrow" aria-hidden="true"></span>
       <img class="row__thumb" src="/assets/images/wellness-b.jpg" alt="" loading="lazy">
     </a>
@@ -907,7 +911,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </h2>
     <p class="lede" data-fade>Three courts, open from six every morning. Book your hour and play tonight.</p>
     <div class="cta__actions" data-fade>
-      <a class="btn magnetic" href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a>
+      <a class="btn magnetic" href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Court</a>
       <a class="link-arrow" href="tel:+919600055623">Or call +91 96000 55623 <i></i></a>
     </div>
   </div>
@@ -923,11 +927,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div>
       <h4>The club</h4>
-      <ul><li><a href="/membership/">Memberships</a></li><li><a href="/academy/">Pickleball Academy</a></li><li><a href="/events/">Tournaments &amp; Events</a></li><li><a href="#spaces">Our Spaces</a></li><li><a href="#cafe">Café &amp; Food</a></li><li><a href="/franchise/">Franchise</a></li><li><a href="/services/">Services</a></li><li><a href="/about/">About</a></li></ul>
+      <ul><li><a href="/pickleball/">Pickleball</a></li><li><a href="/studio/">Pavilion Studio</a></li><li><a href="/pass/">Digital Member Pass</a></li><li><a href="/pickleball/#academy">Pickleball Academy</a></li><li><a href="/events/">Tournaments &amp; Events</a></li><li><a href="#spaces">Our Spaces</a></li><li><a href="#cafe">Café &amp; Food</a></li><li><a href="/franchise/">Franchise</a></li><li><a href="/services/">Services</a></li><li><a href="/about/">About</a></li></ul>
     </div>
     <div>
       <h4>Players</h4>
-      <ul><li><a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Now</a></li><li><a href="/rules/">Court rules</a></li><li><a href="/faq/">FAQs</a></li><li><a href="/cancellation/">Cancellation &amp; refunds</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li></ul>
+      <ul><li><a href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Court</a></li><li><a href="/pass/">Digital Member Pass</a></li><li><a href="/rules/">Court rules</a></li><li><a href="/faq/">FAQs</a></li><li><a href="/cancellation/">Cancellation &amp; refunds</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/terms/">Terms</a></li></ul>
     </div>
     <div>
       <h4>Contact</h4>
