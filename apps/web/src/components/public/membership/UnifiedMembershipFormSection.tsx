@@ -58,9 +58,13 @@ function generateMemberReference(category: 'pickleball' | 'studio'): string {
 const control =
   'mt-1 block w-full rounded-none border-0 border-b border-[rgba(15,30,46,.24)] bg-transparent px-0 py-3 text-[1rem] text-navy placeholder:text-ink-faint transition-[border-color,box-shadow] duration-300 focus:border-navy focus:shadow-[0_1px_0_0_var(--navy)] focus:outline-none';
 
-export function UnifiedMembershipFormSection() {
+interface UnifiedMembershipFormSectionProps {
+  initialCategory?: 'pickleball' | 'studio';
+}
+
+export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }: UnifiedMembershipFormSectionProps = {}) {
   // Category Selection: 'pickleball' (12h Quota) vs 'studio' (Dance/Yoga/Boxing)
-  const [category, setCategory] = useState<'pickleball' | 'studio'>('pickleball');
+  const [category, setCategory] = useState<'pickleball' | 'studio'>(initialCategory);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -363,7 +367,7 @@ export function UnifiedMembershipFormSection() {
           </h2>
 
           <p className="site-lede mt-8 max-w-md">
-            Register for Pickleball Shared-Play Membership (12 Hours Monthly Quota) or The Studio Mogappair. No online payment required — pay or verify at the front desk when you arrive.
+            Register for Pickleball Shared-Play Membership (12 Hours Monthly Quota) or Pavilion Studio, Mogappair. No online payment required — pay or verify at the front desk when you arrive.
           </p>
 
           <div className="mt-12 space-y-6">
@@ -378,14 +382,14 @@ export function UnifiedMembershipFormSection() {
                 <span className="text-xs text-ink-soft">/ month (₹2,000 + 18% GST)</span>
               </div>
               <p className="text-[0.85rem] text-ink-soft mt-1 leading-relaxed">
-                Includes <strong>12 Hours of play per month</strong> (up to 1 hr daily allowance, Mon–Fri 6:00 AM – 3:00 PM). Direct walk-in court access.
+                Includes <strong>12 Hours of play per month</strong> (up to 1 hr daily allowance, Mon–Fri 6:00 AM – 3:00 PM). Instant front desk check-in.
               </p>
             </div>
 
             {/* Highlight 2: Studio */}
             <div className="border-l-2 border-gold pl-5 py-0.5">
               <span className="text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-ink-soft block">
-                The Studio Mogappair
+                Pavilion Studio, Mogappair
               </span>
               <p className="text-[0.85rem] text-ink-soft mt-1 leading-relaxed">
                 Curated programmes across Dance, Salsa, Dance Fitness, Yoga, Silambam, and Boxing for Kids, Juniors, Teens and Adults.
@@ -490,7 +494,7 @@ export function UnifiedMembershipFormSection() {
                     Pickleball Shared-Play Membership (12 Hours Quota · ₹2,360/mo)
                   </option>
                   <option value="studio">
-                    The Studio Mogappair (Dance / Fitness / Yoga / Boxing)
+                    Pavilion Studio, Mogappair (Dance / Fitness / Yoga / Boxing)
                   </option>
                 </select>
               </label>

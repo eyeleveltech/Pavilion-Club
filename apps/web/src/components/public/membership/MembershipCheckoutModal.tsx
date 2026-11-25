@@ -663,7 +663,7 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                         : 'text-white/70 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <span>🧘 The Studio Mogappair</span>
+                    <span>🧘 Pavilion Studio, Mogappair</span>
                     <span className="text-[10px] opacity-80 font-mono">Dance · Fitness · Yoga</span>
                   </button>
                 </div>

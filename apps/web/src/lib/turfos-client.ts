@@ -453,7 +453,7 @@ export async function confirmPackPayment(input: {
 /* ------------------------------------------------------------------ */
 
 export interface EnquiryInput {
-  type: 'studio' | 'academy' | 'franchise' | 'general' | 'membership' | 'pickleball';
+  type: 'studio' | 'academy' | 'franchise' | 'events' | 'general' | 'membership' | 'pickleball' | string;
   name: string;
   phone: string;
   email?: string | undefined;

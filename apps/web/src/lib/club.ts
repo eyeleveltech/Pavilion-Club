@@ -48,8 +48,8 @@ export type NavLink = {
 
 /** Pages only: sections of the home page are reached from the home page. */
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: 'Memberships', menuLabel: 'Memberships', href: '/membership/' },
-  { label: 'Academy', menuLabel: 'Pickleball Academy', href: '/academy/' },
+  { label: 'Pickleball', menuLabel: 'Pickleball', href: '/pickleball/' },
+  { label: 'Studio', menuLabel: 'Pavilion Studio', href: '/studio/' },
   { label: 'Events', menuLabel: 'Tournaments & Events', href: '/events/' },
   { label: 'Franchise', menuLabel: 'Franchise', href: '/franchise/' },
   { label: 'Services', menuLabel: 'Club Services', href: '/services/' },

@@ -91,7 +91,7 @@ function buildA4EmailHtml(payload: OnboardRequestPayload): string {
         <td style="vertical-align: top;">
           <div style="font-size: 11px; font-weight: 800; letter-spacing: 0.25em; color: #C9A96E; text-transform: uppercase;">THE PAVILION CLUB · MOGAPPAIR EAST</div>
           <h1 style="margin: 4px 0 0 0; font-size: 24px; font-family: Georgia, serif; font-weight: 900; color: #08111D; letter-spacing: -0.5px;">
-            ${isPickleball ? 'PICKLEBALL MEMBERSHIP DOSSIER' : 'THE STUDIO · ADMISSION DOSSIER'}
+            ${isPickleball ? 'PICKLEBALL MEMBERSHIP DOSSIER' : 'PAVILION STUDIO, MOGAPPAIR · ADMISSION DOSSIER'}
           </h1>
           <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
             ${isPickleball ? 'Official Shared-Play Membership · 12 Hours Monthly Quota' : 'Official Studio Programme Registration & Trial Intake'}

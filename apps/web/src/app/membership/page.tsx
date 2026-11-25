@@ -36,7 +36,6 @@ const COURTS_FACTS = [
   { label: 'Included play', value: '12 hours of play per membership month; up to one 1-hour session a day.' },
   { label: 'Format', value: 'An individual membership for shared play, not a private or exclusive court booking.' },
   { label: 'Capacity', value: 'Up to six players assigned to a court per session; rotations may be used.' },
-  { label: 'Access mode', value: 'Direct walk-in access — present your digital pass at the front desk between 6:00 AM – 3:00 PM (Mon – Fri). No advance slot booking required.' },
 ] as const;
 
 const STATS = [

@@ -123,7 +123,7 @@ export function PrintRegistrationSheet({ isOpen, onClose, data }: PrintRegistrat
                 The Pavilion Club · Mogappair East
               </p>
               <h1 className="text-2xl font-serif font-black tracking-tight text-slate-900 mt-0.5">
-                {isPickleball ? 'PICKLEBALL MEMBERSHIP DOSSIER' : 'THE STUDIO · MEMBER ADMISSION FORM'}
+                {isPickleball ? 'PICKLEBALL MEMBERSHIP DOSSIER' : 'PAVILION STUDIO, MOGAPPAIR · ADMISSION FORM'}
               </h1>
               <p className="text-xs text-slate-600 mt-1">
                 {isPickleball ? 'Official Shared-Play Membership · 12 Hours Monthly Quota' : 'Official Programme Registration & Physical Onboarding Slip'}

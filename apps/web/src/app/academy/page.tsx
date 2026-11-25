@@ -15,6 +15,7 @@ import {
   type FaqItem,
 } from '@/components/public/site/SitePage';
 import { whatsappUrl } from '@/lib/club';
+import { AcademyRateCard } from '@/components/public/academy/AcademyRateCard';
 
 export const metadata: Metadata = {
   title: 'Pickleball Academy · TNPA Affiliated Coaching',
@@ -37,6 +38,9 @@ const FIELDS: readonly EnquiryField[] = [
     label: 'Clinic level of interest',
     required: true,
     options: [
+      'Kids Coaching Clinic (Upto 14 yrs · 12 sessions · ₹3,000/mo)',
+      'Adults Coaching Clinic (12 sessions · ₹4,500/mo)',
+      'Personal Training (1-on-1 Coaching · Upon request)',
       'Level 1: Beginner Clinic (Foundations & rules)',
       'Level 2: Intermediate Clinic (Third-shot drops & resets)',
       'Level 3: Advanced Masterclass (Tournament matchplay)',
@@ -228,8 +232,20 @@ export default function AcademyPage() {
             intro="Progressive coaching syllabus designed by certified coaching staff. Small batches, individual stroke correction, and high-tempo game drills to take your game to the next level."
           />
 
+          {/* Official Inaugural Coaching Rate Card */}
+          <AcademyRateCard />
+
+          <div className="mt-20 border-t border-white/10 pt-16">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#c7a26a] text-center">
+              Training Pathways &amp; Curriculum
+            </p>
+            <h4 className="font-serif text-2xl sm:text-3xl text-ivory text-center mt-2">
+              Progressive Skill Levels
+            </h4>
+          </div>
+
           {/* Clinics 3-Column Grid */}
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
             {CLINICS.map((clinic) => (
               <div
                 key={clinic.level}
