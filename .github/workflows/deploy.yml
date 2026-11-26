@@ -1,4 +1,4 @@
-﻿name: Deploy Pavilion Club to Hostinger
+name: Deploy Pavilion Club to Hostinger
 
 on:
   push:

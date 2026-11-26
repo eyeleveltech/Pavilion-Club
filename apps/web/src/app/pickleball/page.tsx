@@ -233,7 +233,7 @@ export default function PickleballPage() {
       </section>
 
       {/* SECTION 2: Shared-Play Membership */}
-      <section id="membership" className="site-section site-deep site-lines scroll-mt-16">
+      <section id="membership" className="site-section site-deep scroll-mt-16">
         <div className="site-wrap">
           <SectionHead
             eyebrow="02 · Pickleball Membership"

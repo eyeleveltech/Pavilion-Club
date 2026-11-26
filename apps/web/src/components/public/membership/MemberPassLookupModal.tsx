@@ -7,10 +7,12 @@ import {
 } from '@/lib/enquiry-store';
 import {
   LuxuryMetalPassCard,
+  EditorialQuotaSection,
   type MemberPass,
 } from '@/components/public/membership/MembershipCheckoutModal';
 import {
   PrintRegistrationSheet,
+  buildPrintableMemberData,
   type PrintableRegistrationData,
 } from '@/components/public/studio/PrintRegistrationSheet';
 import { CLUB, whatsappUrl } from '@/lib/club';
@@ -76,17 +78,7 @@ export function MemberPassLookupModal({
     : null;
 
   const printableData: PrintableRegistrationData | null = result
-    ? {
-        reference: result.reference,
-        name: result.name,
-        phone: result.phone,
-        email: result.email,
-        category: result.planTitle,
-        cohort: result.category === 'pickleball' ? 'Pickleball Member' : 'Studio Member',
-        timeSlot: 'Mon–Fri 6:00 AM – 3:00 PM (12h Monthly Quota)',
-        amountDisplay: '₹2,360 / mo (All-Inclusive)',
-        createdAt: new Date().toISOString(),
-      }
+    ? buildPrintableMemberData(result)
     : null;
 
   return (
@@ -140,7 +132,7 @@ export function MemberPassLookupModal({
                 /* ======================================================== */
                 /* CASE 1: APPROVED & ACTIVE MEMBER                         */
                 /* ======================================================== */
-                <div className="space-y-4">
+                <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1 text-xs font-bold text-emerald-400">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     <span>Active Member · Card Issued</span>
@@ -148,63 +140,22 @@ export function MemberPassLookupModal({
 
                   {/* 3D Titanium Metal Pass Card */}
                   {memberPass && (
-                    <div className="my-2">
-                      <LuxuryMetalPassCard memberPass={memberPass} />
+                    <div className="mt-4">
+                      <LuxuryMetalPassCard memberPass={memberPass} surface="dark" />
                     </div>
                   )}
 
-                  {/* Live Quota Meter */}
-                  <div className="rounded-xl border border-white/10 bg-[#060c14] p-4 text-left space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
-                        Live Monthly Quota
-                      </span>
-                      <span className="font-mono text-xs font-bold text-[#c7a26a]">
-                        {result.sessionsRemaining} / {result.sessionsTotal} Hours Left
-                      </span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-emerald-400 to-[#c7a26a] transition-all duration-500"
-                        style={{
-                          width: `${(result.sessionsRemaining / result.sessionsTotal) * 100}%`,
-                        }}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] text-white/50 pt-1">
-                      <span>Daily allowance: Up to 1 hr/day</span>
-                      <span>
-                        {result.lastCheckIn
-                          ? `Last check-in: ${new Date(result.lastCheckIn).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
-                          : 'No sessions used yet this month'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Action Suite */}
-                  <div className="flex flex-wrap justify-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsPrintSheetOpen(true)}
-                      className="px-4 py-2 rounded-lg bg-[#c7a26a] hover:bg-[#d9b882] text-black text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm"
-                    >
-                      <span>🖨️ Print / Save Pass</span>
-                    </button>
-
-                    <a
-                      href={whatsappUrl(
-                        `Hi Pavilion Front Desk! I am checking in with my Member Pass (${result.reference}).`
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5"
-                    >
-                      <span>💬 WhatsApp Desk</span>
-                    </a>
-                  </div>
+                  <EditorialQuotaSection
+                    category={result.category}
+                    sessionsRemaining={result.sessionsRemaining}
+                    sessionsTotal={result.sessionsTotal}
+                    lastCheckIn={result.lastCheckIn}
+                    onPrintDossier={() => setIsPrintSheetOpen(true)}
+                    whatsappHref={whatsappUrl(
+                      `Hi Pavilion Front Desk! I am checking in with my Member Pass (${result.reference}).`
+                    )}
+                    surface="dark"
+                  />
                 </div>
               ) : (
                 /* ======================================================== */

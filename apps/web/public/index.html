@@ -135,8 +135,6 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 .nav__links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease)}
 .nav__links a:hover::after{transform:scaleX(1);transform-origin:left}
 .nav__right{justify-self:end;display:flex;gap:1.4rem;align-items:center}
-.nav__right .nav__pass{font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);white-space:nowrap;transition:color .3s}
-.nav__right .nav__pass:hover{color:var(--ivory)}
 .nav__right .btn{padding:.85rem 1.6rem}
 .nav__menu{display:none;font-size:.64rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;padding:.6rem 0}
 .menu{position:fixed;inset:0;z-index:90;background:var(--midnight-deep);display:flex;flex-direction:column;justify-content:center;padding:0 var(--gutter);clip-path:inset(0 0 100% 0);visibility:hidden}
@@ -145,7 +143,7 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 @media (max-width:900px){
   .nav{grid-template-columns:1fr auto}.nav .brand{justify-self:start}
   .nav__links{display:none}
-  .nav__right .btn,.nav__right .nav__pass{display:none}
+  .nav__right .btn{display:none}
   .nav__menu{display:inline-flex}
 }
 
@@ -505,7 +503,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="/contact/">Contact</a>
   </nav>
   <div class="nav__right">
-    <a class="nav__pass" href="/pass/">Member Pass</a>
     <a class="btn magnetic" href="https://turftown.in" target="_blank" rel="noopener noreferrer">Book Court</a>
     <button class="nav__menu" aria-expanded="false" aria-controls="menu">Menu</button>
   </div>

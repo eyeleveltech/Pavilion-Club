@@ -9,10 +9,12 @@ import {
 } from '@/lib/enquiry-store';
 import {
   LuxuryMetalPassCard,
+  EditorialQuotaSection,
   type MemberPass,
 } from '@/components/public/membership/MembershipCheckoutModal';
 import {
   PrintRegistrationSheet,
+  buildPrintableMemberData,
   type PrintableRegistrationData,
 } from '@/components/public/studio/PrintRegistrationSheet';
 import { CLUB, whatsappUrl } from '@/lib/club';
@@ -148,17 +150,7 @@ function PassContent() {
     : null;
 
   const printableData: PrintableRegistrationData | null = result
-    ? {
-        reference: result.reference,
-        name: result.name,
-        phone: result.phone,
-        email: result.email,
-        category: result.planTitle,
-        cohort: result.category === 'pickleball' ? 'Pickleball Member' : 'Studio Member',
-        timeSlot: 'Mon–Fri 6:00 AM – 3:00 PM (12h Monthly Quota)',
-        amountDisplay: '₹2,360 / mo (All-Inclusive)',
-        createdAt: new Date().toISOString(),
-      }
+    ? buildPrintableMemberData(result)
     : null;
 
   return (
@@ -201,76 +193,36 @@ function PassContent() {
           {result ? (
             result.isApproved ? (
               /* Approved & Active Member */
-              <div className="space-y-6 text-center">
+              <div className="text-center">
                 {justApproved && (
-                  <div className="rounded-xl border border-emerald-400 bg-emerald-500/15 p-4 text-center text-xs sm:text-sm font-bold text-emerald-950 shadow-md animate-bounce mb-2 flex items-center justify-center gap-2">
+                  <div className="rounded-xl border border-emerald-400 bg-emerald-500/15 p-4 text-center text-xs sm:text-sm font-bold text-emerald-950 shadow-md animate-bounce mb-4 flex items-center justify-center gap-2">
                     <span className="text-base">🎉</span>
                     <span>Application Accepted! Your 3D Digital Member Pass is now active.</span>
                   </div>
                 )}
 
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-300 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#F3EEE1] border border-[#CFC7B2] px-3.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#0F1E2E]">
+                  <span className="w-2 h-2 rounded-full bg-[#2E6F4E] animate-pulse" />
                   <span>Approved &amp; Active Member</span>
                 </span>
 
                 {memberPass && (
-                  <div className="my-4">
-                    <LuxuryMetalPassCard memberPass={memberPass} />
+                  <div className="mt-4">
+                    <LuxuryMetalPassCard memberPass={memberPass} surface="ivory" />
                   </div>
                 )}
 
-                {/* Quota Card */}
-                <div className="rounded-xl border border-[rgba(15,30,46,0.15)] bg-white p-5 text-left space-y-3 shadow-sm max-w-lg mx-auto">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-ink-soft">
-                      Live Remaining Quota
-                    </span>
-                    <span className="font-mono text-sm font-bold text-navy">
-                      {result.sessionsRemaining} / {result.sessionsTotal} Hours Left
-                    </span>
-                  </div>
-
-                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-[#c7a26a] transition-all duration-500"
-                      style={{
-                        width: `${(result.sessionsRemaining / result.sessionsTotal) * 100}%`,
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-ink-soft pt-1">
-                    <span>Daily allowance: 1 hr / weekday</span>
-                    <span>
-                      {result.lastCheckIn
-                        ? `Last check-in: ${new Date(result.lastCheckIn).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
-                        : 'No hours deducted yet'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="flex flex-wrap justify-center gap-4 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsPrintSheetOpen(true)}
-                    className="px-5 py-2.5 rounded bg-gold hover:bg-gold-light text-navy text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
-                  >
-                    <span>🖨️ View &amp; Print Dossier</span>
-                  </button>
-
-                  <a
-                    href={whatsappUrl(
-                      `Hi Pavilion Front Desk! I am checking in with my Member Pass (${result.reference}).`
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-5 py-2.5 rounded border border-emerald-600/40 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2"
-                  >
-                    <span>💬 WhatsApp Front Desk</span>
-                  </a>
-                </div>
+                <EditorialQuotaSection
+                  category={result.category}
+                  sessionsRemaining={result.sessionsRemaining}
+                  sessionsTotal={result.sessionsTotal}
+                  lastCheckIn={result.lastCheckIn}
+                  onPrintDossier={() => setIsPrintSheetOpen(true)}
+                  whatsappHref={whatsappUrl(
+                    `Hi Pavilion Front Desk! I am checking in with my Member Pass (${result.reference}).`
+                  )}
+                  surface="ivory"
+                />
               </div>
             ) : (
               /* Pending Desk Verification */

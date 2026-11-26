@@ -104,9 +104,6 @@ export function PublicHeader({ overlay = false }: { overlay?: boolean }) {
 
         {/* Right CTA Button & Mobile Menu Toggle */}
         <div className="editorial-nav__right">
-          <Link href="/pass/" className="editorial-nav__pass">
-            Member Pass
-          </Link>
           <GoldButton
             href="https://turftown.in"
             target="_blank"

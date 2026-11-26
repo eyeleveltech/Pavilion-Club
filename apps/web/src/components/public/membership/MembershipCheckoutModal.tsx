@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties, type PointerEvent, type MouseEvent } from 'react';
 import {
   submitEnquiry,
 } from '@/lib/turfos-client';
@@ -24,7 +24,7 @@ export interface MemberPass {
   name: string;
   phone: string;
   email: string;
-  category: 'pickleball' | 'studio';
+  category: 'pickleball' | 'studio' | 'academy' | string;
   planTitle: string;
   validFrom: string;
   validUntil: string;
@@ -75,23 +75,134 @@ function generateMemberReference(category: 'pickleball' | 'studio'): string {
 
 export interface LuxuryMetalPassCardProps {
   memberPass: MemberPass;
+  surface?: 'ivory' | 'dark' | undefined;
 }
 
-export function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
+const CARD_FACE_STYLE: CSSProperties = {
+  background: 'linear-gradient(145deg, #142233 0%, #0d1825 48%, #071019 100%)',
+  boxShadow:
+    'inset 0 1px 1.2px rgba(255,255,255,0.24), inset 0 -1.5px 2px rgba(0,0,0,0.9), inset 1px 0 1px rgba(255,255,255,0.08)',
+};
+
+/**
+ * Shared brushed-metal grain, dynamic glare, and CNC-debossed Pavilion arch PC monogram
+ * rendered across both front and back faces of the physical-grade metal card.
+ */
+function CardSurfaceLayers({ glareX, glareY, isActive }: { glareX: number; glareY: number; isActive: boolean }) {
+  return (
+    <>
+      {/* Fine brushed anodized metal micro-grain */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1] opacity-70"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(118deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px)',
+        }}
+      />
+
+      {/* Dynamic light-catching metallic glare */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-[3]"
+        style={{
+          opacity: isActive ? 1 : 0.45,
+          background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.16) 0%, rgba(199, 162, 106, 0.06) 28%, transparent 62%)`,
+        }}
+      />
+
+      {/* Embossed Pavilion Arch + PC Monogram watermark on the right half */}
+      <svg
+        className="absolute -right-[4%] -top-[10%] h-[120%] w-auto pointer-events-none z-[2] opacity-90"
+        viewBox="0 0 64 104"
+        fill="none"
+        aria-hidden="true"
+      >
+        {/* Subtle bottom-right specular rim highlight */}
+        <g transform="translate(0.55, 0.55)" stroke="rgba(255,255,255,0.14)" strokeWidth="0.95" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="60" height="100" rx="30" />
+          <path d="M30 26 L30 78" />
+          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" />
+          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" />
+        </g>
+        {/* Deep milled groove shadow */}
+        <g transform="translate(-0.45, -0.45)" stroke="rgba(0,0,0,0.88)" strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="60" height="100" rx="30" />
+          <path d="M30 26 L30 78" />
+          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" />
+          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" />
+        </g>
+        {/* Crisp matte navy base bevel */}
+        <g stroke="#08121d" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="60" height="100" rx="30" />
+          <path d="M30 26 L30 78" />
+          <path d="M30 26 H37 C43 26 48 30 48 37 C48 42 45 45 42 46" />
+          <path d="M42 46 C36 44 32 44.5 30 46 C23 48 18 53 18 61 C18 69 23 75 30 77 C37 79 43 77 47 73" />
+        </g>
+      </svg>
+    </>
+  );
+}
+
+/** Realistic brushed gold EMV smart chip SVG. */
+function GoldEmvChip() {
+  return (
+    <div
+      className="w-10 h-7 sm:w-11 sm:h-[31px] rounded-[5px] p-[1px] shadow-[0_2px_6px_rgba(0,0,0,0.65)] shrink-0"
+      style={{
+        background: 'linear-gradient(135deg, #f3df9e 0%, #c99e4b 45%, #8b631f 100%)',
+      }}
+    >
+      <svg viewBox="0 0 44 30" className="w-full h-full rounded-[4px]" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="chip-gold" x1="0" y1="0" x2="44" y2="30" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ecd595" />
+            <stop offset="50%" stopColor="#cfa451" />
+            <stop offset="100%" stopColor="#a77d32" />
+          </linearGradient>
+        </defs>
+        <rect width="44" height="30" rx="3" fill="url(#chip-gold)" />
+        <path
+          d="M15 0 V30 M29 0 V30 M0 10 H15 M29 10 H44 M0 20 H15 M29 20 H44 M15 15 H29"
+          stroke="rgba(35, 22, 6, 0.55)"
+          strokeWidth="1.15"
+        />
+        <rect x="15" y="7" width="14" height="16" rx="2" stroke="rgba(35, 22, 6, 0.55)" strokeWidth="1.1" fill="none" />
+      </svg>
+    </div>
+  );
+}
+
+export function LuxuryMetalPassCard({ memberPass, surface = 'ivory' }: LuxuryMetalPassCardProps) {
+  const isDarkSurface = surface === 'dark';
   const cardRef = useRef<HTMLDivElement>(null);
+  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0, glareX: 50, glareY: 50 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipping, setIsFlipping] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+  useEffect(() => {
+    return () => {
+      if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    };
+  }, []);
+
+  const triggerFlip = () => {
+    setIsFlipping(true);
+    setIsFlipped((prev) => !prev);
+    if (flipTimerRef.current) clearTimeout(flipTimerRef.current);
+    flipTimerRef.current = setTimeout(() => setIsFlipping(false), 720);
+  };
+
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (!cardRef.current || e.pointerType === 'touch') return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((y - centerY) / centerY) * -7;
+    const rotateY = ((x - centerX) / centerX) * 7;
     const glareX = (x / rect.width) * 100;
     const glareY = (y / rect.height) * 100;
     setTilt({ x: rotateX, y: rotateY, glareX, glareY });
@@ -103,12 +214,29 @@ export function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
     setTilt({ x: 0, y: 0, glareX: 50, glareY: 50 });
   };
 
-  const copyNumber = (e: React.MouseEvent) => {
+  const copyNumber = (e: MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(memberPass.reference).then(() => {
+    const markCopied = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(memberPass.reference).then(markCopied).catch(() => {});
+      return;
+    }
+    const ta = document.createElement('textarea');
+    ta.value = memberPass.reference;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      markCopied();
+    } finally {
+      document.body.removeChild(ta);
+    }
   };
 
   const formattedNumber = memberPass.reference.replace(/-/g, ' ');
@@ -118,124 +246,446 @@ export function LuxuryMetalPassCard({ memberPass }: LuxuryMetalPassCardProps) {
     ? '12/26'
     : `${String(untilDate.getMonth() + 1).padStart(2, '0')}/${String(untilDate.getFullYear()).slice(-2)}`;
 
+  const isVerified = memberPass.paymentId !== 'PENDING_DESK';
+  const catLower = (memberPass.category || '').toLowerCase();
+  const isStudio = catLower === 'studio';
+  const isAcademy = catLower === 'academy';
+
+  const passSubtitle = isStudio
+    ? `STUDIO PASS · ${memberPass.totalSessions || 12} CLASSES`
+    : isAcademy
+      ? `ACADEMY PASS · ${memberPass.totalSessions || 12} SESSIONS`
+      : 'MEMBER PASS · 12H QUOTA';
+
+  const allowanceLabel = isStudio
+    ? `${memberPass.totalSessions || 12} Classes`
+    : isAcademy
+      ? `${memberPass.totalSessions || 12} Sessions`
+      : '12 Hours Quota';
+
+  const backTermsHeading = isStudio
+    ? 'STUDIO PASS TERMS'
+    : isAcademy
+      ? 'ACADEMY COACHING TERMS'
+      : 'MEMBERSHIP TERMS';
+
+  const backTermsLines = isStudio
+    ? [
+        'Check in at the front desk before class.',
+        'Attend scheduled Mon · Wed · Fri or weekend batches.',
+        'Sessions remain valid for 30 days from activation.',
+        'Classes are personal, non-transferable, and expire monthly.',
+        'Clean non-marking footwear required on studio floor.',
+      ]
+    : isAcademy
+      ? [
+          'Check in at the front desk before clinic start.',
+          'Attend assigned cohort batch (no beginner/inter mixing).',
+          '12 coaching sessions per month (max 1 hr per session).',
+          'Demo paddles and Franklin X-40 balls are provided.',
+          'Schedule adjustments subject to coach availability.',
+        ]
+      : [
+          'Check in at the front desk.',
+          'Mon–Fri, 6 AM–3 PM, except holidays and tournaments.',
+          'Up to 12 hrs/month, 1 session/day (max 60 min).',
+          'Sessions are non-transferable and expire monthly.',
+          'Shared play depends on court availability.',
+        ];
+
+  const baseRotateY = (isFlipped ? 180 : 0) + (isFlipped ? -tilt.y : tilt.y);
+  const baseRotateX = isHovered && !isFlipping ? tilt.x : 0;
+  const scaleFactor = isFlipping ? 1.035 : isHovered ? 1.018 : 1;
+
   return (
-    <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transform: isHovered
-          ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`
-          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
-        transition: isHovered ? 'transform 0.08s ease-out' : 'transform 0.5s ease-out',
-        aspectRatio: '1.586',
-        background: 'linear-gradient(135deg, #444b58 0%, #2b323e 35%, #181d26 70%, #0d1117 100%)',
-      }}
-      className="relative mx-auto w-full max-w-[400px] rounded-[22px] select-none cursor-pointer overflow-hidden p-4 sm:p-5 flex flex-col justify-between border border-white/15 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.12),inset_0_1px_1.5px_rgba(255,255,255,0.35),inset_0_-1px_1.5px_rgba(0,0,0,0.6)]"
-    >
-      {/* Dynamic Sheen Layer */}
+    <div className="w-full max-w-[420px] mx-auto">
       <div
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-[3]"
-        style={{
-          opacity: isHovered ? 1 : 0.6,
-          background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 40%, transparent 65%)`,
+        ref={cardRef}
+        role="button"
+        tabIndex={0}
+        aria-label={isFlipped ? 'Flip card to view Member Pass front' : 'Flip card to view Membership Terms'}
+        onClick={triggerFlip}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            triggerFlip();
+          }
         }}
-      />
-
-      {/* 3D Debossed Guilloche Rosette Medallion */}
-      <svg
-        className="absolute -top-[42px] -right-[42px] w-[275px] h-[275px] pointer-events-none z-[1] opacity-90"
+        onPointerMove={handlePointerMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{
-          filter: 'drop-shadow(1px 1px 0px rgba(255, 255, 255, 0.22)) drop-shadow(-1.2px -1.2px 0px rgba(0, 0, 0, 0.85))',
+          perspective: '1400px',
+          aspectRatio: '1.586',
         }}
-        viewBox="0 0 240 240"
-        fill="none"
+        className="relative w-full select-none cursor-pointer touch-manipulation active:scale-[0.985] transition-transform duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[#c7a26a] rounded-[20px]"
       >
-        <circle cx="170" cy="70" r="130" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
-        <circle cx="170" cy="70" r="130" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-        <circle cx="170" cy="70" r="115" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
-        <circle cx="170" cy="70" r="115" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-        <circle cx="170" cy="70" r="100" stroke="rgba(0,0,0,0.7)" strokeWidth="2" />
-        <circle cx="170" cy="70" r="100" stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-        <circle cx="170" cy="70" r="85" stroke="rgba(0,0,0,0.85)" strokeWidth="2.5" />
-        <circle cx="170" cy="70" r="85" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" />
-      </svg>
+        {/* 3D Rotating Card Stage */}
+        <div
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `rotateX(${baseRotateX}deg) rotateY(${baseRotateY}deg) scale3d(${scaleFactor}, ${scaleFactor}, ${scaleFactor})`,
+            transition:
+              isHovered && !isFlipping
+                ? 'transform 0.1s ease-out'
+                : 'transform 0.72s cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
+          className="relative w-full h-full rounded-[20px] shadow-[0_28px_55px_-14px_rgba(4,9,16,0.82),0_10px_22px_-6px_rgba(4,9,16,0.5)]"
+        >
+          {/* ================= FRONT FACE ================= */}
+          <div
+            style={{
+              ...CARD_FACE_STYLE,
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(0deg) translateZ(0.5px)',
+              pointerEvents: isFlipped ? 'none' : 'auto',
+            }}
+            className="absolute inset-0 rounded-[20px] overflow-hidden p-4 sm:p-6 flex flex-col justify-between border border-white/15 text-left"
+          >
+            <CardSurfaceLayers glareX={tilt.glareX} glareY={tilt.glareY} isActive={isHovered || isFlipping} />
 
-      {/* Row 1: Brand & Status Header */}
-      <div className="relative z-[4] flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c7a26a] animate-pulse" />
-            <span className="text-[9px] uppercase tracking-[0.25em] font-black text-[#c7a26a]">
-              The Pavilion Club
-            </span>
-          </div>
-          <span className="text-[11px] font-bold tracking-wider text-white/90 block mt-0.5">
-            {memberPass.category === 'pickleball' ? 'MEMBER PASS · 12H QUOTA' : 'STUDIO ADMISSION PASS'}
-          </span>
-        </div>
+            {/* Top Row: Official White Logo + Verified Badge & Pass Quota Subtitle */}
+            <div className="relative z-[4] flex items-start justify-between gap-2">
+              <img
+                src="/pavilion_logo_reversed.png"
+                alt="The Pavilion Club"
+                width={120}
+                height={42}
+                className="h-8 sm:h-10 w-auto object-contain select-none pointer-events-none"
+              />
 
-        <div className="flex items-center gap-1.5 bg-[#c7a26a]/15 border border-[#c7a26a]/40 px-2 py-0.5 rounded text-[9px] font-mono font-bold text-[#c7a26a]">
-          <span>VERIFIED AT DESK</span>
-        </div>
-      </div>
+              <div className="flex flex-col items-end text-right">
+                <div className="inline-flex items-center border border-[#c7a26a]/80 bg-[#071018]/65 px-2.5 py-0.5 rounded-[5px] text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.14em] uppercase text-[#e0ad5c] shadow-xs">
+                  {isVerified ? 'VERIFIED AT DESK' : 'PENDING DESK'}
+                </div>
+                <span className="mt-1.5 text-[8.5px] sm:text-[9.5px] font-semibold tracking-[0.14em] uppercase text-white/95">
+                  {passSubtitle}
+                </span>
+              </div>
+            </div>
 
-      {/* Row 2: Chip & Reference ID */}
-      <div className="relative z-[4] my-auto pt-2">
-        <div className="flex items-center justify-between mb-2">
-          {/* Smart EMV Chip simulation */}
-          <div className="w-10 h-7 rounded bg-gradient-to-tr from-[#d4af37] via-[#f3e5ab] to-[#aa771c] p-[1px] shadow-md">
-            <div className="w-full h-full rounded-[3px] border border-black/30 grid grid-cols-2 grid-rows-2 p-0.5 gap-0.5">
-              <div className="border border-black/20 rounded-sm"></div>
-              <div className="border border-black/20 rounded-sm"></div>
-              <div className="border border-black/20 rounded-sm"></div>
-              <div className="border border-black/20 rounded-sm"></div>
+            {/* Middle Row: Gold EMV Chip & Clean Tracked Reference */}
+            <div className="relative z-[4] flex items-center gap-3 sm:gap-5 my-auto pt-1">
+              <GoldEmvChip />
+
+              <button
+                type="button"
+                onClick={copyNumber}
+                title="Tap to copy Member Reference"
+                className="group/code inline-flex items-center gap-2 text-left rounded px-1.5 py-1 -ml-1 hover:bg-white/5 transition-colors cursor-copy min-w-0"
+              >
+                <span className="font-sans text-[12.5px] sm:text-[17px] tracking-[0.18em] sm:tracking-[0.22em] font-semibold text-[#f9f6ed] uppercase whitespace-nowrap">
+                  {formattedNumber}
+                </span>
+                {copied && (
+                  <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#e0ad5c] bg-[#071018]/90 px-1.5 py-0.5 rounded border border-[#c7a26a]/40">
+                    Copied
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Bottom Row: Divider + Passholder & Monthly Allowance */}
+            <div className="relative z-[4] border-t border-white/25 pt-2.5 sm:pt-3 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.15em] text-white/45 block font-medium">
+                  Passholder
+                </span>
+                <span className="text-[13px] sm:text-[15px] font-bold text-white tracking-[0.06em] uppercase block truncate max-w-[175px] mt-0.5">
+                  {memberPass.name}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.06em] text-white/75 block">
+                  {memberPass.phone}
+                </span>
+              </div>
+
+              <div className="text-right shrink-0">
+                <span className="text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.15em] text-white/45 block font-medium">
+                  Monthly Allowance
+                </span>
+                <span className="text-[12px] sm:text-[14px] font-bold text-[#e0ad5c] tracking-wide block mt-0.5">
+                  {allowanceLabel}
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-mono text-white/70 block">
+                  Thru {validThru}
+                </span>
+              </div>
             </div>
           </div>
 
+          {/* ================= BACK FACE ================= */}
           <div
-            onClick={copyNumber}
-            className="flex items-center gap-1 text-[11px] font-mono text-white/70 hover:text-[#c7a26a] transition-colors"
-            title="Click to copy ID"
+            style={{
+              ...CARD_FACE_STYLE,
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg) translateZ(0.5px)',
+              pointerEvents: isFlipped ? 'auto' : 'none',
+            }}
+            className="absolute inset-0 rounded-[20px] overflow-hidden p-3.5 sm:p-5 flex flex-col justify-between border border-white/15 text-left"
           >
-            <span>{copied ? '✓ Copied' : '📋 Copy'}</span>
-          </div>
-        </div>
+            <CardSurfaceLayers
+              glareX={100 - tilt.glareX}
+              glareY={tilt.glareY}
+              isActive={isHovered || isFlipping}
+            />
 
-        <div
-          onClick={copyNumber}
-          className="font-mono text-base sm:text-lg tracking-[0.2em] font-extrabold text-white text-shadow-sm select-all"
-        >
-          {formattedNumber}
+            {/* Top Logo */}
+            <div className="relative z-[4] flex items-center justify-between">
+              <img
+                src="/pavilion_logo_reversed.png"
+                alt="The Pavilion Club"
+                width={108}
+                height={38}
+                className="h-6 sm:h-8 w-auto object-contain select-none pointer-events-none"
+              />
+            </div>
+
+            {/* Terms Block */}
+            <div className="relative z-[4] my-auto pr-4 sm:pr-8">
+              <h4 className="text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.16em] text-[#e0ad5c]">
+                {backTermsHeading}
+              </h4>
+              <ul className="mt-1 sm:mt-1.5 space-y-[1.5px] sm:space-y-[2.5px] text-[8px] sm:text-[10.5px] leading-[1.35] sm:leading-[1.45] text-[#f9f6ed]/90 font-normal">
+                {backTermsLines.map((line, i) => (
+                  <li key={i}>{line}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Front Desk Phone, Gold Rule & Full Terms Link */}
+            <div className="relative z-[4]">
+              <p className="text-[9px] sm:text-[10.5px] font-bold uppercase tracking-[0.14em] text-white">
+                FRONT DESK{' '}
+                <a
+                  href={CLUB.phoneHref}
+                  onClick={(e) => e.stopPropagation()}
+                  className="ml-1 font-mono font-semibold text-white/95 hover:text-[#e0ad5c] transition-colors"
+                >
+                  {CLUB.phoneDisplay}
+                </a>
+              </p>
+
+              <div className="my-1.5 sm:my-2 h-[1.5px] w-[58%] bg-[#e0ad5c]/90" />
+
+              <p className="text-[8.5px] sm:text-[10px] text-white/80">
+                Full terms:{' '}
+                <a
+                  href="/membership/#terms"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-white/90 hover:text-[#e0ad5c] underline decoration-white/30 transition-colors"
+                >
+                  thepavilionclub.com/membership/
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Row 3: Member Name & Quota Footer */}
-      <div className="relative z-[4] flex items-end justify-between pt-1 border-t border-white/10">
-        <div>
-          <span className="text-[8px] uppercase tracking-wider text-white/40 block font-semibold">
-            Passholder
-          </span>
-          <span className="text-xs sm:text-sm font-bold text-white tracking-wide block truncate max-w-[200px]">
-            {memberPass.name}
-          </span>
-          <span className="text-[9px] font-mono text-white/60 block">
-            {memberPass.phone}
-          </span>
+      {/* Editorial Hairline Pure Controls (aligned to card width) */}
+      <div
+        className={`mt-4 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.18em] pb-2.5 border-b ${
+          isDarkSurface
+            ? 'border-white/15 text-[#C7A26A]'
+            : 'border-[#CFC7B2] text-[#8A6223]'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={triggerFlip}
+          className={`inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+            isDarkSurface ? 'hover:text-white' : 'hover:text-[#0F1E2E]'
+          }`}
+        >
+          <svg
+            className="w-3.5 h-3.5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 16h5v5" />
+          </svg>
+          <span>{isFlipped ? 'Show Front' : 'Turn Over'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={copyNumber}
+          title="Tap to copy Member Reference"
+          className={`inline-flex items-center gap-1.5 font-mono transition-colors cursor-pointer ${
+            isDarkSurface ? 'hover:text-white' : 'hover:text-[#0F1E2E]'
+          }`}
+        >
+          <svg
+            className="w-3.5 h-3.5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          <span>{copied ? 'Copied ID' : formattedNumber}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export interface EditorialQuotaSectionProps {
+  category?: string | undefined;
+  sessionsRemaining: number;
+  sessionsTotal: number;
+  lastCheckIn?: string | null | undefined;
+  onPrintDossier: () => void;
+  whatsappHref: string;
+  surface?: 'ivory' | 'dark' | undefined;
+}
+
+/**
+ * Shared Sample #05 "Editorial Hairline Pure" quota readout and CTA strip,
+ * aligned directly to the 420px card column across both ivory and dark modal grounds.
+ */
+export function EditorialQuotaSection({
+  category,
+  sessionsRemaining,
+  sessionsTotal,
+  lastCheckIn,
+  onPrintDossier,
+  whatsappHref,
+  surface = 'ivory',
+}: EditorialQuotaSectionProps) {
+  const isDarkSurface = surface === 'dark';
+  const catLower = (category || '').toLowerCase();
+  const isStudio = catLower === 'studio';
+  const isAcademy = catLower === 'academy';
+
+  const unitLabel = isStudio ? 'Classes' : isAcademy ? 'Sessions' : 'Hours';
+  const dailyCap = isStudio
+    ? 'Scheduled batch'
+    : isAcademy
+      ? '1 hr / session'
+      : '1 hr / weekday';
+
+  const safeTotal = sessionsTotal > 0 ? sessionsTotal : 12;
+  const safeRemaining = Math.max(0, Math.min(safeTotal, sessionsRemaining));
+  const used = Math.max(0, safeTotal - safeRemaining);
+  const pct = Math.min(100, Math.max(0, (safeRemaining / safeTotal) * 100));
+
+  const deductionText = lastCheckIn
+    ? `Last check-in: ${new Date(lastCheckIn).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}`
+    : used > 0
+      ? `${used} ${unitLabel.toLowerCase()} used this cycle`
+      : isStudio || isAcademy
+        ? 'No sessions deducted yet'
+        : 'No hours deducted yet';
+
+  return (
+    <div className="w-full max-w-[420px] mx-auto text-left">
+      <div className={`py-4 border-b space-y-3 ${isDarkSurface ? 'border-white/15' : 'border-[#CFC7B2]'}`}>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <span
+              className={`block text-[9.5px] font-semibold uppercase tracking-[0.2em] ${
+                isDarkSurface ? 'text-white/55' : 'text-[#5E6A78]'
+              }`}
+            >
+              Play Allowance
+            </span>
+            <div
+              className={`font-serif text-3xl font-normal leading-none mt-1.5 tabular-nums ${
+                isDarkSurface ? 'text-[#F9F6ED]' : 'text-[#0F1E2E]'
+              }`}
+            >
+              {safeRemaining}{' '}
+              <span className={`text-sm ${isDarkSurface ? 'text-white/60' : 'text-[#4A5765]'}`}>
+                / {safeTotal} {unitLabel}
+              </span>
+            </div>
+          </div>
+
+          <div className={`text-right text-[11px] leading-snug ${isDarkSurface ? 'text-white/65' : 'text-[#4A5765]'}`}>
+            <div>{dailyCap}</div>
+            <div className={`font-medium mt-0.5 ${isDarkSurface ? 'text-[#C7A26A]' : 'text-[#8A6223]'}`}>
+              {deductionText}
+            </div>
+          </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-[8px] uppercase tracking-wider text-white/40 block font-semibold">
-            Monthly Allowance
-          </span>
-          <span className="text-xs sm:text-sm font-bold text-[#c7a26a] font-mono block">
-            {memberPass.category === 'pickleball' ? '12 Hours Quota' : `${memberPass.totalSessions} Classes`}
-          </span>
-          <span className="text-[9px] font-mono text-white/50 block">
-            Thru {validThru}
-          </span>
+        {/* Minimal 3px architectural quota rule */}
+        <div className={`h-[3px] w-full overflow-hidden ${isDarkSurface ? 'bg-white/15' : 'bg-[#E4DFD0]'}`}>
+          <div
+            className={`h-full transition-all duration-500 ${isDarkSurface ? 'bg-[#C7A26A]' : 'bg-[#0F1E2E]'}`}
+            style={{ width: `${pct}%` }}
+          />
         </div>
+      </div>
+
+      {/* Sharp Rectangular Editorial Actions */}
+      <div className="pt-4 grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={onPrintDossier}
+          className={`h-11 rounded-none text-[10px] font-semibold uppercase tracking-[0.2em] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+            isDarkSurface
+              ? 'bg-[#C7A26A] hover:bg-[#D8B680] text-[#0F1E2E]'
+              : 'bg-[#0F1E2E] hover:bg-[#182C42] text-[#F9F6ED]'
+          }`}
+        >
+          <svg
+            className={`w-3.5 h-3.5 shrink-0 ${isDarkSurface ? 'text-[#0F1E2E]' : 'text-[#C7A26A]'}`}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect width="12" height="8" x="6" y="14" />
+          </svg>
+          <span>Print Dossier</span>
+        </button>
+
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`h-11 rounded-none border text-[10px] font-semibold uppercase tracking-[0.2em] inline-flex items-center justify-center gap-2 transition-colors ${
+            isDarkSurface
+              ? 'border-[#C7A26A]/55 text-[#F9F6ED] hover:bg-[#C7A26A]/15'
+              : 'border-[#0F1E2E] text-[#0F1E2E] hover:bg-[#0F1E2E] hover:text-[#F9F6ED]'
+          }`}
+        >
+          <svg
+            className="w-3.5 h-3.5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+          </svg>
+          <span>Front Desk</span>
+        </a>
       </div>
     </div>
   );

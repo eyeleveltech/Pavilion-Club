@@ -93,17 +93,19 @@ export default function StudioPage() {
       />
 
       {/* SECTION 1: Disciplines & Showcase */}
-      <section id="disciplines" className="site-section site-light site-lines scroll-mt-16">
-        <div className="site-wrap grid items-center gap-14 lg:grid-cols-2 lg:gap-24">
-          <Figure
-            src="/assets/images/wellness-b.jpg"
-            alt="Pavilion Studio mirrored hall with mats and natural lighting"
-            caption="Pavilion Studio · Sprung wooden flooring and acoustic treatment"
-            fig="Fig. 01"
-            cursor="Studio"
-          />
+      <section id="disciplines" className="site-section site-dark site-lines scroll-mt-16">
+        <div className="site-wrap grid items-start gap-14 lg:grid-cols-2 lg:gap-24">
+          <div className="lg:sticky lg:top-28">
+            <Figure
+              src="/assets/images/wellness-b.jpg"
+              alt="Pavilion Studio mirrored hall with mats and natural lighting"
+              caption="Pavilion Studio · Sprung wooden flooring and acoustic treatment"
+              fig="Fig. 01"
+              cursor="Studio"
+            />
+          </div>
           <div>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-[#040810]/15 bg-[#040810]/5 px-4 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#0a1520]">
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-[#c7a26a]/40 bg-[#c7a26a]/15 px-4 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#dfbc82]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c7a26a]" />
               01 · Movement Disciplines
             </div>
@@ -131,7 +133,7 @@ export default function StudioPage() {
       </section>
 
       {/* SECTION 2: Rate Card & Timetable */}
-      <section id="timetable" className="site-section site-deep site-lines scroll-mt-16">
+      <section id="timetable" className="site-section site-deep site-lines border-t border-[var(--gold-line)] scroll-mt-16">
         <div className="site-wrap">
           <SectionHead
             eyebrow="02 · Pricing & Master Schedule"
@@ -146,11 +148,6 @@ export default function StudioPage() {
           </div>
         </div>
       </section>
-
-      {/* SECTION 3: Studio Admission / Membership Form */}
-      <div id="membership" className="scroll-mt-16">
-        <UnifiedMembershipFormSection initialCategory="studio" />
-      </div>
 
       {/* Frequently Asked Questions */}
       <section className="site-section site-cream site-lines">
@@ -176,6 +173,11 @@ export default function StudioPage() {
         <MembershipJoinButton category="studio">Enrol now</MembershipJoinButton>
         <ArrowLink href={CLUB.phoneHref}>Or call {CLUB.phoneDisplay}</ArrowLink>
       </PageCta>
+
+      {/* Studio Admission / Membership Form (Right above Footer, matching Pickleball) */}
+      <div id="membership" className="scroll-mt-16">
+        <UnifiedMembershipFormSection initialCategory="studio" />
+      </div>
 
       <MembershipCheckoutModalContainer />
     </SitePage>
