@@ -102,12 +102,23 @@
       paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
       const video = $('.loader__video');
       if (video) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
+        const isAppleWebKit = /iP(hone|od|ad)/.test(navigator.userAgent) || /^((?!chrome|chromium|android|edg|opr).)*safari/i.test(navigator.userAgent);
+        if (isAppleWebKit && !video.currentSrc.includes('.mp4')) {
+          video.src = '/assets/video/monogram_tuned.mp4?v=2';
+        }
+        video.muted = true;
+        const playVid = () => {
+          if (video.paused && !video.ended) {
+            video.play().catch(() => {});
+          }
+        };
+        if (video.readyState >= 2) playVid();
+        else video.addEventListener('canplay', playVid, { once: true });
       }
       const n = { v: 0 }, cEl = $('.loader__count');
-      gsap.timeline()
-        .to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0)
+      const loaderTl = gsap.timeline();
+      if (paths.length) loaderTl.to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0);
+      loaderTl
         .to(n, { v: 100, duration: 3.2, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
         .to('.loader__line', { scaleX: 1, duration: 3.2, ease: 'power2.inOut' }, 0)
         .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.15')

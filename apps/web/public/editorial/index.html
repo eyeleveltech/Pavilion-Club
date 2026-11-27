@@ -103,9 +103,9 @@ h1,h2,h3,h4,p,figure,ul{margin:0}
 /* --- loader ----------------------------------------------------- */
 .loader{position:fixed;inset:0;z-index:1000;background:var(--midnight-deep);display:grid;place-items:center;animation:loaderFallback 0s 9s forwards}
 @keyframes loaderFallback{to{visibility:hidden}}
-.loader__wrap{position:relative;width:58px;height:94px;display:flex;align-items:center;justify-content:center}
+.loader__wrap{position:relative;width:64px;height:96px;display:flex;align-items:center;justify-content:center}
 .loader__wrap .loader__mono{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
-.loader__wrap .loader__video{position:absolute;width:44px;height:66px;object-fit:contain;z-index:1;pointer-events:none;background:transparent;mix-blend-mode:screen;-webkit-backface-visibility:hidden;transform:translateZ(0)}
+.loader__wrap .loader__video{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;background:transparent;mix-blend-mode:screen;-webkit-backface-visibility:hidden;transform:translateZ(0)}
 .loader__mono{width:58px;height:auto;fill:none;stroke:var(--gold);stroke-width:1.4;stroke-linecap:round}
 .loader__count{position:absolute;left:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--gold);font-variant-numeric:tabular-nums}
 .loader__word{position:absolute;right:var(--gutter);bottom:2.4rem;font-size:.66rem;letter-spacing:.34em;color:var(--ivory-45);text-transform:uppercase}
@@ -448,12 +448,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- loader -->
 <div class="loader" aria-hidden="true">
   <div class="loader__wrap">
-    <svg class="loader__mono" viewBox="0 0 64 104">
-      <rect x="2" y="2" width="60" height="100" rx="30" style="stroke-dasharray: 270; stroke-dashoffset: 270;"/>
-    </svg>
-    <video class="loader__video" muted playsinline preload="auto" style="background:transparent;mix-blend-mode:screen;-webkit-backface-visibility:hidden;transform:translateZ(0);">
-      <source src="/assets/video/monogram_cropped.mp4?v=2" type="video/mp4">
-      <source src="/assets/video/monogram_cropped.webm?v=2" type="video/webm">
+    <video class="loader__video" autoplay muted playsinline preload="auto" style="background:transparent;mix-blend-mode:screen;-webkit-backface-visibility:hidden;transform:translateZ(0);">
+      <source src="/assets/video/monogram_tuned.webm?v=2" type="video/webm">
+      <source src="/assets/video/monogram_tuned.mp4?v=2" type="video/mp4">
     </video>
   </div>
   <div class="loader__count">000</div>
@@ -904,15 +901,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       paths.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
       const video = $('.loader__video');
       if (video) {
+        const isAppleWebKit = /iP(hone|od|ad)/.test(navigator.userAgent) || /^((?!chrome|chromium|android|edg|opr).)*safari/i.test(navigator.userAgent);
+        if (isAppleWebKit && !video.currentSrc.includes('.mp4')) {
+          video.src = '/assets/video/monogram_tuned.mp4?v=2';
+        }
         video.muted = true;
-        video.currentTime = 0;
-        const playVid = () => { video.play().catch(() => {}); };
-        playVid();
-        video.addEventListener('canplay', playVid, { once: true });
+        const playVid = () => {
+          if (video.paused && !video.ended) {
+            video.play().catch(() => {});
+          }
+        };
+        if (video.readyState >= 2) playVid();
+        else video.addEventListener('canplay', playVid, { once: true });
       }
       const n = { v: 0 }, cEl = $('.loader__count');
-      gsap.timeline()
-        .to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0)
+      const loaderTl = gsap.timeline();
+      if (paths.length) loaderTl.to(paths, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', stagger: .12 }, 0);
+      loaderTl
         .to(n, { v: 100, duration: 3.2, ease: 'power2.inOut', onUpdate: () => cEl.textContent = String(Math.round(n.v)).padStart(3, '0') }, 0)
         .to('.loader__line', { scaleX: 1, duration: 3.2, ease: 'power2.inOut' }, 0)
         .to('.loader', { yPercent: -100, duration: 1.15, ease: 'power4.inOut' }, '+=.15')

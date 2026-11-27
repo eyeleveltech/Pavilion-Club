@@ -27,6 +27,7 @@ apps/web/out/
 *.mov
 *.mp4
 *.m4a.mp4
+!apps/web/public/assets/video/*.mp4
 
 # Reference timetable images in root
 /The Dance Studio Weekly Schedule.png
