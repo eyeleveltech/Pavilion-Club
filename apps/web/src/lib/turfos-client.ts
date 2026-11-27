@@ -462,8 +462,21 @@ export interface EnquiryInput {
   details?: Record<string, unknown> | undefined;
 }
 
-export async function submitEnquiry(input: EnquiryInput): Promise<{ ok: boolean; message: string }> {
-  return call<{ ok: boolean; message: string }>('/enquiries', {
+export interface SubmitEnquiryResponse {
+  ok: boolean;
+  enquiryId?: string | null | undefined;
+  createdAt?: string | undefined;
+  duplicateStatus?: 'active_pass' | 'pending_updated' | undefined;
+  reference?: string | undefined;
+  planTitle?: string | undefined;
+  sessionsRemaining?: number | undefined;
+  sessionsTotal?: number | undefined;
+  expiresAt?: string | null | undefined;
+  message: string;
+}
+
+export async function submitEnquiry(input: EnquiryInput): Promise<SubmitEnquiryResponse> {
+  return call<SubmitEnquiryResponse>('/enquiries', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -708,6 +721,7 @@ export function formatLongDate(iso: string, timeZone = 'Asia/Kolkata'): string {
 export interface PublicMemberPassResult {
   found: boolean;
   isApproved?: boolean;
+  passState?: 'active' | 'pending' | 'completed' | 'expired' | 'cancelled' | 'closed' | undefined;
   reference?: string;
   name?: string;
   phone?: string;
@@ -718,7 +732,9 @@ export interface PublicMemberPassResult {
   sessionsTotal?: number;
   sessionsUsed?: number;
   sessionsRemaining?: number;
+  expiresAt?: string | null | undefined;
   lastCheckIn?: string | null;
+  cancelReason?: string | null | undefined;
   createdDisplay?: string;
   paymentStatus?: string;
   message?: string;
@@ -726,8 +742,15 @@ export interface PublicMemberPassResult {
 
 export async function fetchLiveMemberPass(query: string): Promise<PublicMemberPassResult | null> {
   try {
-    return await call<PublicMemberPassResult>(`/pass?query=${encodeURIComponent(query)}`);
+    return await call<PublicMemberPassResult>(
+      `/pass?query=${encodeURIComponent(query)}&_t=${Date.now()}`,
+      { cache: 'no-store' },
+    );
   } catch {
     return null;
   }
+}
+
+export function passStreamUrl(query: string): string {
+  return `${base}/api/public/v1/pass/stream?query=${encodeURIComponent(query)}`;
 }

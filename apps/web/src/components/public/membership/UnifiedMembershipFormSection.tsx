@@ -113,6 +113,9 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
     phone: string;
     email: string;
     planTitle: string;
+    duplicateStatus?: 'active_pass' | 'pending_updated' | undefined;
+    sessionsRemaining?: number | undefined;
+    sessionsTotal?: number | undefined;
   } | null>(null);
   const [memberPass, setMemberPass] = useState<MemberPass | null>(null);
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
@@ -281,17 +284,10 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
         ? 8
         : 12;
 
-    setSubmittedLead({
-      reference: ref,
-      name: cleanName,
-      phone: cleanPhone,
-      email: cleanEmail,
-      planTitle,
-    });
-
-    // 1. Submit to Central Turf-OS Enquiries API (Hostinger deploys static export; no local /api routes)
+    // 1. Submit to Central Turf-OS Enquiries API (with duplicate & active-pass detection)
+    let apiRes: Awaited<ReturnType<typeof submitEnquiry>> | null = null;
     try {
-      await submitEnquiry({
+      apiRes = await submitEnquiry({
         type: category === 'pickleball' ? 'membership' : category === 'academy' ? 'academy' : 'studio',
         name: cleanName,
         phone: cleanPhone,
@@ -311,34 +307,50 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
       console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
     }
 
-    // 2. Add to Local Front Desk Console Cache (skipRemoteSync avoids duplicate second DB insert)
-    if (category === 'pickleball') {
-      addPickleballEnquiry({
-        reference: ref,
-        name: cleanName,
-        phone: cleanPhone,
-        email: cleanEmail,
-        plan: 'Inaugural Shared-Play Membership (12 Hours)',
-        sessions: inferredSessions,
-        amountPaise: MEMBERSHIP_PRICE_PAISE,
-        paymentId: 'PAY_AT_DESK',
-        status: 'Pay at Desk',
-        notes,
-        skipRemoteSync: true,
-      });
-    } else if (category === 'studio') {
-      addStudioEnquiry({
-        reference: ref,
-        name: cleanName,
-        phone: cleanPhone,
-        email: cleanEmail,
-        category: studioProgramme,
-        cohort: studioCohort,
-        day: studioBatch,
-        timeSlot: studioBatch,
-        notes,
-        skipRemoteSync: true,
-      });
+    const resolvedRef = apiRes?.reference || ref;
+    const resolvedPlan = apiRes?.planTitle || planTitle;
+
+    setSubmittedLead({
+      reference: resolvedRef,
+      name: cleanName,
+      phone: cleanPhone,
+      email: cleanEmail,
+      planTitle: resolvedPlan,
+      duplicateStatus: apiRes?.duplicateStatus,
+      sessionsRemaining: apiRes?.sessionsRemaining,
+      sessionsTotal: apiRes?.sessionsTotal,
+    });
+
+    // 2. Sync to local cache ONLY when not blocked as an existing active pass
+    if (apiRes?.duplicateStatus !== 'active_pass') {
+      if (category === 'pickleball') {
+        addPickleballEnquiry({
+          reference: resolvedRef,
+          name: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          plan: 'Inaugural Shared-Play Membership (12 Hours)',
+          sessions: inferredSessions,
+          amountPaise: MEMBERSHIP_PRICE_PAISE,
+          paymentId: 'PAY_AT_DESK',
+          status: 'Pay at Desk',
+          notes,
+          skipRemoteSync: true,
+        });
+      } else if (category === 'studio') {
+        addStudioEnquiry({
+          reference: resolvedRef,
+          name: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          category: studioProgramme,
+          cohort: studioCohort,
+          day: studioBatch,
+          timeSlot: studioBatch,
+          notes,
+          skipRemoteSync: true,
+        });
+      }
     }
 
     setIsSubmitting(false);
@@ -694,23 +706,41 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
           ) : (
             /* Application Received Screen (Pending Front Desk Approval) */
             <div className="text-center py-6 animate-step-in space-y-6">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-sm">
-                ⏳ Application Submitted · Pending Desk Approval
-              </span>
+              {submittedLead.duplicateStatus === 'active_pass' ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-300 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-900 shadow-sm">
+                  ✓ Active Pass Already Registered · No Duplicate Created
+                </span>
+              ) : submittedLead.duplicateStatus === 'pending_updated' ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-sm">
+                  ↺ Existing Application Updated at Desk
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-sm">
+                  ⏳ Application Submitted · Pending Desk Approval
+                </span>
+              )}
 
               <h3 className="font-serif text-2xl sm:text-3xl font-medium text-navy">
-                Thank You, {submittedLead.name}
+                {submittedLead.duplicateStatus === 'active_pass'
+                  ? `Welcome Back, ${submittedLead.name}`
+                  : submittedLead.duplicateStatus === 'pending_updated'
+                    ? `Application Refreshed, ${submittedLead.name}`
+                    : `Thank You, ${submittedLead.name}`}
               </h3>
 
               <p className="text-xs sm:text-sm text-ink-soft max-w-md mx-auto leading-relaxed">
-                Your application has been received and dispatched to our Front Desk team. Our desk staff will review your details and contact you to confirm onboarding.
+                {submittedLead.duplicateStatus === 'active_pass'
+                  ? 'This mobile number already has an active membership pass with remaining sessions. Retrieve your Digital Pass card directly below without creating a duplicate application.'
+                  : submittedLead.duplicateStatus === 'pending_updated'
+                    ? 'You already have a pending application with our Front Desk. We updated your preferences on the same reference instead of creating a duplicate request.'
+                    : 'Your application has been received and dispatched to our Front Desk team. Our desk staff will review your details and contact you to confirm onboarding.'}
               </p>
 
               {/* Status Note Box */}
               <div className="max-w-md mx-auto rounded-xl border border-[rgba(15,30,46,0.15)] bg-white/80 p-5 text-left space-y-3 shadow-sm">
                 <div className="flex items-center justify-between border-b border-[rgba(15,30,46,0.1)] pb-2.5">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-ink-soft">
-                    Application Reference
+                    {submittedLead.duplicateStatus === 'active_pass' ? 'Active Pass Reference' : 'Application Reference'}
                   </span>
                   <span className="font-mono text-xs font-bold text-navy bg-gold/15 px-2 py-0.5 rounded border border-gold/30">
                     {submittedLead.reference}
@@ -724,13 +754,23 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
 
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-ink-soft">Digital Card Status:</span>
-                  <span className="font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-                    Unlocks upon Front Desk Approval
-                  </span>
+                  {submittedLead.duplicateStatus === 'active_pass' ? (
+                    <span className="font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                      Active · {submittedLead.sessionsRemaining ?? 12} / {submittedLead.sessionsTotal ?? 12} Sessions Left
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                      Unlocks upon Front Desk Approval
+                    </span>
+                  )}
                 </div>
 
                 <div className="border-t border-[rgba(15,30,46,0.1)] pt-2.5 text-[11px] text-ink-soft leading-relaxed">
-                  💡 <strong>What happens next?</strong> Our Front Desk team will call you at <strong>+91 {submittedLead.phone}</strong>. Once verified and accepted at the desk, your Official Digital Member Card with 12-Hour Quota will be activated!
+                  {submittedLead.duplicateStatus === 'active_pass' ? (
+                    <>💡 Click <strong>View Digital Pass</strong> below to inspect your 3D Metal Card and remaining play hours.</>
+                  ) : (
+                    <>💡 <strong>What happens next?</strong> Our Front Desk team will call you at <strong>+91 {submittedLead.phone}</strong>. Once verified and accepted at the desk, your Official Digital Member Card will be activated!</>
+                  )}
                 </div>
               </div>
 
@@ -738,9 +778,17 @@ export function UnifiedMembershipFormSection({ initialCategory = 'pickleball' }:
               <div className="flex flex-wrap justify-center items-center gap-4 pt-2">
                 <Link
                   href={`/pass?phone=${submittedLead.phone}`}
-                  className="px-4 py-2.5 rounded border border-navy/30 bg-white hover:bg-slate-50 text-navy text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm"
+                  className={`px-4 py-2.5 rounded text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm ${
+                    submittedLead.duplicateStatus === 'active_pass'
+                      ? 'bg-[#0F1E2E] hover:bg-[#182C42] text-[#C7A26A] border border-[#0F1E2E]'
+                      : 'border border-navy/30 bg-white hover:bg-slate-50 text-navy'
+                  }`}
                 >
-                  <span>🪪 Check Pass Status Online</span>
+                  <span>
+                    {submittedLead.duplicateStatus === 'active_pass'
+                      ? '🪪 View Digital Pass'
+                      : '🪪 Check Pass Status Online'}
+                  </span>
                 </Link>
 
                 <button

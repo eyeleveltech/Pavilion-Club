@@ -30,6 +30,7 @@ interface SubmissionResult {
   subject: string;
   whatsappMessage: string;
   emailMessage: string;
+  duplicateStatus?: 'active_pass' | 'pending_updated' | undefined;
 }
 
 /**
@@ -139,29 +140,35 @@ export function EnquiryForm({
       },
     };
 
-    // 1. Auto-save lead to Central Turf-OS DB
+    // 1. Auto-save lead to Central Turf-OS DB (with duplicate check)
+    let apiRes: Awaited<ReturnType<typeof submitEnquiry>> | null = null;
     try {
-      await submitEnquiry(payload);
+      apiRes = await submitEnquiry(payload);
     } catch (err) {
       console.warn('Central DB auto-sync notice:', err);
     }
 
+    const finalRef = apiRes?.reference || reference;
+
     // 2. Backup to local storage for offline resiliency
-    try {
-      const existing = JSON.parse(localStorage.getItem('pavilion_general_enquiries_v1') || '[]');
-      existing.unshift({ ...payload, reference, id: `enq-${Date.now()}` });
-      localStorage.setItem('pavilion_general_enquiries_v1', JSON.stringify(existing.slice(0, 100)));
-    } catch {}
+    if (apiRes?.duplicateStatus !== 'active_pass') {
+      try {
+        const existing = JSON.parse(localStorage.getItem('pavilion_general_enquiries_v1') || '[]');
+        existing.unshift({ ...payload, reference: finalRef, id: `enq-${Date.now()}` });
+        localStorage.setItem('pavilion_general_enquiries_v1', JSON.stringify(existing.slice(0, 100)));
+      } catch {}
+    }
 
     setIsSubmitting(false);
     setSubmissionResult({
-      reference,
+      reference: finalRef,
       name: composed.name,
       phone: composed.phone,
       email: composed.email,
       subject,
-      whatsappMessage: `${composed.message}\nReference: ${reference}`,
-      emailMessage: `${composed.message}\nReference: ${reference}`,
+      whatsappMessage: `${composed.message}\nReference: ${finalRef}`,
+      emailMessage: `${composed.message}\nReference: ${finalRef}`,
+      duplicateStatus: apiRes?.duplicateStatus,
     });
   }
 
@@ -178,7 +185,11 @@ export function EnquiryForm({
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c7a26a]/30 bg-[#c7a26a]/10 px-3 py-0.5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#dfbc82]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c7a26a] animate-pulse" />
-              Enquiry Saved at Front Desk
+              {submissionResult.duplicateStatus === 'active_pass'
+                ? 'Active Pass Already Registered'
+                : submissionResult.duplicateStatus === 'pending_updated'
+                  ? 'Existing Enquiry Updated'
+                  : 'Enquiry Saved at Front Desk'}
             </div>
             <h3 className="mt-2 font-serif text-2xl text-ivory">
               Thank you, {submissionResult.name}!

@@ -1,21 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  findMemberPassByQuery,
-  type MemberLookupResult,
-} from '@/lib/enquiry-store';
-import {
-  LuxuryMetalPassCard,
   EditorialQuotaSection,
-  type MemberPass,
+  LuxuryMetalPassCard,
 } from '@/components/public/membership/MembershipCheckoutModal';
 import {
   PrintRegistrationSheet,
   buildPrintableMemberData,
   type PrintableRegistrationData,
 } from '@/components/public/studio/PrintRegistrationSheet';
-import { CLUB, whatsappUrl } from '@/lib/club';
+import { whatsappUrl } from '@/lib/club';
+import { toMemberPassFromLookup, useLiveMemberPass } from '@/lib/use-live-member-pass';
 
 export interface MemberPassLookupModalProps {
   isOpen: boolean;
@@ -28,55 +24,24 @@ export function MemberPassLookupModal({
   onClose,
   initialQuery = '',
 }: MemberPassLookupModalProps) {
-  const [query, setQuery] = useState(initialQuery);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [result, setResult] = useState<MemberLookupResult | null>(null);
+  const { query, setQuery, hasSearched, result, performSearch, reset } =
+    useLiveMemberPass(isOpen ? initialQuery : '');
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
 
   useEffect(() => {
-    if (initialQuery) {
-      setQuery(initialQuery);
-      performSearch(initialQuery);
-    }
-  }, [initialQuery]);
-
-  useEffect(() => {
     if (!isOpen) {
-      setHasSearched(false);
-      setResult(null);
+      reset();
     }
-  }, [isOpen]);
-
-  const performSearch = (q: string) => {
-    const res = findMemberPassByQuery(q);
-    setResult(res);
-    setHasSearched(true);
-  };
+  }, [isOpen, reset]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch(query);
+    void performSearch(query);
   };
 
   if (!isOpen) return null;
 
-  // Convert lookup result into MemberPass structure for 3D card render
-  const memberPass: MemberPass | null = result
-    ? {
-        reference: result.reference,
-        name: result.name,
-        phone: result.phone,
-        email: result.email,
-        category: result.category,
-        planTitle: result.planTitle,
-        validFrom: result.createdDisplay,
-        validUntil: '30 Days from Activation',
-        totalSessions: result.sessionsRemaining,
-        amountPaise: 236000,
-        paymentId: result.isApproved ? 'FRONT_DESK_VERIFIED' : 'PENDING_DESK',
-      }
-    : null;
-
+  const memberPass = result ? toMemberPassFromLookup(result) : null;
   const printableData: PrintableRegistrationData | null = result
     ? buildPrintableMemberData(result)
     : null;
@@ -129,16 +94,13 @@ export function MemberPassLookupModal({
           <div className="animate-step-in pt-2">
             {result ? (
               result.isApproved ? (
-                /* ======================================================== */
-                /* CASE 1: APPROVED & ACTIVE MEMBER                         */
-                /* ======================================================== */
+                /* CASE 1: APPROVED & ACTIVE MEMBER */
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1 text-xs font-bold text-emerald-400">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Active Member · Card Issued</span>
+                    <span>Active Member · Live Sync</span>
                   </div>
 
-                  {/* 3D Titanium Metal Pass Card */}
                   {memberPass && (
                     <div className="mt-4">
                       <LuxuryMetalPassCard memberPass={memberPass} surface="dark" />
@@ -157,10 +119,63 @@ export function MemberPassLookupModal({
                     surface="dark"
                   />
                 </div>
+              ) : result.passState === 'cancelled' ||
+                result.passState === 'completed' ||
+                result.passState === 'expired' ||
+                result.passState === 'closed' ? (
+                /* CASE 2: INACTIVE / COMPLETED / EXPIRED / CANCELLED */
+                <div className="rounded-xl border border-white/15 bg-[#060c14] p-5 text-left space-y-3">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <span
+                      className={`text-xs font-bold uppercase tracking-wider ${
+                        result.passState === 'cancelled' ? 'text-rose-300' : 'text-amber-300'
+                      }`}
+                    >
+                      {result.passState === 'cancelled'
+                        ? '✕ Pass Removed / Cancelled'
+                        : result.passState === 'completed'
+                          ? '✓ Sessions Completed (0 Left)'
+                          : result.passState === 'closed'
+                            ? 'Application Closed'
+                            : '⏳ Pass Validity Expired'}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-white bg-white/10 px-2 py-0.5 rounded">
+                      {result.reference}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-white/85 leading-relaxed">
+                    <strong>{result.name}</strong> — {result.status} ({result.planTitle}).
+                  </p>
+
+                  {result.cancelReason && (
+                    <p className="text-[11px] text-rose-300 bg-rose-950/40 border border-rose-500/20 rounded px-2.5 py-1.5">
+                      Desk Note: {result.cancelReason}
+                    </p>
+                  )}
+
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+                    <a
+                      href="#enquire"
+                      onClick={onClose}
+                      className="text-xs font-semibold text-[#c7a26a] underline hover:text-[#e5c378]"
+                    >
+                      Renew / Re-Apply →
+                    </a>
+                    <a
+                      href={whatsappUrl(
+                        `Hi Pavilion Front Desk! Please help me check/renew my pass (${result.reference}).`
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#c7a26a] text-black text-xs font-bold uppercase tracking-wider"
+                    >
+                      WhatsApp Desk
+                    </a>
+                  </div>
+                </div>
               ) : (
-                /* ======================================================== */
-                /* CASE 2: PENDING FRONT DESK APPROVAL                      */
-                /* ======================================================== */
+                /* CASE 3: PENDING FRONT DESK APPROVAL */
                 <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-5 text-left space-y-3">
                   <div className="flex items-center justify-between border-b border-amber-500/20 pb-2.5">
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider">
@@ -195,9 +210,7 @@ export function MemberPassLookupModal({
                 </div>
               )
             ) : (
-              /* ======================================================== */
-              /* CASE 3: NO RECORD FOUND                                  */
-              /* ======================================================== */
+              /* CASE 4: NO RECORD FOUND */
               <div className="rounded-xl border border-white/10 bg-[#060c14] p-5 text-center space-y-2.5">
                 <p className="text-xs font-semibold text-rose-300">
                   No membership application found for &quot;{query}&quot;

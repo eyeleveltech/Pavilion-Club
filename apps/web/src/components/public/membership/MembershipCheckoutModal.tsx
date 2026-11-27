@@ -713,6 +713,10 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
   // Submission & Pass State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [memberPass, setMemberPass] = useState<MemberPass | null>(null);
+  const [duplicateInfo, setDuplicateInfo] = useState<{
+    status: 'active_pass' | 'pending_updated';
+    sessionsRemaining?: number | undefined;
+  } | null>(null);
   const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
 
   // Load existing pass from storage if any
@@ -833,30 +837,10 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
 
     const sessionQuota = category === 'studio' && studioProgramme.toLowerCase().includes('box') ? 8 : 12;
 
-    const newPass: MemberPass = {
-      reference: ref,
-      name: cleanName,
-      phone: cleanPhone,
-      email: cleanEmail,
-      category,
-      planTitle,
-      validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      validUntil: validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      totalSessions: sessionQuota,
-      amountPaise: category === 'pickleball' ? MEMBERSHIP_PRICE_PAISE : 0,
-      paymentId: 'PAY_AT_DESK',
-      studioProgramme: category === 'studio' ? studioProgramme : undefined,
-      studioCohort: category === 'studio' ? studioCohort : undefined,
-    };
-
-    setMemberPass(newPass);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newPass));
-    }
-
-    // 1. Add to Central Turf-OS Enquiries API (Hostinger deploys static export; no local /api routes)
+    // 1. Submit to Central Turf-OS Enquiries API (with duplicate & active-pass protection)
+    let apiRes: Awaited<ReturnType<typeof submitEnquiry>> | null = null;
     try {
-      await submitEnquiry({
+      apiRes = await submitEnquiry({
         type: category === 'pickleball' ? 'membership' : 'studio',
         name: cleanName,
         phone: cleanPhone,
@@ -874,38 +858,73 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
       console.error('[TURF-OS ENQUIRY SUBMISSION FAILED]:', err);
     }
 
-    // 2. Add to Local Front Desk Console Cache (skipRemoteSync avoids duplicate second DB insert)
-    if (category === 'pickleball') {
-      addPickleballEnquiry({
-        reference: ref,
-        name: cleanName,
-        phone: cleanPhone,
-        email: cleanEmail,
-        plan: 'Inaugural Shared-Play Membership (12 Hours)',
-        sessions: sessionQuota,
-        amountPaise: MEMBERSHIP_PRICE_PAISE,
-        paymentId: 'PAY_AT_DESK',
-        status: 'Pay at Desk',
-        notes,
-        skipRemoteSync: true,
-      });
-    } else {
-      addStudioEnquiry({
-        reference: ref,
-        name: cleanName,
-        phone: cleanPhone,
-        email: cleanEmail,
-        category: studioProgramme,
-        cohort: studioCohort,
-        day: studioBatch,
-        timeSlot: studioBatch,
-        notes,
-        skipRemoteSync: true,
-      });
+    const resolvedRef = apiRes?.reference || ref;
+    const resolvedPlan = apiRes?.planTitle || planTitle;
+    const resolvedTotal = apiRes?.sessionsTotal || sessionQuota;
+    setDuplicateInfo(
+      apiRes?.duplicateStatus
+        ? { status: apiRes.duplicateStatus, sessionsRemaining: apiRes.sessionsRemaining }
+        : null,
+    );
+
+    const newPass: MemberPass = {
+      reference: resolvedRef,
+      name: cleanName,
+      phone: cleanPhone,
+      email: cleanEmail,
+      category,
+      planTitle: resolvedPlan,
+      validFrom: now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      validUntil:
+        apiRes?.expiresAt ||
+        validUntilDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      totalSessions: resolvedTotal,
+      amountPaise: category === 'pickleball' ? MEMBERSHIP_PRICE_PAISE : 0,
+      paymentId: apiRes?.duplicateStatus === 'active_pass' ? 'FRONT_DESK_VERIFIED' : 'PAY_AT_DESK',
+      studioProgramme: category === 'studio' ? studioProgramme : undefined,
+      studioCohort: category === 'studio' ? studioCohort : undefined,
+    };
+
+    setMemberPass(newPass);
+
+    if (apiRes?.duplicateStatus !== 'active_pass') {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newPass));
+      }
+
+      // 2. Add to Local Front Desk Console Cache (skipRemoteSync avoids duplicate second DB insert)
+      if (category === 'pickleball') {
+        addPickleballEnquiry({
+          reference: resolvedRef,
+          name: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          plan: 'Inaugural Shared-Play Membership (12 Hours)',
+          sessions: sessionQuota,
+          amountPaise: MEMBERSHIP_PRICE_PAISE,
+          paymentId: 'PAY_AT_DESK',
+          status: 'Pay at Desk',
+          notes,
+          skipRemoteSync: true,
+        });
+      } else {
+        addStudioEnquiry({
+          reference: resolvedRef,
+          name: cleanName,
+          phone: cleanPhone,
+          email: cleanEmail,
+          category: studioProgramme,
+          cohort: studioCohort,
+          day: studioBatch,
+          timeSlot: studioBatch,
+          notes,
+          skipRemoteSync: true,
+        });
+      }
     }
 
     setIsSubmitting(false);
-    // Straight to next step: Digital Pass issued!
+    // Straight to next step: Digital Pass or Duplicate status!
     setStep('success');
   };
 
@@ -1419,16 +1438,32 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
             {/* ======================================================== */}
             {step === 'success' && memberPass && (
               <div className="animate-step-in text-center space-y-4 py-2">
-                {/* Header Title with Celebration Badge */}
+                {/* Header Title */}
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm">
-                    ⏳ Application Submitted · Pending Desk Approval
-                  </span>
+                  {duplicateInfo?.status === 'active_pass' ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300 shadow-sm">
+                      ✓ Active Pass Already Registered
+                    </span>
+                  ) : duplicateInfo?.status === 'pending_updated' ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm">
+                      ↺ Existing Application Updated
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm">
+                      ⏳ Application Submitted · Pending Desk Approval
+                    </span>
+                  )}
                   <h2 className="font-serif text-2xl font-semibold mt-2 text-[#fbf8f1]">
-                    Thank You, {memberPass.name}
+                    {duplicateInfo?.status === 'active_pass'
+                      ? `Welcome Back, ${memberPass.name}`
+                      : `Thank You, ${memberPass.name}`}
                   </h2>
                   <p className="text-xs text-white/70 mt-1 max-w-sm mx-auto">
-                    Your application has been received and forwarded to our Front Desk team.
+                    {duplicateInfo?.status === 'active_pass'
+                      ? 'You already hold an active membership pass with remaining sessions.'
+                      : duplicateInfo?.status === 'pending_updated'
+                        ? 'Your existing front desk application has been refreshed without creating a duplicate.'
+                        : 'Your application has been received and forwarded to our Front Desk team.'}
                   </p>
                 </div>
 
@@ -1446,20 +1481,39 @@ export function MembershipCheckoutModal({ isOpen, onClose }: MembershipCheckoutM
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/60">Digital Card Status:</span>
-                    <span className="font-semibold text-amber-300 bg-amber-950/50 border border-amber-800/60 px-2 py-0.5 rounded">
-                      Unlocks upon Desk Approval
-                    </span>
+                    {duplicateInfo?.status === 'active_pass' ? (
+                      <span className="font-semibold text-emerald-300 bg-emerald-950/50 border border-emerald-700/60 px-2 py-0.5 rounded">
+                        Active · {duplicateInfo.sessionsRemaining ?? memberPass.totalSessions} / {memberPass.totalSessions} Left
+                      </span>
+                    ) : (
+                      <span className="font-semibold text-amber-300 bg-amber-950/50 border border-amber-800/60 px-2 py-0.5 rounded">
+                        Unlocks upon Desk Approval
+                      </span>
+                    )}
                   </div>
                   <p className="text-[11px] text-white/60 pt-1 border-t border-white/10 leading-relaxed">
-                    💡 Our Front Desk team will call you at <strong>+91 {memberPass.phone}</strong>. Once approved &amp; accepted at the club desk, your Official Digital Member Card with 12-Hour Quota will be activated.
+                    {duplicateInfo?.status === 'active_pass' ? (
+                      <>💡 Open your live Digital Member Pass below to view your 3D Metal Card &amp; remaining quota.</>
+                    ) : (
+                      <>💡 Our Front Desk team will call you at <strong>+91 {memberPass.phone}</strong>. Once approved &amp; accepted at the club desk, your Official Digital Member Card will be activated.</>
+                    )}
                   </p>
                 </div>
 
                 {/* Quick Actions */}
                 <div className="flex flex-wrap justify-center gap-3 pt-2">
+                  {duplicateInfo?.status === 'active_pass' && (
+                    <a
+                      href={`/pass/?phone=${memberPass.phone}`}
+                      onClick={onClose}
+                      className="px-4 py-2 rounded-lg bg-[#c7a26a] hover:bg-[#d8b680] text-[#08111d] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                    >
+                      🪪 View Digital Pass →
+                    </a>
+                  )}
                   <a
                     href={whatsappUrl(
-                      `Hi Pavilion Club! I have applied for membership (Ref: ${memberPass.reference}). Could you please verify and accept my pass?`
+                      `Hi Pavilion Club! Checking my membership pass (Ref: ${memberPass.reference}).`
                     )}
                     target="_blank"
                     rel="noopener noreferrer"

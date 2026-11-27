@@ -450,6 +450,7 @@ export function deleteEnquiry(id: string, type: 'pickleball' | 'studio'): void {
 export interface MemberLookupResult {
   found: boolean;
   isApproved: boolean;
+  passState?: 'active' | 'pending' | 'completed' | 'expired' | 'cancelled' | 'closed' | undefined;
   reference: string;
   name: string;
   phone: string;
@@ -460,7 +461,9 @@ export interface MemberLookupResult {
   sessionsTotal: number;
   sessionsUsed: number;
   sessionsRemaining: number;
+  expiresAt?: string | null | undefined;
   lastCheckIn?: string | undefined;
+  cancelReason?: string | null | undefined;
   createdDisplay: string;
   paymentStatus: string;
 }
